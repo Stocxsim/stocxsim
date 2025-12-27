@@ -1,0 +1,88 @@
+*{
+     padding: 0;
+     margin: 0;
+     font-family: Verdana;
+}
+
+#logo{
+     height: 50px;
+     margin-bottom: 5px;
+}
+
+#Stockxsim{
+     height: 40px;
+     margin-top: 5px;
+}
+
+#home_nav{
+     background-color:rgb(255, 255, 255);
+}
+
+.nav_ul{
+     font-size: large;
+}
+
+.nav_list{
+     margin: 5px 5px;
+}
+
+.nav_list :hover{
+     color: rgb(32, 31, 31);
+}
+
+
+.nav_signup{
+     border: 1px solid #04b488;
+     border-radius: 8px;
+     background-color: #04b488;
+     margin-top: 6px;
+     margin-bottom: 16px;
+     box-sizing: border-box;
+     
+}
+
+.main_screen{
+     text-align: center;
+     background-color: rgb(255, 255, 255);
+     /* height: 90vh; */
+     width: 100%;
+     padding-top: 5%;
+}
+
+.main_screen h1{
+     color: #44475b;
+     font-size: clamp(35px, 5vw, 70px);
+     
+}
+.main_screen h2{
+     color: rgb(124, 126, 140); 
+     color-scheme: light; 
+     display: block; 
+     font-weight: 535;
+     font-size: clamp(14px, 5vw, 28px);
+     margin-top: 10px;
+}
+.main_screen button{
+     margin-top: 20px;
+     background-color: #04b488;
+     border: none;
+     color: white;
+     padding: 15px 32px;
+     text-align: center;
+     display: inline-block;
+     font-size: 16px;
+     border-radius: 8px;
+     cursor: pointer;
+}
+
+.main_screen button:hover, .nav_signup:hover{
+     background-color: #039f76;
+}
+
+
+.about_section{
+     margin: 100px 40px;
+     padding: 50px 0px;
+     text-align: left;
+     line-height: 40px;
+}

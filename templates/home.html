@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="home.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg " id="home_nav">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="/resources/logo.png" alt="logo" class="me-1 rounded" id="logo">
+                <span class="fw-bold" id="Stockxsim">Stocxsim</span>
+            </a>
+
+            <!-- Toggler/collapsibe Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto nav_ul gap-4">
+                    <li class="nav-item nav_list">
+                        <a class="nav-link nav_list_link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item nav_list">
+                        <a class="nav-link nav_list_link" href="#About">About Us</a>
+                    </li> 
+                    <li class="nav-item nav_list">
+                        <a class="nav-link nav_list_link" href="#">Contact</a>
+                    </li>
+                    <li class="nav-item nav_signup" style="color: white;">
+                        <a class="btn" href="#" style="color: white; font-size: 15px; ">Sign up</a>
+                    </li>   
+                        
+                </ul>
+            </div> 
+        </div>
+    </nav>
+
+
+    <!-- Main text of the screen -->
+    <div class="main_screen">
+        <h1 >Trade Without Fear.</h1>
+        <h2 >Learn. Trade. Grow.</h2>
+        <button >
+            Get Started
+        </button>
+    </div>
+    
+    <!-- Main img of the screen -->
+    <div class="container mt-5">
+        <div style="position: relative; width: 100%; margin: auto;">
+            <img src="/resources/hero.png" 
+                alt="Hero Background" 
+                class="img-fluid"
+                style="width: 100%; height: auto; display: block;">
+
+            <img src="/resources/hero2.png" 
+                alt="Hero Overlay" 
+                style="position: absolute; top: 90%; left: 36%; width: 30%; height: auto; z-index: 2;">
+            
+        </div>
+    </div>
+
+    <!-- About Us Section -->
+<section class="py-5 bg-light" id="about">
+    <div class="container py-4">
+        <div class="row g-5 align-items-center">
+            
+            <div class="col-lg-6">
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 mb-3">
+                    Our Mission
+                </span>
+                <h2 class="display-6 fw-bold text-dark mb-4">
+                    Learning Before <span class="text-success">Earning.</span>
+                </h2>
+                <p class="lead text-secondary mb-4">
+                    At Stocxsim, we are driven by a single mission: to democratize financial literacy in India. We believe the stock market shouldn't be a place where beginners pay a heavy price just to learn the basics.
+                </p>
+                <p class="text-secondary mb-4">
+                    We have built a <strong>safe bridge</strong> between theory and reality. Stocxsim is not just a simulator; it is a playground designed to build your confidence, helping you transition from a curious beginner to a calculated trader without risking your hard-earned savings.
+                </p>
+                
+                <div class="d-flex align-items-center mt-4">
+                    <div class="border-start border-4 border-success ps-3">
+                        <p class="fst-italic text-muted mb-0">"Real Data. Virtual Money. Zero Risk."</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 bg-white rounded-4 shadow-sm border">
+                    <h3 class="fw-bold mb-4">Why Choose Stocxsim?</h3>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-graph-up-arrow fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="fw-bold mb-1">Live Market Ecosystem</h5>
+                            <p class="text-muted small mb-0">Don't practice on old data. Experience actual market volatility with real-time Nifty & Stock movements.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-shield-check fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="fw-bold mb-1">Zero-Loss Environment</h5>
+                            <p class="text-muted small mb-0">Experience the thrill of trading and pressure of decision-making, but with absolutely zero financial stress.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-lightbulb fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="fw-bold mb-1">Strategy Validation</h5>
+                            <p class="text-muted small mb-0">Test your technical analysis and strategies here first to see if they work before deploying real capital.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-people fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="fw-bold mb-1">Built for Growth</h5>
+                            <p class="text-muted small mb-0">Whether you are taking your first trade or refining an advanced setup, our platform adapts to you.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>
