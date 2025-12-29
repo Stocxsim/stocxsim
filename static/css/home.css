@@ -142,3 +142,8 @@
 .about_section p {
      font-size: clamp(12px, 3vw, 16px);
 }
+
+.mails{
+     text-decoration: none;
+     color: #2EA98C;
+}
