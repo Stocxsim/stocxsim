@@ -1,0 +1,80 @@
+* {
+     padding: 0;
+     margin: 0;
+     font-family: Verdana;
+}
+
+#logo {
+     height: 50px;
+     margin-bottom: 5px;
+}
+
+#Stockxsim {
+     height: 40px;
+     margin-top: 5px;
+}
+
+.dashboard_nav {
+     color: black;
+}
+
+.dashboard_nav:hover {
+     color: #04b488;
+     text-decoration: underline;
+}
+
+.navbar-nav {
+     flex-direction: row !important;
+}
+
+.navbar-nav .nav-link {
+     white-space: nowrap;
+     /* prevents breaking into 2 lines */
+}
+
+.search-box {
+     max-width: 260px;
+}
+
+@media (min-width: 992px) {
+     .search-box {
+          max-width: 340px;
+     }
+}
+
+.ticker-item {
+     font-size: small;
+     padding: 8px;
+}
+
+.ticker-item:hover {
+     color: #04b488;
+     cursor: pointer;
+     background-color: #f0f0f0;
+     border-radius: 10px;
+}
+
+
+
+.desktop_layout {
+     display: grid;
+     grid-template-columns: 3fr 1fr;
+     gap: 24px;
+}
+
+.main_content {
+     background: pink;
+     height: 100px;
+}
+
+.aside_content {
+     /* background: lightblue; */
+     height: 100px;
+}
+
+
+/* @media (max-width: 576px){
+  .nav .nav-link{
+    font-size: 0.9rem;
+  }
+} */
