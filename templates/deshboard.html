@@ -31,7 +31,7 @@
                </div>
                <div class="d-flex w-100 align-items-center mt-2">
                     <div class="mt-2" id="navMenu">
-                         <ul class="navbar-nav d-flex gap-md-4 gap-2 flex-row">
+                         <ul class="navbar-nav d-flex gap-4 flex-row">
                               <li class="nav-item"><a class="nav-link dashboard_nav" href="#">Explore</a></li>
                               <li class="nav-item"><a class="nav-link dashboard_nav" href="#">Holdings</a></li>
                               <li class="nav-item"><a class="nav-link dashboard_nav" href="#">Orders</a></li>
@@ -55,14 +55,111 @@
      </div>
 
      <section>
-          <div class="desktop_layout d-none d-lg-grid">
-               <main class="main_content">
+          <div class="container my-4">
+               <div class="row">
+                    <!-- LEFT MAIN CONTENT -->
+                    <main class="col-lg-8 col-12 mb-3 p-4">
+                         <table class="table table-hover align-middle movers-table">
+                              <thead>
+                                   <tr class="text-muted small">
+                                        <th class="text-muted">Company</th>
+                                        <th class="text-end text-muted">Market price (1D)</th>
+                                        <th class="text-end text-muted">Volume</th>
+                                   </tr>
+                              </thead>
 
-               </main>
+                              <tbody>
+                                   <tr>
+                                        <td>
+                                             <div class="d-flex align-items-center">
+                                                  <!-- <img src="/static/resources/logo.png" width="28" class="me-2 rounded"> -->
+                                                  Jindal Steel
+                                             </div>
+                                        </td>
+                                        <td class="text-end">
+                                             ₹1,021.30<br>
+                                             <span class="text-success small">30.80 (3.11%)</span>
+                                        </td>
+                                        <td class="text-end text-muted">20,97,101</td>
+                                   </tr>
 
-               <aside class="aside_content">
-                    <h2 style="font-size: larger;" class="m-2">Your investment</h2>
-               </aside>
+                                   <tr>
+                                        <td>
+                                             <div class="d-flex align-items-center">
+                                                  <!-- <img src="/static/resources/logo.png" width="28" class="me-2 rounded"> -->
+                                                  Adani Power
+                                             </div>
+                                        </td>
+                                        <td class="text-end">
+                                             ₹144.65<br>
+                                             <span class="text-success small">4.21 (3.00%)</span>
+                                        </td>
+                                        <td class="text-end text-muted">1,59,26,892</td>
+                                   </tr>
+                                   <tr>
+                                        <td>
+                                             <div class="d-flex align-items-center">
+                                                  <!-- <img src="/static/resources/logo.png" width="28" class="me-2 rounded"> -->
+                                                  Adani Power
+                                             </div>
+                                        </td>
+                                        <td class="text-end">
+                                             ₹144.65<br>
+                                             <span class="text-success small">4.21 (3.00%)</span>
+                                        </td>
+                                        <td class="text-end text-muted">1,59,26,892</td>
+                                   </tr>
+                                   <tr>
+                                        <td>
+                                             <div class="d-flex align-items-center">
+                                                  <!-- <img src="/static/resources/logo.png" width="28" class="me-2 rounded"> -->
+                                                  Adani Power
+                                             </div>
+                                        </td>
+                                        <td class="text-end">
+                                             ₹144.65<br>
+                                             <span class="text-success small">4.21 (3.00%)</span>
+                                        </td>
+                                        <td class="text-end text-muted">1,59,26,892</td>
+                                   </tr>
+                                   <tr>
+                                        <td>
+                                             <div class="d-flex align-items-center">
+                                                  <!-- <img src="/static/resources/logo.png" width="28" class="me-2 rounded"> -->
+                                                  Adani Power
+                                             </div>
+                                        </td>
+                                        <td class="text-end">
+                                             ₹144.65<br>
+                                             <span class="text-success small">4.21 (3.00%)</span>
+                                        </td>
+                                        <td class="text-end text-muted">1,59,26,892</td>
+                                   </tr>
+                              </tbody>
+                         </table>
+                    </main>
+
+                    <!-- RIGHT SIDEBAR -->
+                    <aside class="col-lg-4 col-12">
+                         <h5 class="mb-3">Your investments</h5>
+                         <div class="card investments-card p-3">
+                              <div class="mb-2 text-muted">Current</div>
+                              <div class="fs-3 fw-semibold mb-3">₹34,085</div>
+                              <div class="d-flex justify-content-between mb-1">
+                                   <span class="text-muted">1D returns</span>
+                                   <span class="text-danger fw-semibold">-₹606.00 (1.75%)</span>
+                              </div>
+                              <div class="d-flex justify-content-between mb-1">
+                                   <span class="text-muted">Total returns</span>
+                                   <span class="text-success fw-semibold">+₹1,096.50 (3.32%)</span>
+                              </div>
+                              <div class="d-flex justify-content-between mt-2">
+                                   <span class="text-muted">Invested</span>
+                                   <span class="fw-semibold">₹32,988</span>
+                              </div>
+                         </div>
+                    </aside>
+               </div>
           </div>
      </section>
 

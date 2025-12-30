@@ -71,6 +71,19 @@
      /* background: lightblue; */
      height: 100px;
 }
+.movers-table th{
+     background-color: #0f0f0f0f !important;
+     padding: 12px !important;
+}
+
+.movers-table {
+     border: 1px solid #dee2e6 !important;
+     border-radius: 10px !important;
+     border-collapse: separate;
+     border-spacing: 0;
+     overflow: hidden;
+}
+
 
 
 /* @media (max-width: 576px){
