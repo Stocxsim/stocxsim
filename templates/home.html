@@ -325,58 +325,185 @@
               <h4 class="fw-bold" style="color: #44475b; text-align: center">
                 Welcome to StokXSim
               </h4>
-              <div class="form-floating" style="margin-top: 50px; color: black">
-                <input
-                  type="email"
-                  class="form-control"
-                  placeholder="Email"
-                  required
-                  style="
-                    border-bottom: 1px solid gray;
-                    border-radius: 0;
-                    border-top: 0;
-                    border-right: 0;
-                    border-left: 0;
-                    box-shadow: none;
-                    margin-top: 30px;
-                  "
-                />
-                <label for="Email" class="fw-bold form-label">
-                  Your Email Address</label
+              <div id="div-1">
+                <div
+                  class="form-floating"
+                  style="margin-top: 50px; color: black"
                 >
+                  <input
+                    type="email"
+                    class="form-control"
+                    placeholder="Email"
+                    id="Email"
+                    required
+                    style="
+                      border-bottom: 1px solid gray;
+                      border-radius: 0;
+                      border-top: 0;
+                      border-right: 0;
+                      border-left: 0;
+                      box-shadow: none;
+                      margin-top: 30px;
+                    "
+                  />
+                  <label for="Email" class="fw-bold form-label">
+                    Your Email Address</label
+                  >
+                </div>
+                <div class="form-floating mt-4 d-none" id="passwordbox">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    placeholder="Password"
+                    style="
+                      border-bottom: 1px solid gray;
+                      border-radius: 0;
+                      border-top: 0;
+                      border-left: 0;
+                      border-right: 0;
+                      box-shadow: none;
+                    "
+                  />
+                  <label for="password" class="fw-bold form-label">
+                    Enter Password
+                  </label>
+                </div>
+
+                <div class="text-center">
+                  <button
+                    class="btn btn-lg"
+                    type="button"
+                    style="
+                      background-color: #04b488;
+                      margin-top: 70px;
+                      margin-bottom: 50px;
+                      width: 300px;
+                      color: white;
+                    "
+                    onclick="f1()"
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
-              <div class="form-floating mt-4 d-none" id="otpbox">
-                <input
-                  type="text"
-                  class="form-control"
-                  id="otp"
-                  placeholder="OTP"
-                  style="
-                    border-bottom: 1px solid gray;
-                    border-radius: 0;
-                    border-top: 0;
-                    border-left: 0;
-                    border-right: 0;
-                    box-shadow: none;
-                  "
-                />
-                <label for="otp" class="fw-bold form-label"> Enter OTP </label>
+              
+<!-- ========= DIV 2 — SIGNUP ========= -->
+              <div id="div-2" class="d-none">
+                <div class="form-floating mt-4">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    placeholder="Username"
+                    style="
+                      border-bottom: 1px solid gray;
+                      border-radius: 0;
+                      border-top: 0;
+                      border-right: 0;
+                      border-left: 0;
+                      box-shadow: none;
+                    "
+                  />
+                  <label for="username" class="fw-bold form-label"
+                    >Username</label
+                  >
+                </div>
+
+                <div class="form-floating mt-4">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password1"
+                    placeholder="Password"
+                    style="
+                      border-bottom: 1px solid gray;
+                      border-radius: 0;
+                      border-top: 0;
+                      border-right: 0;
+                      border-left: 0;
+                      box-shadow: none;
+                    "
+                  />
+                  <label for="password1" class="fw-bold form-label"
+                    >Password</label
+                  >
+                </div>
+
+                <div class="form-floating mt-4">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password2"
+                    placeholder="Confirm Password"
+                    style="
+                      border-bottom: 1px solid gray;
+                      border-radius: 0;
+                      border-top: 0;
+                      border-right: 0;
+                      border-left: 0;
+                      box-shadow: none;
+                    "
+                  />
+                  <label for="password2" class="fw-bold form-label"
+                    >Confirm Password</label
+                  >
+                </div>
+
+                <div class="text-center">
+                  <button
+                    class="btn btn-lg"
+                    type="button"
+                    style="
+                      background-color: #04b488;
+                      margin-top: 70px;
+                      margin-bottom: 50px;
+                      width: 300px;
+                      color: white;
+                    "
+                    onclick="step2()"
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
-              <div class="text-center">
-                <button
-                  class="btn btn-lg"
-                  type="button"
-                  
-                  style="
-                    background-color: #04b488;
-                    margin-top: 70px;
-                    margin-bottom: 50px;
-                    width: 300px;
-                    color: white;
-                  "
-                >
-                  Continue
-                </button>
+
+              <!-- ========= DIV 3 — OTP ========= -->
+              <div id="div-3" class="d-none">
+                <div class="form-floating mt-4">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="otp"
+                    placeholder="Enter OTP"
+                    style="
+                      border-bottom: 1px solid gray;
+                      border-radius: 0;
+                      border-top: 0;
+                      border-right: 0;
+                      border-left: 0;
+                      box-shadow: none;
+                    "
+                  />
+                  <label for="otp" class="fw-bold form-label">Enter OTP</label>
+                </div>
+
+                <div class="text-center">
+                  <button
+                    class="btn btn-lg"
+                    type="button"
+                    style="
+                      background-color: #04b488;
+                      margin-top: 70px;
+                      margin-bottom: 50px;
+                      width: 300px;
+                      color: white;
+                    "
+                    onclick="step3()"
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
               <p
                 style="
@@ -396,7 +523,7 @@
         </div>
       </div>
     </div>
-
+    <script src="/static/js/home.js"></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
