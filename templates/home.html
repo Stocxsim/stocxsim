@@ -1,342 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home Page</title>
 
-    <link rel="stylesheet" href="/static/css/home.css" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Page</title>
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-      crossorigin="anonymous"
-    />
-  </head>
+  <link rel="stylesheet" href="/static/css/home.css" />
 
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg" id="home_nav">
-      <div class="container">
-        <!-- Logo -->
-        <a class="navbar-brand d-flex align-items-center" href="#">
-          <img
-            src="/static/resources/logo.png"
-            alt="logo"
-            class="me-1 rounded"
-            id="logo"
-          />
-          <span class="fw-bold" id="Stockxsim">Stocxsim</span>
-        </a>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+</head>
 
-        <!-- Toggler/collapsibe Button -->
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg" id="home_nav">
+    <div class="container">
+      <!-- Logo -->
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="/static/resources/logo.png" alt="logo" class="me-1 rounded" id="logo" />
+        <span class="fw-bold" id="Stockxsim">Stocxsim</span>
+      </a>
 
-        <!-- Navbar links -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto nav_ul gap-4">
-            <li class="nav-item nav_list">
-              <a class="nav-link nav_list_link" href="#">Home</a>
-            </li>
-            <li class="nav-item nav_list">
-              <a class="nav-link nav_list_link" href="#About">About Us</a>
-            </li>
-            <li class="nav-item nav_list">
-              <a class="nav-link nav_list_link" href="#">Contact</a>
-            </li>
-            <li class="nav-item nav_signup" style="color: white">
-              <a
-                class="btn"
-                href="#"
-                style="color: white; font-size: 15px"
-                data-bs-toggle="modal"
-                data-bs-target="#loginModal"
-                >Sign up</a
-              >
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Main text of the screen -->
-    <div class="main_screen">
-      <h1>Trade Without Fear.</h1>
-      <h2>Learn. Trade. Grow.</h2>
-      <button data-bs-toggle="modal" data-bs-target="#loginModal">
-        Get Started
+      <!-- Toggler/collapsibe Button -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
       </button>
-    </div>
 
-    <!-- Main img of the screen -->
-    <div class="container mt-5">
-      <div style="position: relative; width: 100%; margin: auto">
-        <img
-          src="/static/resources/hero.png"
-          alt="Hero Background"
-          class="img-fluid"
-          style="width: 100%; height: auto; display: block"
-        />
-
-        <img
-          src="/static/resources/hero2.png"
-          alt="Hero Overlay"
-          class="hero2"
-        />
+      <!-- Navbar links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto nav_ul gap-4">
+          <li class="nav-item nav_list">
+            <a class="nav-link nav_list_link" href="#">Home</a>
+          </li>
+          <li class="nav-item nav_list">
+            <a class="nav-link nav_list_link" href="#About">About Us</a>
+          </li>
+          <li class="nav-item nav_list">
+            <a class="nav-link nav_list_link" href="#">Contact</a>
+          </li>
+          <li class="nav-item nav_signup" style="color: white">
+            <a class="btn" href="#" style="color: white; font-size: 15px" data-bs-toggle="modal"
+              data-bs-target="#loginModal">Sign up</a>
+          </li>
+        </ul>
       </div>
     </div>
+  </nav>
 
-    <!-- About Us Section -->
-    <section class="about_section" id="About">
-      <div class="container">
-        <div class="row g-3 align-items-center">
-          <div class="col-lg-7">
-            <span
-              class="badge border border-success-subtle rounded-pill px-3 py-2 mb-3"
-              style="color: #44475b"
-            >
-              Our Mission
-            </span>
-            <h2 class="display-6 fw-bold mb-3">
-              Learning Before <span class="Earning">Earning.</span>
+  <!-- Main text of the screen -->
+  <div class="main_screen">
+    <h1>Trade Without Fear.</h1>
+    <h2>Learn. Trade. Grow.</h2>
+    <button data-bs-toggle="modal" data-bs-target="#loginModal">
+      Get Started
+    </button>
+  </div>
+
+  <!-- Main img of the screen -->
+  <div class="container mt-5">
+    <div style="position: relative; width: 100%; margin: auto">
+      <img src="/static/resources/hero.png" alt="Hero Background" class="img-fluid"
+        style="width: 100%; height: auto; display: block" />
+
+      <img src="/static/resources/hero2.png" alt="Hero Overlay" class="hero2" />
+    </div>
+  </div>
+
+  <!-- About Us Section -->
+  <section class="about_section" id="About">
+    <div class="container">
+      <div class="row g-3 align-items-center">
+        <div class="col-lg-7">
+          <span class="badge border border-success-subtle rounded-pill px-3 py-2 mb-3" style="color: #44475b">
+            Our Mission
+          </span>
+          <h2 class="display-6 fw-bold mb-3">
+            Learning Before <span class="Earning">Earning.</span>
+          </h2>
+          <p class="text-secondary mb-4">
+            At Stocxsim, we are driven by a single mission: to democratize
+            financial literacy in India. We believe the stock market shouldn't
+            be a place where beginners pay a heavy price just to learn the
+            basics.
+          </p>
+          <p class="text-secondary mb-4">
+            We have built a <strong>safe bridge</strong> between theory and
+            reality. Stocxsim is not just a simulator; it is a playground
+            designed to build your confidence, helping you transition from a
+            curious beginner to a calculated trader without risking your
+            hard-earned savings.
+          </p>
+
+          <div class="d-flex align-items-center mt-4">
+            <div class="ps-3" style="border-left: 3px solid #04b488">
+              <p class="fst-italic mb-0" style="color: #374151">
+                "Real Data. Virtual Money. Zero Risk."
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why us? -->
+  <section>
+    <div class="col-lg-6">
+      <div class="p-4 p-md-5 bg-white rounded-4 shadow-sm border">
+        <h3 class="fw-bold mb-4">Why Choose Stocxsim?</h3>
+
+        <div class="d-flex mb-4">
+          <div class="flex-shrink-0">
+            <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 50px; height: 50px">
+              <i class="bi bi-graph-up-arrow fs-4"></i>
+            </div>
+          </div>
+          <div class="ms-3">
+            <h5 class="fw-bold mb-1">Live Market Ecosystem</h5>
+            <p class="text-muted small mb-0">
+              Don't practice on old data. Experience actual market volatility
+              with real-time Nifty & Stock movements.
+            </p>
+          </div>
+        </div>
+
+        <div class="d-flex mb-4">
+          <div class="flex-shrink-0">
+            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 50px; height: 50px">
+              <i class="bi bi-shield-check fs-4"></i>
+            </div>
+          </div>
+          <div class="ms-3">
+            <h5 class="fw-bold mb-1">Zero-Loss Environment</h5>
+            <p class="text-muted small mb-0">
+              Experience the thrill of trading and pressure of
+              decision-making, but with absolutely zero financial stress.
+            </p>
+          </div>
+        </div>
+
+        <div class="d-flex mb-4">
+          <div class="flex-shrink-0">
+            <div class="bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 50px; height: 50px">
+              <i class="bi bi-lightbulb fs-4"></i>
+            </div>
+          </div>
+          <div class="ms-3">
+            <h5 class="fw-bold mb-1">Strategy Validation</h5>
+            <p class="text-muted small mb-0">
+              Test your technical analysis and strategies here first to see if
+              they work before deploying real capital.
+            </p>
+          </div>
+        </div>
+
+        <div class="d-flex">
+          <div class="flex-shrink-0">
+            <div class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 50px; height: 50px">
+              <i class="bi bi-people fs-4"></i>
+            </div>
+          </div>
+          <div class="ms-3">
+            <h5 class="fw-bold mb-1">Built for Growth</h5>
+            <p class="text-muted small mb-0">
+              Whether you are taking your first trade or refining an advanced
+              setup, our platform adapts to you.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Us Section -->
+  <section class="py-5 contact_section" id="contact">
+    <div class="container">
+      <div class="row justify-content-center">
+        <!-- Block -->
+        <div class="col-lg-8">
+          <!-- Title of contact us -->
+          <div class="text-center mb-4">
+            <h2 class="display-6 fw-bold" style="color: #374151">
+              Contact Us
             </h2>
-            <p class="text-secondary mb-4">
-              At Stocxsim, we are driven by a single mission: to democratize
-              financial literacy in India. We believe the stock market shouldn't
-              be a place where beginners pay a heavy price just to learn the
-              basics.
+            <p class="text-muted">
+              For support, feedback, or general inquiries, feel free to reach
+              out to our team:
             </p>
-            <p class="text-secondary mb-4">
-              We have built a <strong>safe bridge</strong> between theory and
-              reality. Stocxsim is not just a simulator; it is a playground
-              designed to build your confidence, helping you transition from a
-              curious beginner to a calculated trader without risking your
-              hard-earned savings.
+          </div>
+
+          <!-- Main area of contact us -->
+          <div class="p-4 rounded-4 shadow-sm bg-white border">
+            <!-- Part-1 -->
+            <div class="mb-3">
+              <h5 class="fw-semibold mb-1">Official Email</h5>
+              <p class="mb-0">
+                <a href="mailto:stocxsim@gmail.com" class="mails">stocxsim@gmial.com</a>
+              </p>
+            </div>
+
+            <hr />
+
+            <!-- Part-2 -->
+            <div class="mb-2">
+              <h5 class="fw-semibold mb-2">Team Emails</h5>
+
+              <ul class="list-unstyled m-0">
+                <li>
+                  <strong>Ansh — </strong>
+                  <a href="mailto:anshpatoliya1408@gmail.com" class="mails">anshpatoliya1408@gmail.com</a>
+                </li>
+                <li>
+                  <strong>Parth — </strong>
+                  <a href="mailto:harsh@stocxsim.com" class="mails">harsh@stocxsim.com</a>
+                </li>
+                <li>
+                  <strong>Dharmil — </strong>
+                  <a href="mailto:dharmilpanchal2031@gmail.com" class="mails">dharmilpanchal2031@gmail.com</a>
+                </li>
+              </ul>
+            </div>
+
+            <p class="text-muted mt-3 mb-0">
+              We usually reply within 24-48 hours.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal fade" id="loginModal">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content rounded-4 overflow-hidden position-relative">
+        <button class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"
+          style="box-shadow: none"></button>
+        <div class="row g-0">
+          <div class="col-md-5 left-panel">
+            <svg class="bg-lines" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0,300 C120,400 280,240 500,40" />
+              <path d="M0,200 C50,100 300,260 540,200" />
+            </svg>
+            <h2 class="fw-bold" style="color: #44475b">
+              Master the <span style="color: #04b488">Stock Markets.</span>
+            </h2>
+
+            <p class="mt-3 text-muted" style="margin-bottom: 100px">
+              Experience real-time trading simulation with zero risk.
             </p>
 
-            <div class="d-flex align-items-center mt-4">
-              <div class="ps-3" style="border-left: 3px solid #04b488">
-                <p class="fst-italic mb-0" style="color: #374151">
-                  "Real Data. Virtual Money. Zero Risk."
-                </p>
+            <div class="stat-card">
+              <small class="text-muted fw-semibold">SIMULATED PORTFOLIO</small>
+              <h4 class="mt-1" style="color: #434d49">+12.4%</h4>
+              <div class="progress mt-2">
+                <div class="progress-bar"></div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Why us? -->
-    <section>
-      <div class="col-lg-6">
-        <div class="p-4 p-md-5 bg-white rounded-4 shadow-sm border">
-          <h3 class="fw-bold mb-4">Why Choose Stocxsim?</h3>
-
-          <div class="d-flex mb-4">
-            <div class="flex-shrink-0">
-              <div
-                class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center"
-                style="width: 50px; height: 50px"
-              >
-                <i class="bi bi-graph-up-arrow fs-4"></i>
-              </div>
-            </div>
-            <div class="ms-3">
-              <h5 class="fw-bold mb-1">Live Market Ecosystem</h5>
-              <p class="text-muted small mb-0">
-                Don't practice on old data. Experience actual market volatility
-                with real-time Nifty & Stock movements.
-              </p>
-            </div>
-          </div>
-
-          <div class="d-flex mb-4">
-            <div class="flex-shrink-0">
-              <div
-                class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center"
-                style="width: 50px; height: 50px"
-              >
-                <i class="bi bi-shield-check fs-4"></i>
-              </div>
-            </div>
-            <div class="ms-3">
-              <h5 class="fw-bold mb-1">Zero-Loss Environment</h5>
-              <p class="text-muted small mb-0">
-                Experience the thrill of trading and pressure of
-                decision-making, but with absolutely zero financial stress.
-              </p>
-            </div>
-          </div>
-
-          <div class="d-flex mb-4">
-            <div class="flex-shrink-0">
-              <div
-                class="bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center"
-                style="width: 50px; height: 50px"
-              >
-                <i class="bi bi-lightbulb fs-4"></i>
-              </div>
-            </div>
-            <div class="ms-3">
-              <h5 class="fw-bold mb-1">Strategy Validation</h5>
-              <p class="text-muted small mb-0">
-                Test your technical analysis and strategies here first to see if
-                they work before deploying real capital.
-              </p>
-            </div>
-          </div>
-
-          <div class="d-flex">
-            <div class="flex-shrink-0">
-              <div
-                class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center"
-                style="width: 50px; height: 50px"
-              >
-                <i class="bi bi-people fs-4"></i>
-              </div>
-            </div>
-            <div class="ms-3">
-              <h5 class="fw-bold mb-1">Built for Growth</h5>
-              <p class="text-muted small mb-0">
-                Whether you are taking your first trade or refining an advanced
-                setup, our platform adapts to you.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Contact Us Section -->
-    <section class="py-5 contact_section" id="contact">
-      <div class="container">
-        <div class="row justify-content-center">
-          <!-- Block -->
-          <div class="col-lg-8">
-            <!-- Title of contact us -->
-            <div class="text-center mb-4">
-              <h2 class="display-6 fw-bold" style="color: #374151">
-                Contact Us
-              </h2>
-              <p class="text-muted">
-                For support, feedback, or general inquiries, feel free to reach
-                out to our team:
-              </p>
-            </div>
-
-            <!-- Main area of contact us -->
-            <div class="p-4 rounded-4 shadow-sm bg-white border">
-              <!-- Part-1 -->
-              <div class="mb-3">
-                <h5 class="fw-semibold mb-1">Official Email</h5>
-                <p class="mb-0">
-                  <a href="mailto:stocxsim@gmail.com" class="mails"
-                    >stocxsim@gmial.com</a
-                  >
-                </p>
-              </div>
-
-              <hr />
-
-              <!-- Part-2 -->
-              <div class="mb-2">
-                <h5 class="fw-semibold mb-2">Team Emails</h5>
-
-                <ul class="list-unstyled m-0">
-                  <li>
-                    <strong>Ansh — </strong>
-                    <a href="mailto:anshpatoliya1408@gmail.com" class="mails"
-                      >anshpatoliya1408@gmail.com</a
-                    >
-                  </li>
-                  <li>
-                    <strong>Parth — </strong>
-                    <a href="mailto:harsh@stocxsim.com" class="mails"
-                      >harsh@stocxsim.com</a
-                    >
-                  </li>
-                  <li>
-                    <strong>Dharmil — </strong>
-                    <a href="mailto:dharmilpanchal2031@gmail.com" class="mails"
-                      >dharmilpanchal2031@gmail.com</a
-                    >
-                  </li>
-                </ul>
-              </div>
-
-              <p class="text-muted mt-3 mb-0">
-                We usually reply within 24-48 hours.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="modal fade" id="loginModal">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content rounded-4 overflow-hidden position-relative">
-          <button
-            class="btn-close position-absolute top-0 end-0 m-3"
-            data-bs-dismiss="modal"
-            style="box-shadow: none"
-          ></button>
-          <div class="row g-0">
-            <div class="col-md-5 left-panel">
-              <svg
-                class="bg-lines"
-                viewBox="0 0 500 500"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M0,300 C120,400 280,240 500,40" />
-                <path d="M0,200 C50,100 300,260 540,200" />
-              </svg>
-              <h2 class="fw-bold" style="color: #44475b">
-                Master the <span style="color: #04b488">Stock Markets.</span>
-              </h2>
-
-              <p class="mt-3 text-muted" style="margin-bottom: 100px">
-                Experience real-time trading simulation with zero risk.
-              </p>
-
-              <div class="stat-card">
-                <small class="text-muted fw-semibold"
-                  >SIMULATED PORTFOLIO</small
-                >
-                <h4 class="mt-1" style="color: #434d49">+12.4%</h4>
-                <div class="progress mt-2">
-                  <div class="progress-bar"></div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="col-md-7 px-5"
-              style="padding-top: 80px; padding-bottom: 80px"
-            >
-              <h4 class="fw-bold" style="color: #44475b; text-align: center">
-                Welcome to StokXSim
-              </h4>
-              <div id="div-1">
-                <div
-                  class="form-floating"
-                  style="margin-top: 50px; color: black"
-                >
-                  <input
-                    type="email"
-                    class="form-control"
-                    placeholder="Email"
-                    id="Email"
-                    required
-                    style="
+          <div class="col-md-7 px-5" style="padding-top: 80px; padding-bottom: 80px">
+            <h4 class="fw-bold" style="color: #44475b; text-align: center">
+              Welcome to StokXSim
+            </h4>
+            <div id="div-1">
+              <div class="form-floating" style="margin-top: 50px; color: black">
+                <input type="email" class="form-control" placeholder="Email" id="Email" required style="
                       border-bottom: 1px solid gray;
                       border-radius: 0;
                       border-top: 0;
@@ -344,190 +277,148 @@
                       border-left: 0;
                       box-shadow: none;
                       margin-top: 30px;
-                    "
-                  />
-                  <label for="Email" class="fw-bold form-label">
-                    Your Email Address</label
-                  >
-                </div>
-                <div class="form-floating mt-4 d-none" id="passwordbox">
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    placeholder="Password"
-                    style="
+                    " />
+                <label for="Email" class="fw-bold form-label">
+                  Your Email Address</label>
+              </div>
+              <div class="form-floating mt-4 d-none" id="passwordbox">
+                <input type="password" class="form-control" id="password" placeholder="Password" style="
                       border-bottom: 1px solid gray;
                       border-radius: 0;
                       border-top: 0;
                       border-left: 0;
                       border-right: 0;
                       box-shadow: none;
-                    "
-                  />
-                  <label for="password" class="fw-bold form-label">
-                    Enter Password
-                  </label>
-                </div>
+                    " required />
+                <label for="password" class="fw-bold form-label">
+                  Enter Password
+                </label>
+              </div>
 
-                <div class="text-center">
-                  <button
-                    class="btn btn-lg"
-                    type="button"
-                    style="
+              <div class="text-center">
+                <button class="btn btn-lg" type="button" style="
                       background-color: #04b488;
                       margin-top: 70px;
                       margin-bottom: 50px;
                       width: 300px;
                       color: white;
-                    "
-                    onclick="f1()"
-                  >
-                    Continue
-                  </button>
-                </div>
+                    " onclick="f1()">
+                  Continue
+                </button>
               </div>
-              
-<!-- ========= DIV 2 — SIGNUP ========= -->
-              <div id="div-2" class="d-none">
-                <div class="form-floating mt-4">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="username"
-                    placeholder="Username"
-                    style="
+            </div>
+
+            <!-- ========= DIV 2 — SIGNUP ========= -->
+            <div id="div-2" class="d-none">
+              <div class="form-floating" style="margin-top: 50px; color: black">
+                <input type="email" class="form-control" id="Email_readonly" readonly style="
+                    border-bottom: 1px solid gray;
+                    border-radius: 0;
+                    border-top: 0;
+                    border-right: 0;
+                    border-left: 0;
+                    box-shadow: none;
+                    margin-top: 30px;
+                  " />
+                <label for="Email" class="fw-bold form-label">
+                  Your Email Address</label>
+              </div>
+              <div class="form-floating mt-4">
+                <input type="text" class="form-control" id="username" placeholder="Username" required style="
                       border-bottom: 1px solid gray;
                       border-radius: 0;
                       border-top: 0;
                       border-right: 0;
                       border-left: 0;
                       box-shadow: none;
-                    "
-                  />
-                  <label for="username" class="fw-bold form-label"
-                    >Username</label
-                  >
-                </div>
+                    " />
+                <label for="username" class="fw-bold form-label">Username</label>
+              </div>
 
-                <div class="form-floating mt-4">
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="password1"
-                    placeholder="Password"
-                    style="
+              <div class="form-floating mt-4">
+                <input type="password" class="form-control" id="password1" placeholder="Password" required style="
                       border-bottom: 1px solid gray;
                       border-radius: 0;
                       border-top: 0;
                       border-right: 0;
                       border-left: 0;
                       box-shadow: none;
-                    "
-                  />
-                  <label for="password1" class="fw-bold form-label"
-                    >Password</label
-                  >
-                </div>
+                    " />
+                <label for="password1" class="fw-bold form-label">Password</label>
+              </div>
 
-                <div class="form-floating mt-4">
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="password2"
-                    placeholder="Confirm Password"
-                    style="
+              <div class="form-floating mt-4">
+                <input type="password" class="form-control" id="password2" placeholder="Confirm Password" required
+                  style="
                       border-bottom: 1px solid gray;
                       border-radius: 0;
                       border-top: 0;
                       border-right: 0;
                       border-left: 0;
                       box-shadow: none;
-                    "
-                  />
-                  <label for="password2" class="fw-bold form-label"
-                    >Confirm Password</label
-                  >
-                </div>
+                    " />
+                <label for="password2" class="fw-bold form-label">Confirm Password</label>
+              </div>
 
-                <div class="text-center">
-                  <button
-                    class="btn btn-lg"
-                    type="button"
-                    style="
+              <div class="text-center">
+                <button class="btn btn-lg" type="button" style="
                       background-color: #04b488;
                       margin-top: 70px;
                       margin-bottom: 50px;
                       width: 300px;
                       color: white;
-                    "
-                    onclick="step2()"
-                  >
-                    Continue
-                  </button>
-                </div>
+                    " onclick="step2()">
+                  Continue
+                </button>
               </div>
+            </div>
 
-              <!-- ========= DIV 3 — OTP ========= -->
-              <div id="div-3" class="d-none">
-                <div class="form-floating mt-4">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="otp"
-                    placeholder="Enter OTP"
-                    style="
+            <!-- ========= DIV 3 — OTP ========= -->
+            <div id="div-3" class="d-none">
+              <div class="form-floating mt-4">
+                <input type="text" class="form-control" id="otp" placeholder="Enter OTP" required style="
                       border-bottom: 1px solid gray;
                       border-radius: 0;
                       border-top: 0;
                       border-right: 0;
                       border-left: 0;
                       box-shadow: none;
-                    "
-                  />
-                  <label for="otp" class="fw-bold form-label">Enter OTP</label>
-                </div>
+                    " />
+                <label for="otp" class="fw-bold form-label">Enter OTP</label>
+              </div>
 
-                <div class="text-center">
-                  <button
-                    class="btn btn-lg"
-                    type="button"
-                    style="
+              <div class="text-center">
+                <button class="btn btn-lg" type="button" style="
                       background-color: #04b488;
                       margin-top: 70px;
                       margin-bottom: 50px;
                       width: 300px;
                       color: white;
-                    "
-                    onclick="step3()"
-                  >
-                    Continue
-                  </button>
-                </div>
+                    " onclick="step3()">
+                  Continue
+                </button>
               </div>
-              <p
-                style="
+            </div>
+            <p style="
                   position: absolute;
                   bottom: 10px;
                   left: 410px;
                   font-size: 0.75rem;
                   opacity: 1;
-                "
-              >
-                By proceeding, I agree to <a href="#">T&amp;C</a>,
-                <a href="#">Privacy Policy</a> &amp;
-                <a href="#">Tariff Rates</a>.
-              </p>
-            </div>
+                ">
+              By proceeding, I agree to <a href="#">T&amp;C</a>,
+              <a href="#">Privacy Policy</a> &amp;
+              <a href="#">Tariff Rates</a>.
+            </p>
           </div>
         </div>
       </div>
     </div>
-    <script src="/static/js/home.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+  </div>
+  <script src="/static/js/home.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+</body>
+
 </html>
