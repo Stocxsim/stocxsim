@@ -33,7 +33,7 @@ function step2() {
 
     // validation of Username
     if (!isValidUsername(username)) {
-        alert("Username must be 5-15 characters long and contain only letters.");
+        alert("Username must be 3-15 characters long and contain only letters.");
         // clear the field
         input.value = "";
         // focus again so user can re-enter
@@ -76,17 +76,17 @@ function step2() {
     
     const form = new FormData();
     form.append("Email", email);
-    form.append("username", username);
-    form.append("password", pass1);
+    form.append("Username", username);
+    form.append("Password", pass1);
 
-    fetch("/login/submit", {
+    fetch("/login/signup", {
         method: "POST",
         body: form
     })
         .then(res => res.json())
         .then(data => {
 
-            if (data.message === false) {
+            if (data.message) {
 
                 document.getElementById("div-2").classList.add("d-none");
                 document.getElementById("div-3").classList.remove("d-none");
@@ -99,7 +99,6 @@ function step2() {
 }
 
 
-
 // ---------- STEP 3: VERIFY OTP ----------
 function step3() {
 
@@ -107,7 +106,7 @@ function step3() {
     const form = new FormData();
     form.append("otp", otp);
 
-    fetch("/verify-otp", {
+    fetch("/login/verify-otp", {
         method: "POST",
         body: form
     })
@@ -119,7 +118,6 @@ function step3() {
             } else {
                 alert("Invalid OTP");
             }
-
         });
 
 }
@@ -150,7 +148,7 @@ function isValidPassword(password) {
 
 function isValidUsername(username) {
 
-    if (username.length < 5 || username.length > 15) {
+    if (username.length < 3 || username.length > 15) {
         return false;
     }
 
