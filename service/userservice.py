@@ -1,4 +1,4 @@
-from database.userdao import existUser,saveUser
+from database.userdao import existUser,saveUser, getUserByEmail
 import smtplib
 import random
 from email.message import EmailMessage
@@ -18,7 +18,7 @@ def generate_otp():
 
 def send_otp_email(receiver_email, otp):
     sender_email = "stocxsim@gmail.com"
-    app_password = "pxjvdmoirjcavmff"
+    app_password = "dfxaailbrahcyeak"
 
     msg = EmailMessage()
     msg["Subject"] = "Your OTP Verification Code"
@@ -58,4 +58,6 @@ def verify_otp(email, user_otp):
         return True
     return False
 
-
+def getUserDetails(email):
+    user = getUserByEmail(email)
+    return user

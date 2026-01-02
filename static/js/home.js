@@ -1,14 +1,40 @@
 function f1() {
     const form = new FormData();
     const email = document.getElementById("Email").value;
-    console.log(email);
     form.append("Email", email);
     fetch("/login/submit", {
         method: "POST",
         body: form
     }).then(response => response.json()).then(data => {
         if (data.message === true) {
-            showPasswordField();
+            const passwordSection = document.getElementById("passwordbox");
+            const passwordInput = document.getElementById("password").value;
+
+            if (passwordSection.classList.contains("d-none")) {
+                passwordSection.classList.remove("d-none");
+                return;
+            }
+
+            if (data.password == passwordInput.value) {
+                const form = new FormData();
+                form.append("email", email);
+                form.append("password", passwordInput.value);
+
+                fetch("/login/save_user", {
+                    method: "POST",
+                    body: form
+                })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success === true) {
+                            window.location.href = "/dashboard";
+                        } else {
+                            alert("Wrong password");
+                        }
+                    });
+            } else {
+                alert("Wrong password");
+            }
 
         } else {
             const email_in_otp = document.getElementById("Email_readonly");
@@ -18,11 +44,6 @@ function f1() {
             alert("Subscription failed. Please try again.");
         }
     });
-}
-
-function showPasswordField() {
-    const passwordSection = document.getElementById("passwordbox");
-    passwordSection.classList.remove("d-none");
 }
 
 
@@ -69,11 +90,11 @@ function step2() {
         pass2Input.value = "";
 
         pass1Input.focus();
-        
+
         return;
     }
-    
-    
+
+
     const form = new FormData();
     form.append("Email", email);
     form.append("Username", username);
