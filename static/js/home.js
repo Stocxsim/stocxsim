@@ -1,50 +1,46 @@
 function f1() {
-    const form = new FormData();
-    const email = document.getElementById("Email").value;
-    form.append("Email", email);
-    fetch("/login/submit", {
-        method: "POST",
-        body: form
-    }).then(response => response.json()).then(data => {
-        if (data.message === true) {
-            const passwordSection = document.getElementById("passwordbox");
-            const passwordInput = document.getElementById("password").value;
-
-            if (passwordSection.classList.contains("d-none")) {
+    const passwordSection = document.getElementById("passwordbox");
+    if(passwordSection.classList.contains("d-none")){    
+        const form = new FormData();
+        const email = document.getElementById("Email").value;
+        form.append("Email", email);
+        fetch("/login/submit", {
+            method: "POST",
+            body: form
+        }).then(response => response.json()).then(data => {
+            if (data.message === true) {              
                 passwordSection.classList.remove("d-none");
-                return;
-            }
-
-            if (data.password == passwordInput.value) {
-                const form = new FormData();
-                form.append("email", email);
-                form.append("password", passwordInput.value);
-
-                fetch("/login/save_user", {
-                    method: "POST",
-                    body: form
-                })
-                    .then(res => res.json())
-                    .then(result => {
-                        if (result.success === true) {
-                            window.location.href = "/dashboard";
-                        } else {
-                            alert("Wrong password");
-                        }
-                    });
+                alert("Email found. Please enter your password to login.");
             } else {
-                alert("Wrong password");
+                const email_in_otp = document.getElementById("Email_readonly");
+                email_in_otp.value = email;
+                document.getElementById("div-1").classList.add("d-none");
+                document.getElementById("div-2").classList.remove("d-none");
+                alert("Subscription failed. Please try again.");
             }
-
+        });
+    }
+    else{
+        const form = new FormData();
+        const email = document.getElementById("Email").value;
+        const passwordInput = document.getElementById("password").value;
+        form.append("Email", email);
+        form.append("Password", passwordInput);
+        
+        fetch("/login/save-user", {
+            method: "POST",
+            body: form
+        }).then(response => response.json()).then(data => {
+            if (data.success === true) {
+            alert("Login Successful");
+            window.location.href = "/login/dashboard";
         } else {
-            const email_in_otp = document.getElementById("Email_readonly");
-            email_in_otp.value = email;
-            document.getElementById("div-1").classList.add("d-none");
-            document.getElementById("div-2").classList.remove("d-none");
-            alert("Subscription failed. Please try again.");
+            alert("Wrong password");
         }
-    });
+        });
+    }
 }
+
 
 
 // ---------- STEP 2: SIGNUP ----------

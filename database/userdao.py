@@ -39,12 +39,12 @@ def saveUser(user):
         conn.close()
 
 def getUserByEmail(email):
-    query = "SELECT id, name, email,password FROM users WHERE email = %s"
+    query = "SELECT userid, name, email,password FROM users WHERE email = %s"
     cur=gc().cursor()
     cur.execute(query, (email,))
     result = cur.fetchone()
     if result is not None:
-        user=User(result[0],result[1],result[2],result[3])
+        user=User(result[1],result[2],result[3],result[0])
         return user
     else:
         return None
