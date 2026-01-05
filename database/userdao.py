@@ -27,7 +27,7 @@ def saveUser(user):
 
         cur.execute(query, (user.user_id, user.user_name, user.email, user.password))
         conn.commit()
-
+        print(user.username, user.email, user.password)
         return {"message": True}
 
     except Exception as e:
@@ -48,3 +48,4 @@ def getUserByEmail(email):
         return user
     else:
         return None
+    

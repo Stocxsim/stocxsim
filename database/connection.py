@@ -1,6 +1,7 @@
 import psycopg2
 from config import POSTGRES
 
+
 def get_connection():
     # Update these details with your actual database credentials
     conn = psycopg2.connect(
@@ -10,4 +11,6 @@ def get_connection():
         host=POSTGRES["HOST"],
         port=POSTGRES["PORT"]
     )
+    print(POSTGRES["PORT"], POSTGRES["HOST"],
+POSTGRES["DB_NAME"], POSTGRES["USER"])
     return conn

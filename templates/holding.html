@@ -15,6 +15,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
     />
+    
   </head>
   <body>
     <nav class="navbar sticky-top" id="holding_nav">
@@ -26,7 +27,11 @@
             class="me-1 rounded"
             id="logo"
           />
-          <span class="fw-bold" style="color: #374151">Stocks</span>
+          <span  style="
+          color: #374151;
+          font-weight: 550;
+          font-size: 18px;
+          ">Stocks</span>
         </a>
 
         <!-- RIGHT GROUP (SEARCH + PROFILE) -->
@@ -82,6 +87,31 @@
      </div>
 
 
+    <div class="container mt-5 pt-4">
+        <div class=" ">
+            <div class="tab-container">
+                <div class="tab-item" onclick="selectTab(this)">Explore</div>
+                <div class="tab-item active" onclick="selectTab(this)">Holdings</div>
+                <div class="tab-item" onclick="selectTab(this)">Positions</div>
+                <div class="tab-item" onclick="selectTab(this)">Orders</div>
+                <div class="tab-item" onclick="selectTab(this)">Watchlist</div>
+            </div>
+            
+            
+        </div>
+    </div>
+    <script>
+        function selectTab(element) {
+            // 1. Badha 'tab-item' mathi 'active' class remove karo
+            const allTabs = document.querySelectorAll('.tab-item');
+            allTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 2. Click karela tab par 'active' class add karo
+            element.classList.add('active');
+        }
+    </script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"

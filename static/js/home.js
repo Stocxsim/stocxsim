@@ -102,7 +102,7 @@ function step2() {
     })
         .then(res => res.json())
         .then(data => {
-
+            console.log(data);
             if (data.message) {
 
                 document.getElementById("div-2").classList.add("d-none");

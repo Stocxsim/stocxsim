@@ -30,7 +30,7 @@ def signup():
     email= request.form.get('Email')
     password= request.form.get('Password')
     username= request.form.get('Username')
-    user=User(email, password, username)
+    user=User(username, email, password)
     saved_user= signup_service(user)
     send_otp(email)
     return jsonify(saved_user)
@@ -39,7 +39,8 @@ def signup():
 def verify_otp():
     email = request.form.get('email')
     otp = request.form.get('otp')
-    return jsonify({"message": verify_otp(email, otp)})
+    result = verify_otp(email, otp)
+    return jsonify({"message": result})
 
 @user_bp.route("/dashboard")
 def dashboard():
