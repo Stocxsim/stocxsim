@@ -17,6 +17,10 @@
   flex-shrink: 0;
   flex-wrap: nowrap;
 }
+.ticker-bar{
+  position: sticky;
+  top:50px;
+}
 
 /* SEARCH */
 .search-box {

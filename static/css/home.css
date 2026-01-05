@@ -90,6 +90,11 @@
      text-align: left;
      line-height: 25px;
 }
+.feature-card {
+  transform: translateY(-50px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+}
+
 
 @media (max-width: 768px) {
      .about_section {
