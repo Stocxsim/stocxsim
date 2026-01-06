@@ -25,7 +25,7 @@ def saveUser(user):
         VALUES (%s, %s, %s, %s)
         """
 
-        cur.execute(query, (user.user_id, user.user_name, user.email, user.password))
+        cur.execute(query, (user.user_id, user.username, user.email, user.password))
         conn.commit()
         print(user.username, user.email, user.password)
         return {"message": True}

@@ -47,3 +47,17 @@ def dashboard():
     if not session.get("logged_in"):
         return redirect("/login")
     return render_template("/dashboard.html", username=session.get("username"), email=session.get("email"))
+
+
+@user_bp.route("/holding")
+def holdings():
+    if not session.get("logged_in"):
+        return redirect("/login")
+
+    user = {
+        "username": session.get("username"),
+        "email": session.get("email"),
+        "balance": session.get("balance", 0)  # default if missing
+    }
+
+    return render_template("holding.html", user=user)

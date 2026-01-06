@@ -1,126 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="/static/css/holding.css" />
-    <link rel="stylesheet" href="/static/css/home.css" />
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-    />
-    
-  </head>
-  <body>
-    <nav class="navbar sticky-top" id="holding_nav">
-      <div class="container-fluid">
-        <!-- LEFT -->
-        <a class="navbar-brand" href="#">
-          <img
-            src="/static/resources/logo.png"
-            class="me-1 rounded"
-            id="logo"
-          />
-          <span  style="
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" href="/static/css/holding.css" />
+  <link rel="stylesheet" href="/static/css/home.css" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+</head>
+
+<body>
+  <nav class="navbar fixed-top " id="holding_nav">
+    <div class="container-fluid">
+      <!-- LEFT -->
+      <a class="navbar-brand" href="#">
+        <img src="/static/resources/logo.png" class="me-1 rounded" id="logo" />
+        <span style="
           color: #374151;
           font-weight: 550;
           font-size: 18px;
           ">Stocks</span>
-        </a>
+      </a>
 
-        <!-- RIGHT GROUP (SEARCH + PROFILE) -->
-        <div class="nav-right">
-          <div class="search-box">
-            <i class="bi bi-search search-icon"></i>
-            <input type="text" placeholder="Search Stocxsim..." />
+      <!-- RIGHT GROUP (SEARCH + PROFILE) -->
+      <div class="nav-right">
+        <div class="search-box">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" id="searchInput" autocomplete="off" placeholder="Search Stocxsim..." />
+          <!-- Results dropdown -->
+          <div id="searchResults" class="search-results"></div>
+        </div>
+
+        <div class="profile-wrapper">
+          <div class="profile-btn" onclick="toggleProfile()">
+            <!-- {{ user.username[0]|upper }} -->
           </div>
 
-          <div class="profile-wrapper">
-            <div class="profile-btn" onclick="toggleProfile()">
-              {{ user.username[0]|upper }}
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-header">
+              <div>
+                <strong style="color: #374151"> {{ user.username }} </strong>
+                <div class="small" style="color: rgb(124, 126, 140)">
+                  {{ user.email }}
+                </div>
+              </div>
+              <span><i class="bi bi-gear"></i> </span>
             </div>
 
-            <div class="profile-dropdown" id="profileDropdown">
-              <div class="profile-header">
-                <div>
-                  <strong style="color: #374151"> {{ user.username }} </strong>
-                  <div class="small" style="color: rgb(124, 126, 140)">
-                    {{ user.email }}
-                  </div>
-                </div>
-                <span><i class="bi bi-gear"></i> </span>
+            <div class="profile-item" style="color: #374151">
+              <i class="bi bi-wallet2"></i>
+              {{ user.balance }}
+              <div class="small" style="color: rgb(124, 126, 140)">
+                Stocks balance
               </div>
-
-              <div class="profile-item" style="color: #374151">
-                <i class="bi bi-wallet2"></i>
-                {{ user.balance }}
-                <div class="small" style="color: rgb(124, 126, 140)">
-                  Stocks balance
-                </div>
-              </div>
-              <div
-                class="profile-footer text-decoration-dotted"
-                style="color: #374151"
-              >
-                <span class="ms-auto">Log out</span>
-              </div>
+            </div>
+            <div class="profile-footer text-decoration-dotted" style="color: #374151">
+              <span class="ms-auto">Log out</span>
             </div>
           </div>
         </div>
       </div>
-    </nav>
-    <div class="ticker-bar py-2 border-bottom border-top">
-          <div class="container">
-               <div class="d-grid" style="grid-template-columns: repeat(4, 1fr);">
-                    <div class="ticker-item">NIFTY 25,942.10</div>
-                    <div class="ticker-item">SENSEX 84,695.54</div>
-                    <div class="ticker-item">BANKNIFTY 58,932.35</div>
-                    <div class="ticker-item">FINNIFTY 54,310.20</div>
-               </div>
-          </div>
-     </div>
-
-
-    <div class="container mt-5 pt-4">
-        <div class=" ">
-            <div class="tab-container">
-                <div class="tab-item" onclick="selectTab(this)">Explore</div>
-                <div class="tab-item active" onclick="selectTab(this)">Holdings</div>
-                <div class="tab-item" onclick="selectTab(this)">Positions</div>
-                <div class="tab-item" onclick="selectTab(this)">Orders</div>
-                <div class="tab-item" onclick="selectTab(this)">Watchlist</div>
-            </div>
-            
-            
-        </div>
     </div>
-    <script>
-        function selectTab(element) {
-            // 1. Badha 'tab-item' mathi 'active' class remove karo
-            const allTabs = document.querySelectorAll('.tab-item');
-            allTabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
+  </nav>
 
-            // 2. Click karela tab par 'active' class add karo
-            element.classList.add('active');
-        }
-    </script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"
-    ></script>
-    <script>
-      function toggleProfile() {
-        document.getElementById("profileDropdown").classList.toggle("show");
-      }
-    </script>
-  </body>
+  <div class="container mt-5 pt-4">
+    <div class="">
+      <div class="tab-container">
+        <div class="tab-item" onclick="selectTab(this)">Explore</div>
+        <div class="tab-item active" onclick="selectTab(this)">Holdings</div>
+        <div class="tab-item" onclick="selectTab(this)">Positions</div>
+        <div class="tab-item" onclick="selectTab(this)">Orders</div>
+        <div class="tab-item" onclick="selectTab(this)">Watchlist</div>
+      </div>
+
+
+    </div>
+  </div>
+  <script src="/static/js/holding.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  
+</body>
+
 </html>
