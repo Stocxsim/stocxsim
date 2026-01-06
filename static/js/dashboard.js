@@ -1,3 +1,45 @@
+// create socket ONLY ONCE
+const socket = io();
+
+socket.on("connect", () => {
+  console.log("✅ Socket connected, id =", socket.id);
+});
+
+socket.on("disconnect", () => {
+  console.log("❌ Socket disconnected");
+});
+
+socket.on("live_prices", function (data) {
+  console.log("Live prices:", data);
+
+  // INDEX UPDATE
+  for (const token in data.index) {
+    updateUI(token, data.index[token]);
+  }
+
+  // STOCK UPDATE (future use)
+  for (const token in data.stocks) {
+    updateUI(token, data.stocks[token]);
+  }
+});
+
+function updateUI(token, info) {
+  const el = document.getElementById(token);
+  if (!el) return;
+
+  const priceEl = el.querySelector(".price");
+  const changeEl = el.querySelector(".change");
+
+  priceEl.innerText = info.ltp.toFixed(2);
+
+  const sign = info.change >= 0 ? "+" : "";
+  changeEl.innerText =
+    `${sign}${info.change.toFixed(2)} (${info.percent.toFixed(2)}%)`;
+
+  changeEl.classList.remove("up", "down");
+  changeEl.classList.add(info.change >= 0 ? "up" : "down");
+}
+
 
 
 // Dashboard Stocks Data and Rendering for Stock cards
