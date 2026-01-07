@@ -8,9 +8,8 @@ from config import API_KEY, CLIENT_ID
 from utils.market_time import is_market_open
 
 
-
-subscribed_tokens = set()
 ws = None
+subscribed_tokens = set()
 
 
 def start_websocket(jwt_token, feed_token):
@@ -34,13 +33,42 @@ def start_websocket(jwt_token, feed_token):
     return ws
 
 
+def subscribe_user_watchlist(user_id, tokens):
+    global ws, subscribed_tokens
+
+    if ws is None:
+        print("❌ WS not connected yet")
+        return
+
+    new_tokens = set(tokens) - subscribed_tokens
+    if not new_tokens:
+        return
+
+    payload = {
+        "correlationID": f"user_{user_id}",
+        "action": 1,
+        "params": {
+            "mode": 1,
+            "tokenList": [{
+                "exchangeType": 1,
+                "tokens": list(new_tokens)
+            }]
+        }
+    }
+
+    ws.send(json.dumps(payload))
+    subscribed_tokens.update(new_tokens)
+
+    print(f"✅ Subscribed {len(new_tokens)} tokens for user {user_id}")
+
+
 def on_open(ws):
     print("🔗 WebSocket Connected")
 
     # Subscribe when socket opens
-    subscribe(ws,1,"99926009")  # BANKNIFTY
-    subscribe(ws,1,"99926013")  # FINNIFTY
-    subscribe(ws,2,"99919000")    # SENSEX
+    subscribe(ws, 1, "99926009")  # BANKNIFTY
+    subscribe(ws, 1, "99926013")  # FINNIFTY
+    subscribe(ws, 2, "99919000")    # SENSEX
     subscribe(ws, 1, "99926000")   # NIFTY
 
 
@@ -70,42 +98,11 @@ def subscribe(ws, exchange, token):
     print(f"✅ Subscribed to {token}")
 
 
-
 def on_data(ws, message):
-    # if not is_market_open():
-    #     return   # ❌ ignore WS ticks when market closed
     token = message["token"]
     ltp = message["last_traded_price"] / 100
 
-    base = BASELINE_DATA.get(token, {}).get("prev_close")
-
-    change = ltp - base
-    percent = (change / base) * 100 if base else 0
-
-    data = {
-        "ltp": round(ltp, 2),
-        "change": round(change, 2),
-        "percent": round(percent, 2)
-    }
-
-    # dict update
-    LIVE_PRICES[token] = ltp
-    if token.startswith("999"):
-        LIVE_INDEX[token] = data
-    else:
-        LIVE_STOCKS[token] = data
-
-    # 🔥 FULL dict push
-    print("🔥 EMIT DATA:", {
-    "stocks": LIVE_STOCKS,
-    "index": LIVE_INDEX
-})
-
-    socketio.emit("live_prices", {
-        "stocks": LIVE_STOCKS,
-        "index": LIVE_INDEX
-    })
-    
+    print("📩 TICK:", token, ltp)
 
 
 def on_error(ws, error):
