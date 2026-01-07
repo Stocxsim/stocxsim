@@ -39,6 +39,7 @@ def subscribe_user_watchlist(user_id, tokens):
     if ws is None:
         print("❌ WS not connected yet")
         return
+    print(f"🔔 Subscribing user {user_id} watchlist:", tokens)
 
     for token in tokens:
         subscribe(ws, 1, token)  
@@ -53,22 +54,15 @@ def subscribe(ws, exchange, token):
         print(f"⚠️ Already subscribed {token}")
         return
 
-    payload = {
-        "correlationID": "stockxsim",
-        "action": 1,
-        "params": {
-            "mode": 1,
-            "tokenList": [
-                {
-                    "exchangeType": exchange,
-                    "tokens": [token]
-                }
-            ]
+    token_list = [
+        {
+            "exchangeType": exchange,
+            "tokens": [token]
         }
-    }
+    ]
 
-    print("👉 Sending subscribe:", payload)
-    ws.send(json.dumps(payload))
+    print("👉 Sending subscribe:", token_list)
+    ws.subscribe("stockxsim",exchange, token_list)
 
     subscribed_tokens.add(token)
     print(f"✅ Subscribed to {token}")
