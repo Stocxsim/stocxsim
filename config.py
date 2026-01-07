@@ -1,9 +1,9 @@
 POSTGRES = {
     "HOST": "localhost",
-    "PORT": 5432,
+    "PORT": 5433,
     "DB_NAME": "stocxsim",
     "USER": "postgres",
-    "PASSWORD": "Ap1420@810"
+    "PASSWORD": "FindMyPass12"
 }
 
 API_KEY = "OqRJGaEN"
