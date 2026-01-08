@@ -1,0 +1,239 @@
+:root {
+            --primary-green: #04b488;
+            --border-color: #e0e0e0;
+            --text-main: #374151;
+            --text-light: #777;
+        }
+
+        body {
+            font-family: 'verdana';
+            margin: 20px;
+            color: var(--text-main);
+        }
+
+        .container {
+            display: flex;
+            height: 93vh;
+        }
+        /* Mobile: Stack panels */
+@media (max-width: 767px) {
+    body{
+        margin: 30px 10px 20px 10px;
+    }
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+    .left-panel {
+        padding: 10px;
+    }
+    .right-panel {
+        margin-top: 20px;
+        border-left: none;
+        border-top: 1px solid #ddd;
+        width: 100%;
+    }
+
+    /* Fix input widths for small screens */
+    .input-group input {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+
+        /* --- LEFT SECTION --- */
+        .left-panel {
+            flex: 2;
+            padding: 10px 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stock-logo {
+            width: 70px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #04b488;
+        }
+
+        .action-buttons button {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .price-section h1 {
+            margin: 10px 0 5px 0;
+            font-size: 24px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .current-price {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .price-change {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* Placeholder for Chart */
+        .chart-placeholder {
+            flex-grow: 1;
+            margin: 50px 20px 10px;
+            border-radius: 8px;
+            background-color: #fafafa;
+            border: 1px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+        }
+
+        .time-filters {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+
+        .time-filters button {
+            border: 1px solid var(--border-color);
+            background: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* --- RIGHT SECTION (Order Window) --- */
+        .right-panel {
+            flex: 0.8;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            
+        }
+
+        .exchange-info {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            border-top: 1px solid var(--border-color);
+
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .tab.active {
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--primary-green);
+        }
+
+        .order-type-chips {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .chip {
+            padding: 6px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .chip.active {
+            background-color: #e6f7f2;
+            border-color: var(--primary-green);
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            text-align: right;
+        }
+
+        .footer-info {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .buy-btn {
+            width: 100%;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .buy-btn.sell-mode {
+            background-color: #eb5b3c; /* Red for Sell */
+        }
