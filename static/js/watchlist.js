@@ -15,7 +15,7 @@ fetch("/stocks/watchlist")
           <div class="company-cell">
             <div class="logo">${String(stock.token)[0]}</div>
             <div>
-              <div class="company-name">Token ${stock.token}</div>
+              <div class="company-name">${stock.name}</div>
             </div>
           </div>
         </td>
@@ -25,17 +25,18 @@ fetch("/stocks/watchlist")
         </td>
 
         <td class="text-end">
-          ${stock.price ? "₹" + stock.price.toFixed(2) : "--"}
+          ${typeof stock.price === "number"
+            ? "₹" + stock.price.toFixed(2)
+            : "--"}
         </td>
 
         <td class="text-end ${isUp ? "text-success" : "text-danger"}">
-          ${stock.price ? 
-            `${isUp ? "+" : ""}${stock.change} (${stock.change_pct}%)` 
+          ${typeof stock.change === "number"
+            ? `${isUp ? "+" : ""}${stock.change} (${stock.change_pct}%)`
             : "--"}
         </td>
 
         <td class="text-end">--</td>
-
         <td class="text-end perf">L ───●── H</td>
       `;
 

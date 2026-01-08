@@ -1,6 +1,6 @@
-from data.live_data import LIVE_PRICES, BASELINE_DATA
 from flask import Blueprint, request, jsonify, render_template, session
 from database.user_stock_dao import get_stock_tokens_by_user
+from service.market_data_service import get_full_market_data
 from service.stockservice import search_stocks_service, get_stock_detail_service
 
 stock_bp = Blueprint("stock_bp", __name__)
@@ -34,27 +34,26 @@ def watchlist_page():
 @stock_bp.route("/watchlist")
 def api_watchlist():
     user_id = session.get("user_id")
+    print("User ID in session:", user_id)
     if not user_id:
         return jsonify([])   # or return 401
 
-    tokens = get_stock_tokens_by_user(user_id)
+    tokens = [str(t) for t in get_stock_tokens_by_user(user_id)]
+    market_data = get_full_market_data(tokens)
 
     result = []
 
     for token in tokens:
-        token = int(token)
-        ltp = LIVE_PRICES.get(token, None)
-        base = BASELINE_DATA.get(token, None)
+        live = market_data.get(token)
+        ltp = live.get("ltp") if live else None
+        change = live.get("change") if live else None
+        change_pct = live.get("percent") if live else None
 
-        change = 0
-        change_pct = 0
-
-        if ltp and base:
-            change = round(ltp - base, 2)
-            change_pct = round((change / base) * 100, 2)
+        stock = get_stock_detail_service(token)
 
         result.append({
             "token": token,
+            "name": stock.stock_name if stock else token,
             "price": ltp,
             "change": change,
             "change_pct": change_pct
