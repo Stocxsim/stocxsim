@@ -2,7 +2,7 @@
 from time import time
 from SmartApi.smartWebSocketV2 import SmartWebSocketV2
 import json
-from data.live_data import LIVE_PRICES, BASELINE_DATA, LIVE_STOCKS, LIVE_INDEX
+from data.live_data import BASELINE_DATA, LIVE_STOCKS, LIVE_INDEX, INDEX_TOKENS
 from app import socketio
 from config import API_KEY, CLIENT_ID
 from utils.market_time import is_market_open
@@ -67,20 +67,32 @@ def subscribe(ws, exchange, token):
     subscribed_tokens.add(token)
     print(f"✅ Subscribed to {token}")
 
-
 def on_data(ws, message):
-    token = message["token"]
-    ltp = message["last_traded_price"] / 100
+    try:
+        token = message["token"]
+        ltp = message["last_traded_price"] / 100
 
-    # STORE price in memory
-    LIVE_PRICES[token] = ltp
+        base = BASELINE_DATA.get(token)
+        if not base:
+            return
 
-    # SEND price to browser
-    socketio.emit("price_update", {
-        "token": token,
-        "ltp": ltp
-    })
-    print("📩 TICK:", token, ltp)
+        data = {
+            "ltp": ltp,
+            "change": round(ltp - base['prev_close'], 2),
+            "percent_change": round(((ltp - base['prev_close']) / base['prev_close']) * 100, 2)
+        }
+
+        if token in INDEX_TOKENS:
+            LIVE_INDEX[token].update(data)
+        else:
+            LIVE_STOCKS[token].update(data)
+
+        print(f"LIVE INDEX: {LIVE_INDEX}")
+        print(f"LIVE STOCKS: {LIVE_STOCKS}")
+
+    except Exception as e:
+        print("WS ERROR:", e)
+
 
 
 def on_error(ws, error):

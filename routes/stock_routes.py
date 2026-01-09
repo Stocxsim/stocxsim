@@ -39,24 +39,14 @@ def api_watchlist():
         return jsonify([])   # or return 401
 
     tokens = [str(t) for t in get_stock_tokens_by_user(user_id)]
-    market_data = get_full_market_data(tokens)
-
     result = []
-
+    
     for token in tokens:
-        live = market_data.get(token)
-        ltp = live.get("ltp") if live else None
-        change = live.get("change") if live else None
-        change_pct = live.get("percent") if live else None
-
         stock = get_stock_detail_service(token)
 
         result.append({
             "token": token,
             "name": stock.stock_name if stock else token,
-            "price": ltp,
-            "change": change,
-            "change_pct": change_pct
         })
 
     return jsonify(result)

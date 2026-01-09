@@ -10,35 +10,35 @@ socket.on("disconnect", () => {
 });
 
 socket.on("live_prices", function (data) {
-  console.log("Live prices:", data);
-
   // INDEX UPDATE
   for (const token in data.index) {
+     console.log("Live index:", data);
     updateUI(token, data.index[token]);
   }
 
   // STOCK UPDATE (future use)
   for (const token in data.stocks) {
+     console.log("Live stocks:", data);
     updateUI(token, data.stocks[token]);
   }
 });
 
 
-// listen for price updates
-socket.on("price_update", data => {
-    const token = data.token;
-    const ltp = data.ltp;
+// // listen for price updates
+// socket.on("price_update", data => {
+//     const token = data.token;
+//     const ltp = data.ltp;
 
-    // find ticker by token id
-    const ticker = document.getElementById(token);
-    if (!ticker) return;
+//     // find ticker by token id
+//     const ticker = document.getElementById(token);
+//     if (!ticker) return;
 
-    // update price
-    const priceDiv = ticker.querySelector(".price");
-    if (priceDiv) {
-        priceDiv.innerText = "₹" + ltp.toFixed(2);
-    }
-});
+//     // update price
+//     const priceDiv = ticker.querySelector(".price");
+//     if (priceDiv) {
+//         priceDiv.innerText = "₹" + ltp.toFixed(2);
+//     }
+// });
 
 function updateUI(token, info) {
   const el = document.getElementById(token);
@@ -51,7 +51,7 @@ function updateUI(token, info) {
 
   const sign = info.change >= 0 ? "+" : "";
   changeEl.innerText =
-    `${sign}${info.change.toFixed(2)} (${info.percent.toFixed(2)}%)`;
+    `${sign}${info.change.toFixed(2)} (${info.percent_change.toFixed(2)}%)`;
 
   changeEl.classList.remove("up", "down");
   changeEl.classList.add(info.change >= 0 ? "up" : "down");
