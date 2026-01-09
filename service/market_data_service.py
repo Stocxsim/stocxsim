@@ -35,7 +35,6 @@ def clean_market_data(response):
         token = item["symbolToken"]
 
         cleaned[token] = {
-
             "prev_close": item.get("close"),
             "ltp": item.get("ltp"),
             "change":item.get("netChange"),

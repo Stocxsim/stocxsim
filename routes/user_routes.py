@@ -1,18 +1,21 @@
-from flask import Blueprint, request, jsonify,session,redirect, render_template
+from flask import Blueprint, request, jsonify, session, redirect, render_template
 from modal.User import User
-from service.userservice import login_service, signup_service , verify_otp, send_otp, getUserDetails
+from service.userservice import login_service, signup_service, verify_otp, send_otp, getUserDetails
+from service.market_data_service import get_full_market_data
 from websockets.angle_ws import subscribe_user_watchlist
-
-from database.user_stock_dao import get_stock_tokens_by_user 
+from data.live_data import BASELINE_DATA, load_baseline_data
+from database.user_stock_dao import get_stock_tokens_by_user
 
 
 user_bp = Blueprint('user_bp', __name__)
-    
+
+
 @user_bp.route("/submit", methods=["POST"])
 def email_verification():
     email = request.form.get('Email')
     user = login_service(email)
     return jsonify(user)
+
 
 @user_bp.route("/save-user", methods=["POST"])
 def save_user():
@@ -22,28 +25,31 @@ def save_user():
     print(f'User fetched: {user.get_email()}, {user.get_password()}')
     if user.get_password() != password:
         return jsonify({"success": False})
-    
+
     session['logged_in'] = True
     session['email'] = user.get_email()
     session['username'] = user.get_username()
     session['user_id'] = user.get_user_id()
 
-    # 🔥 SUBSCRIBE USER WATCHLIST
+   # 🔥 SUBSCRIBE USER WATCHLIST
     user_id = user.get_user_id()
     tokens = get_stock_tokens_by_user(user_id)   # e.g. 20 tokens
+    BASELINE_DATA.update(get_full_market_data(tokens))
+    load_baseline_data()
     subscribe_user_watchlist(user_id, tokens)
     return jsonify({"success": True})
 
 
 @user_bp.route("/signup", methods=["POST"])
 def signup():
-    email= request.form.get('Email')
-    password= request.form.get('Password')
-    username= request.form.get('Username')
-    user=User(username, email, password)
-    saved_user= signup_service(user)
+    email = request.form.get('Email')
+    password = request.form.get('Password')
+    username = request.form.get('Username')
+    user = User(username, email, password)
+    saved_user = signup_service(user)
     send_otp(email)
     return jsonify(saved_user)
+
 
 @user_bp.route("/verify-otp", methods=["POST"])
 def verify_otp():
@@ -51,6 +57,7 @@ def verify_otp():
     otp = request.form.get('otp')
     result = verify_otp(email, otp)
     return jsonify({"message": result})
+
 
 @user_bp.route("/dashboard")
 def dashboard():

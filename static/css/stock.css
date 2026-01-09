@@ -94,7 +94,7 @@
         }
 
         .price-change {
-            color: var(--text-light);
+            /* color: var(--text-light); */
             font-size: 14px;
         }
 

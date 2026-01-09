@@ -21,13 +21,13 @@ def on_connect():
     print("🟢 Client connected")
 
     # 🔥 Send data immediately on connect
-    if is_market_open():
-        socketio.emit("live_prices", {
-            "stocks": LIVE_STOCKS,
-            "index": LIVE_INDEX
-        })
-    else:
-        socketio.emit("live_prices", {
+    # if is_market_open():
+    socketio.emit("live_prices", {
+        "stocks": LIVE_STOCKS,
+        "index": LIVE_INDEX
+    })
+    # else:
+    #     socketio.emit("live_prices", {
             
-            "index": BASELINE_DATA
-        })
+    #         "index": BASELINE_DATA
+    #     })

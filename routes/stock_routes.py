@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, render_template, session
 from database.user_stock_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data
 from service.stockservice import search_stocks_service, get_stock_detail_service
+from data.live_data import register_equity_token, LIVE_STOCKS
 
 stock_bp = Blueprint("stock_bp", __name__)
 
@@ -23,6 +24,8 @@ def stock_detail(stock_token):
     if not stock:
         return render_template("404.html"), 404
 
+    # 🔥 REGISTER TOKEN FOR LIVE UPDATES
+    register_equity_token(str(stock_token))
     return render_template("stock.html", stock=stock)
 
 
@@ -34,7 +37,7 @@ def watchlist_page():
 @stock_bp.route("/watchlist")
 def api_watchlist():
     user_id = session.get("user_id")
-    print("User ID in session:", user_id)
+    # print("User ID in session:", user_id)
     if not user_id:
         return jsonify([])   # or return 401
 
