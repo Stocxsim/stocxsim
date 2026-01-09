@@ -1,5 +1,0 @@
-Flask==2.3.3
-Flask-SocketIO==5.3.6
-pyotp==2.8.0
-psycopg2-binary==2.9.7
-smartapi-python

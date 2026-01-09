@@ -1,10 +1,10 @@
 from service.market_data_service import get_full_market_data
 LIVE_PRICES={}
-BASELINE_DATA=get_full_market_data(tokens=["99926000","99919000","99926009","99926013","53886"])  # Preload baseline data for indices
+BASELINE_DATA={}
 LIVE_STOCKS = {}
 LIVE_INDEX = {}
 EQUITY_TOKENS = []  # List of equity stock tokens to track
-INDEX_TOKENS = ["99926000","99919000","99926009","99926013","53886"]  # List of index tokens to track
+INDEX_TOKENS = ["26000","19000","26009","26013","53886"]  # List of index tokens to track
 
 # def refresh_live_data():
 #     global LIVE_INDEX, LIVE_STOCKS

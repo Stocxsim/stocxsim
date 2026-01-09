@@ -43,3 +43,21 @@ def clean_market_data(response):
         }
 
     return cleaned
+
+def load_baseline_data():
+    """
+    Load baseline data for index tokens at app startup
+    """
+    from data.live_data import LIVE_INDEX, BASELINE_DATA, LIVE_STOCKS, INDEX_TOKENS
+    
+    for token,base in BASELINE_DATA.items():
+        data={
+            "ltp": base['prev_close'],
+            "change": 0,
+            "percent_change": 0
+        }
+        if token in INDEX_TOKENS:
+            LIVE_INDEX[token] = data
+        else:
+            LIVE_STOCKS[token] = data
+    
