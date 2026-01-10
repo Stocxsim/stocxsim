@@ -85,6 +85,8 @@ def holdings():
     return render_template("holding.html", user=user, active_tab="holdings")
 
 
+# this is login/watchlist not stocks/watchlist
+# this is for rendering the watchlist page
 @user_bp.route("/watchlist")
 def watchlist():
     if not session.get("logged_in"):
