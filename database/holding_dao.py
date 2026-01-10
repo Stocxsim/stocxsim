@@ -1,4 +1,5 @@
 from database.connection import get_connection
+from database.stockdao import get_stock_by_token
 
 def add_holding(order_details):
     conn = get_connection()
@@ -82,7 +83,8 @@ def get_holdings_by_user(user_id):
 
     holdings_dict = {}
     for holding in holdings:
-        holdings_dict[holding[0]] = {
+        holdings_dict[get_stock_by_token(holding[0])[1]] = {
+            "symbol_token": holding[0],
             "quantity": holding[1],
             "avg_buy_price": holding[2]
         }

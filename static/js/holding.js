@@ -70,3 +70,4 @@ input.addEventListener("input", async function () {
           resultsBox.style.display = "none";
      }
 });
+
