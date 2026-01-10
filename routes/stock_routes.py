@@ -29,11 +29,8 @@ def stock_detail(stock_token):
     return render_template("stock.html", stock=stock)
 
 
-@stock_bp.route("/watchlist-page")
-def watchlist_page():
-    return render_template("watchlist.html")
-
-
+# this is stocks/watchlist not login/watchlist
+# this is just for the backend api for the javascript to call and get the watchlist data
 @stock_bp.route("/watchlist")
 def api_watchlist():
     user_id = session.get("user_id")

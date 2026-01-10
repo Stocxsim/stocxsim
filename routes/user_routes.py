@@ -3,9 +3,8 @@ from modal.User import User
 from service.userservice import login_service, signup_service, verify_otp, send_otp, getUserDetails
 from websockets.angle_ws import subscribe_user_watchlist
 from data.live_data import BASELINE_DATA
-from database.user_stock_dao import get_stock_tokens_by_user 
+from database.user_stock_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data, load_baseline_data
-
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -31,7 +30,6 @@ def save_user():
     session['username'] = user.get_username()
     session['user_id'] = user.get_user_id()
 
-    
     # 🔥 SUBSCRIBE USER WATCHLIST
     user_id = user.get_user_id()
     tokens = get_stock_tokens_by_user(user_id)   # e.g. 20 tokens
@@ -64,7 +62,13 @@ def verify_otp():
 def dashboard():
     if not session.get("logged_in"):
         return redirect("/login")
-    return render_template("/dashboard.html", username=session.get("username"), email=session.get("email"))
+    user = {
+        "username": session.get("username"),
+        "email": session.get("email"),
+        "balance": session.get("balance", 0)
+    }
+
+    return render_template("dashboard.html", user=user, active_tab="explore")
 
 
 @user_bp.route("/holding")
@@ -75,7 +79,27 @@ def holdings():
     user = {
         "username": session.get("username"),
         "email": session.get("email"),
-        "balance": session.get("balance", 0)  # default if missing
+        "balance": session.get("balance", 0) 
     }
 
-    return render_template("holding.html", user=user)
+    return render_template("holding.html", user=user, active_tab="holdings")
+
+
+# this is login/watchlist not stocks/watchlist
+# this is for rendering the watchlist page
+@user_bp.route("/watchlist")
+def watchlist():
+    if not session.get("logged_in"):
+        return redirect("/login")
+
+    user = {
+        "username": session.get("username"),
+        "email": session.get("email"),
+        "balance": session.get("balance", 0)
+    }
+
+    return render_template(
+        "watchlist.html",
+        user=user,
+        active_tab="watchlist"
+    )

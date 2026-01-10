@@ -85,33 +85,6 @@
         const STOCK_NAME = "{{ stock.stock_name }}";
     </script>
 
-
-    <!-- For updating the live price  -->
-    <!-- <script>
-    function updatePrice() {
-        fetch(`/stocks/live/${STOCK_TOKEN}`)
-            .then(res => res.json())
-            .then(data => {
-                if (!data) return;
-
-                document.getElementById("currentPrice").innerText =
-                    "₹" + data.ltp;
-
-                const changeText =
-                    `${data.change >= 0 ? "+" : ""}${data.change} (${data.percent}%)`;
-
-                const changeEl = document.getElementById("priceChange");
-                changeEl.innerText = changeText;
-
-                changeEl.className =
-                    "price-change " + (data.change >= 0 ? "text-success" : "text-danger");
-            });
-    }
-
-    updatePrice();
-    setInterval(updatePrice, 2000); // refresh every 2 sec
-</script> -->
-
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
         const socket = io();
