@@ -45,7 +45,14 @@ def update_holding_on_sell(order_details):
 
     if result:
         current_quantity = result[0]
-        new_quantity = current_quantity - order_details["quantity"]
+        sell_quantity = order_details["quantity"]
+
+        # 🔴 MAIN VALIDATION (THIS WAS MISSING)
+        if sell_quantity > current_quantity:
+            cursor.close()
+            conn.close()
+            return False, "Insufficient quantity to sell"
+        new_quantity = current_quantity - sell_quantity
 
         if new_quantity > 0:
             # Update holding with reduced quantity
@@ -53,6 +60,7 @@ def update_holding_on_sell(order_details):
             UPDATE holdings SET quantity = %s WHERE user_id = %s AND symbol_token = %s
             """
             cursor.execute(query_update, (new_quantity, order_details["user_id"], order_details["symbol_token"]))
+            conn.commit()
         else:
             # Remove holding if quantity is zero or less
             query_delete = """
@@ -82,10 +90,10 @@ def get_holdings_by_user(user_id):
     conn.close()
 
     holdings_dict = {}
-    for holding in holdings:
-        holdings_dict[get_stock_by_token(holding[0])[1]] = {
-            "symbol_token": holding[0],
-            "quantity": holding[1],
-            "avg_buy_price": holding[2]
+    for symbol_token, quantity, avg_buy_price in holdings:
+        holdings_dict[str(symbol_token)] = {
+            "symbol_token": symbol_token,
+            "quantity": quantity,
+            "avg_buy_price": avg_buy_price
         }
     return holdings_dict

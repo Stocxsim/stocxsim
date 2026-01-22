@@ -32,8 +32,12 @@ def place_order(user_id, symbol_token, quantity, order_type, price, transaction_
     if transaction_type not in ["buy", "sell"]:
         raise ValueError("Invalid transaction type")
 
-    if get_holdings_by_user(user_id).get(symbol_token, {"quantity": 0})['quantity'] < quantity and transaction_type=="sell":
-        raise ValueError("Insufficient holdings to sell")
+    holding = get_holdings_by_user(user_id).get(symbol_token)
+
+    if transaction_type == "sell":
+        if not holding or holding.get("quantity", 0) < quantity:
+            raise ValueError("Insufficient holdings to sell")
+
     
     # Simulate order placement logic
     order_details = {
