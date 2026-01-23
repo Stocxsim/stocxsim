@@ -18,7 +18,6 @@ def place_trade_order():
         order_type = data.get("order_type")
         price = data.get("price")
         price = Decimal(price) if price else None
-
         transaction_type = data.get("transaction_type")
 
         result = place_order(

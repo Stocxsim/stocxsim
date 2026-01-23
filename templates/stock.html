@@ -138,110 +138,107 @@
                 `;
             document.getElementById("price").value = stock.ltp.toFixed(2);
 
+        }    
+    // =========================
+    // GLOBAL STATE
+    // =========================
+    let transactionType = "buy";     // buy | sell
+    let orderType = "limit";         // limit | market
+
+    const buyTab = document.getElementById("buy-tab");
+    const sellTab = document.getElementById("sell-tab");
+    const submitBtn = document.getElementById("submitOrderBtn");
+
+    // =========================
+    // BUY TAB
+    // =========================
+    buyTab.addEventListener("click", () => {
+        transactionType = "buy";
+
+        buyTab.classList.add("active");
+        sellTab.classList.remove("active", "sell-active");
+
+        submitBtn.innerText = "Buy";
+        submitBtn.classList.remove("sell-btn");
+        submitBtn.classList.add("buy-btn");
+    });
+
+    // =========================
+    // SELL TAB
+    // =========================
+    sellTab.addEventListener("click", () => {
+        transactionType = "sell";
+
+        sellTab.classList.add("active", "sell-active");
+        buyTab.classList.remove("active");
+
+        submitBtn.innerText = "Sell";
+        submitBtn.classList.remove("buy-btn");
+        submitBtn.classList.add("sell-btn");
+    });
+
+    // =========================
+    // SUBMIT ORDER
+    // =========================
+    submitBtn.addEventListener("click", function () {
+
+        // 🔐 Snapshot (race condition avoid)
+        const currentTransactionType = transactionType;
+        const currentOrderType = orderType;
+
+        const qtyValue = document.getElementById("qty").value.trim();
+        const priceValue = document.getElementById("price").value.trim();
+
+        // =========================
+        // VALIDATION
+        // =========================
+        if (!qtyValue || isNaN(qtyValue) || Number(qtyValue) <= 0) {
+            alert("❌ Valid quantity aapo");
+            return;
         }
 
-        // =========================
-        // GLOBAL STATE
-        // =========================
-        let transactionType = "buy";     // buy | sell
-        let orderType = "limit";         // limit | market
-
-        const buyTab = document.getElementById("buy-tab");
-        const sellTab = document.getElementById("sell-tab");
-        const submitBtn = document.getElementById("submitOrderBtn");
-
-        // =========================
-        // BUY TAB
-        // =========================
-        buyTab.addEventListener("click", () => {
-            transactionType = "buy";
-
-            buyTab.classList.add("active");
-            sellTab.classList.remove("active", "sell-active");
-
-            submitBtn.innerText = "Buy";
-            submitBtn.classList.remove("sell-btn");
-            submitBtn.classList.add("buy-btn");
-        });
-
-        // =========================
-        // SELL TAB
-        // =========================
-        sellTab.addEventListener("click", () => {
-            transactionType = "sell";
-
-            sellTab.classList.add("active", "sell-active");
-            buyTab.classList.remove("active");
-
-            submitBtn.innerText = "Sell";
-            submitBtn.classList.remove("buy-btn");
-            submitBtn.classList.add("sell-btn");
-        });
-
-        // =========================
-        // SUBMIT ORDER
-        // =========================
-        submitBtn.addEventListener("click", function () {
-
-            // 🔐 Snapshot (race condition avoid)
-            const currentTransactionType = transactionType;
-            const currentOrderType = orderType;
-
-            const qtyValue = document.getElementById("qty").value.trim();
-            const priceValue = document.getElementById("price").value.trim();
-
-            // =========================
-            // VALIDATION
-            // =========================
-            if (!qtyValue || isNaN(qtyValue) || Number(qtyValue) <= 0) {
-                alert("❌ Valid quantity aapo");
+        if (currentOrderType === "limit") {
+            if (!priceValue || isNaN(priceValue) || Number(priceValue) <= 0) {
+                alert("❌ Valid price aapo");
                 return;
             }
+        }
 
-            if (currentOrderType === "limit") {
-                if (!priceValue || isNaN(priceValue) || Number(priceValue) <= 0) {
-                    alert("❌ Valid price aapo");
-                    return;
-                }
+        const payload = {
+            symbol_token: STOCK_TOKEN,
+            quantity: Number(qtyValue),                 // number j jaay
+            order_type: currentOrderType,
+            price: currentOrderType === "market" ? "" : priceValue,
+            transaction_type: currentTransactionType
+        };
+
+        fetch("/trade/order", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("ORDER RESPONSE:", data);
+
+            if (data.error) {
+                alert("❌ " + data.error);
+            } else {
+                alert("✅ " + data.message);
+
+                // optional reset
+                document.getElementById("qty").value = "";
+
             }
-
-            const payload = {
-                symbol_token: STOCK_TOKEN,
-                quantity: Number(qtyValue),                 // number j jaay
-                order_type: currentOrderType,
-                price: currentOrderType === "market" ? "" : priceValue,
-                transaction_type: currentTransactionType
-            };
-
-            fetch("/trade/order", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: new URLSearchParams(payload)
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log("ORDER RESPONSE:", data);
-
-                    if (data.error) {
-                        alert("❌ " + data.error);
-                    } else {
-                        alert("✅ " + data.message);
-
-                        // optional reset
-                        document.getElementById("qty").value = "";
-
-                    }
-                })
-                .catch(err => {
-                    console.error("Order error:", err);
-                    alert("⚠️ Something went wrong!");
-                });
+        })
+        .catch(err => {
+            console.error("Order error:", err);
+            alert("⚠️ Something went wrong!");
         });
-    </script>
-
-
+    });
+</script>
 
 </body>
 
