@@ -89,13 +89,15 @@ function loadUserHoldings() {
 function renderHoldings(holdings) {
      const container = document.getElementById("holding-body");
      container.innerHTML = "";
+     let totalInvested = 0;
+     let totalCurrent = 0;
 
      const symbols = Object.keys(holdings);
 
      if (symbols.length === 0) {
           container.innerHTML =
                `<div class="holding-row">No holdings</div>`;
-          
+
           console.log("No holdings to display");
           return;
      }
@@ -105,36 +107,61 @@ function renderHoldings(holdings) {
      symbols.forEach(symbol => {
           const h = holdings[symbol];
 
-          // basic calculations
-          const market_price = h.market_price || h.avg_buy_price;
-          const current_value = (market_price * h.quantity).toFixed(2);
-          const invested_value = (h.avg_buy_price * h.quantity).toFixed(2);
-          const profit_loss = (current_value - invested_value).toFixed(2);
-          const return_percent = ((profit_loss / invested_value) * 100).toFixed(2);
 
+          const buy_price = h.avg_buy_price;
+          const market_price = h.market_price;
+          // const market_price = Number(h.market_price ?? h.avg_buy_price);
+          const qnt = h.quantity;
+
+          // basic calculations
+
+          const current_value = (market_price * h.quantity);
+          const invested_value = (h.avg_buy_price * h.quantity);
+          const profit_loss = (current_value - invested_value);
+          const return_percent = ((profit_loss / invested_value) * 100);
+
+          // for summary
+          totalInvested += parseFloat(invested_value);
+          totalCurrent += parseFloat(current_value);
 
           const row =
                ` <div class="holding-row">
                <div>
                     <strong>${symbol}</strong>
-                    <p>${h.quantity} shares · Avg. ₹${h.avg_buy_price}</p>
+                    <p>${qnt} shares · Avg. ₹${buy_price}</p>
                </div>
                <div>
                     ₹${market_price}
-                    <p style="color:${return_percent >= 0 ? '#04b488' : '#ff4d4f'};">
-                         ${return_percent >= 0 ? '+' : ''}${return_percent}%
+                    <p style="color:${return_percent.toFixed(2) >= 0 ? '#04b488' : '#ff4d4f'};">
+                         ${return_percent.toFixed(2) >= 0 ? '+' : ''}${return_percent.toFixed(2)}%
                     </p>
                </div>
-               <div style="color:${return_percent >= 0 ? '#04b488' : '#ff4d4f'};">
-                    ${profit_loss >= 0 ? '+' : ''}₹${profit_loss}
-                    <p>${return_percent}%</p>
+               <div style="color:${return_percent.toFixed(2) >= 0 ? '#04b488' : '#ff4d4f'};">
+                    ${profit_loss >= 0 ? '+' : ''}₹${profit_loss.toFixed(2)}
+                    <p>${return_percent.toFixed(2)}%</p>
                </div>
                <div>
-                    ₹${current_value}
-                    <p>₹${invested_value}</p>
+                    ₹${current_value.toFixed(2)}
+                    <p>₹${invested_value.toFixed(2)}</p>
                </div>
           </div> `;
 
           container.innerHTML += row;
      });
+
+     const totalProfit = totalCurrent - totalInvested;
+     const totalReturnPercent =
+          totalInvested === 0 ? 0 : (totalProfit / totalInvested) * 100;
+
+     document.getElementById("total-invested").innerText =
+          `₹${totalInvested.toFixed(2)}`;
+
+     document.getElementById("total-current").innerText =
+          `₹${totalCurrent.toFixed(2)}`;
+
+     const returnsEl = document.getElementById("total-returns");
+     returnsEl.innerText =
+          `${totalProfit >= 0 ? "+" : ""}₹${totalProfit.toFixed(2)} (${totalReturnPercent.toFixed(2)}%)`;
+
+     returnsEl.style.color = totalProfit >= 0 ? "#04b488" : "#ff4d4f";
 }

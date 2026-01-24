@@ -11,24 +11,24 @@
 <div class="container-fluid px-3 m-4" style="font-family: Verdana;">
   <div class="row gx-3">
 
-    <div class="holdings-header">
-      <span class="title">Holdings</span>
-    </div>
-
-    <!-- LEFT : HOLDINGS CARD -->
+    <!-- LEFT -->
     <div class="col-lg-8">
+      <div class="holdings-header">
+        <span class="title">Holdings</span>
+      </div>
+
       <div class="holdings-summary">
         <div>
           <p>Current value</p>
-          <h4>₹34,679</h4>
+          <h4 id="total-current">₹0.00</h4>
         </div>
         <div>
           <p>Invested value</p>
-          <h4>₹32,988</h4>
+          <h4 id="total-invested">₹0.00</h4>
         </div>
         <div>
           <p>Total returns</p>
-          <h4 style="color:#04b488;">+₹1,690.50 (5.12%)</h4>
+          <h4 id="total-returns">₹0.00 (0.00%)</h4>
         </div>
       </div>
 
@@ -39,16 +39,12 @@
           <span>Returns</span>
           <span>Current</span>
         </div>
-
-        <div id="holding-body">
-            <!-- for JS -->
-        </div>
-
+        <div id="holding-body"></div>
       </div>
     </div>
 
-    <!-- RIGHT : SIDE PANEL -->
-    <div class="col-lg-3 mt-3 mt-lg-0 border" style="border-radius:10px;">
+    <!-- ✅ RIGHT (INSIDE SAME ROW) -->
+    <div class="col-lg-3">
       <div class="select-box">
         <p>Select a stock to get started</p>
       </div>

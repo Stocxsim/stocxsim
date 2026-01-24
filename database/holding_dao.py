@@ -1,5 +1,6 @@
 from database.connection import get_connection
 from database.stockdao import get_stock_by_token
+from data.live_data import LIVE_STOCKS
 
 def add_holding(order_details):
     conn = get_connection()
@@ -90,10 +91,21 @@ def get_holdings_by_user(user_id):
     conn.close()
 
     holdings_dict = {}
+<<<<<<< HEAD
     for symbol_token, quantity, avg_buy_price in holdings:
         holdings_dict[str(symbol_token)] = {
             "symbol_token": symbol_token,
             "quantity": quantity,
             "avg_buy_price": avg_buy_price
+=======
+    for holding in holdings:
+        symbol_token = holding[0]
+        market_price = LIVE_STOCKS.get(symbol_token, {}).get("ltp", 0)  # Default to 0 if not available
+        holdings_dict[get_stock_by_token(holding[0])[1]] = {
+            "symbol_token": holding[0],
+            "quantity": holding[1],
+            "avg_buy_price": holding[2],
+            "market_price": market_price
+>>>>>>> de11688 (Enhance holdings functionality: integrate live data registration and update holdings summary display)
         }
     return holdings_dict
