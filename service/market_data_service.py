@@ -1,4 +1,6 @@
+from datetime import datetime,timedelta 
 from SmartApi import SmartConnect
+import numpy as np
 import pyotp
 from config import API_KEY, CLIENT_ID, CLIENT_PASSWORD, TOTP_SECRET
 
@@ -60,3 +62,31 @@ def load_baseline_data():
         else:
             LIVE_STOCKS[token] = data
     
+def fetch_historical_data(symbol_token):
+    """
+    Fetch historical candle data for a given symbol token and date range.
+    """
+    obj = SmartConnect(api_key=API_KEY)
+    totp = pyotp.TOTP(TOTP_SECRET).now()
+    session = obj.generateSession(CLIENT_ID, CLIENT_PASSWORD, totp)
+
+    if not session or not session.get("status"):
+        raise Exception("Angel One login failed")
+    # ===== Date Calculation =====
+    today = datetime.now()
+    from_date = today - timedelta(days=50)
+
+    fromdate_str = from_date.strftime("%Y-%m-%d 09:15")
+    todate_str = today.strftime("%Y-%m-%d 15:30")
+
+    # ===== Candle Params =====
+    historic_params = {
+        "exchange": "NSE",
+        "symboltoken": symbol_token,
+        "interval": "ONE_DAY",
+        "fromdate": fromdate_str,
+        "todate": todate_str
+    }
+    result=obj.getCandleData(historic_params)['data']
+    np_result = np.array(result)
+    return np_result[:,4].astype(float)  # Return closing prices column
