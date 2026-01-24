@@ -53,4 +53,64 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error(e);
     }
   });
+
+
+  // live market socket
+  if (typeof io === 'undefined') {
+    console.log("Socket.IO not loaded");
+    return;
+  }
+
+  const socket = io();
+
+  socket.on("connect", () => {
+    console.log("✅ Market socket connected:", socket.id);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Market socket disconnected");
+  });
+
+  // Mapping of token to display name
+  const tokenToName = {
+    "26000": "NIFTY",
+    "19000": "SENSEX",
+    "26009": "BANKNIFTY",
+    "26037": "FINNIFTY"
+  };
+
+  socket.on("live_prices", (data) => {
+
+    if (!data || !data.index) return;
+
+    for (const token in data.index) {
+      const name = tokenToName[token];
+      if (name) {
+        updateTicker(name, data.index[token]);
+      }
+    }
+  });
+
+  /* ===============================
+     TICKER UI UPDATE
+  =============================== */
+  function updateTicker(token, info) {
+    const el = document.getElementById(token);
+    if (!el) return;
+
+    const priceEl = el.querySelector(".price");
+    const changeEl = el.querySelector(".change");
+
+    if (!priceEl || !changeEl) return;
+
+    // Price
+    priceEl.innerText = info.ltp.toFixed(2);
+
+    // Change
+    const sign = info.change >= 0 ? "+" : "";
+    changeEl.innerText = `${sign}${info.change.toFixed(2)}`;
+
+    changeEl.classList.remove("up", "down");
+    changeEl.classList.add(info.change >= 0 ? "up" : "down");
+  }
 });

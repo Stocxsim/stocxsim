@@ -51,7 +51,7 @@
             </div>
 
             <div class="tabs">
-                <div class="tab active" id="buy-tab">BUY</div>
+                <div class="tab active" id="buy-tab" >BUY</div>
                 <div class="tab" id="sell-tab">SELL</div>
             </div>
 
@@ -122,8 +122,7 @@
             priceEl.innerText = "₹" + stock.ltp.toFixed(2);
 
             // 🔹 Change line
-            changeEl.innerText =
-                `${sign}${stock.change.toFixed(2)} (${stock.percent_change.toFixed(2)}%)`;
+            changeEl.innerText = `${sign}${stock.change.toFixed(2)} (${stock.percent_change.toFixed(2)}%)`;
             changeEl.className =
                 "price-change " + (isUp ? "text-success" : "text-danger");
 
@@ -137,10 +136,9 @@
                     (${sign}${stock.percent_change.toFixed(2)}%)
                     </span>
                 `;
-                    document.getElementById("price").value = stock.ltp.toFixed(2);
+            document.getElementById("price").value = stock.ltp.toFixed(2);
 
-        }
-    
+        }    
     // =========================
     // GLOBAL STATE
     // =========================
@@ -241,7 +239,6 @@
         });
     });
 </script>
-
 
 </body>
 

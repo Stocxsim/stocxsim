@@ -1,5 +1,7 @@
 from database.connection import get_connection
 from database.stockdao import get_stock_by_token
+from data.live_data import LIVE_STOCKS
+
 
 def add_holding(order_details):
     conn = get_connection()
@@ -9,7 +11,8 @@ def add_holding(order_details):
     query_check = """
     SELECT quantity , avg_buy_price FROM holdings WHERE user_id = %s AND symbol_token = %s
     """
-    cursor.execute(query_check, (order_details["user_id"], order_details["symbol_token"]))
+    cursor.execute(
+        query_check, (order_details["user_id"], order_details["symbol_token"]))
     result = cursor.fetchone()
 
     if result:
@@ -18,19 +21,23 @@ def add_holding(order_details):
         query_update = """
         UPDATE holdings SET quantity = %s , avg_buy_price = %s WHERE user_id = %s AND symbol_token = %s
         """
-        new_avg_price = ((result[1] * result[0]) + (order_details["price"] * order_details["quantity"])) / new_quantity
-        cursor.execute(query_update, (new_quantity, new_avg_price, order_details["user_id"], order_details["symbol_token"]))
+        new_avg_price = ((result[1] * result[0]) + (order_details["price"]
+                         * order_details["quantity"])) / new_quantity
+        cursor.execute(query_update, (new_quantity, new_avg_price,
+                       order_details["user_id"], order_details["symbol_token"]))
     else:
         # Insert new holding
         query_insert = """
         INSERT INTO holdings (user_id, symbol_token, quantity, avg_buy_price)
         VALUES (%s, %s, %s, %s)
         """
-        cursor.execute(query_insert, (order_details["user_id"], order_details["symbol_token"], order_details["quantity"], order_details["price"]))
+        cursor.execute(
+            query_insert, (order_details["user_id"], order_details["symbol_token"], order_details["quantity"], order_details["price"]))
 
     conn.commit()
     cursor.close()
     conn.close()
+
 
 def update_holding_on_sell(order_details):
     conn = get_connection()
@@ -40,7 +47,8 @@ def update_holding_on_sell(order_details):
     query_check = """
     SELECT quantity FROM holdings WHERE user_id = %s AND symbol_token = %s
     """
-    cursor.execute(query_check, (order_details["user_id"], order_details["symbol_token"]))
+    cursor.execute(
+        query_check, (order_details["user_id"], order_details["symbol_token"]))
     result = cursor.fetchone()
 
     if result:
@@ -59,22 +67,25 @@ def update_holding_on_sell(order_details):
             query_update = """
             UPDATE holdings SET quantity = %s WHERE user_id = %s AND symbol_token = %s
             """
-            cursor.execute(query_update, (new_quantity, order_details["user_id"], order_details["symbol_token"]))
+            cursor.execute(query_update, (new_quantity,
+                           order_details["user_id"], order_details["symbol_token"]))
             conn.commit()
         else:
             # Remove holding if quantity is zero or less
             query_delete = """
             DELETE FROM holdings WHERE user_id = %s AND symbol_token = %s
             """
-            cursor.execute(query_delete, (order_details["user_id"], order_details["symbol_token"]))
+            cursor.execute(
+                query_delete, (order_details["user_id"], order_details["symbol_token"]))
             conn.commit()
             cursor.close()
             conn.close()
         return True
-    else:    
+    else:
         cursor.close()
         conn.close()
         return False
+
 
 def get_holdings_by_user(user_id):
     conn = get_connection()
@@ -90,10 +101,15 @@ def get_holdings_by_user(user_id):
     conn.close()
 
     holdings_dict = {}
-    for symbol_token, quantity, avg_buy_price in holdings:
+
+    for holding in holdings:
+        symbol_token = holding[0]
+        market_price = LIVE_STOCKS.get(symbol_token, {}).get(
+            "ltp", 0)  # Default to 0 if not available
         holdings_dict[str(symbol_token)] = {
-            "symbol_token": symbol_token,
-            "quantity": quantity,
-            "avg_buy_price": avg_buy_price
+            "symbol_token": holding[0],
+            "quantity": holding[1],
+            "avg_buy_price": holding[2],
+            "market_price": market_price
         }
     return holdings_dict

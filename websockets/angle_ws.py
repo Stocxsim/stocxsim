@@ -90,6 +90,12 @@ def on_data(ws, message):
         print(f"LIVE INDEX: {LIVE_INDEX}")
         print(f"LIVE STOCKS: {LIVE_STOCKS}")
 
+        # Emit updated live prices to all connected clients
+        socketio.emit("live_prices", {
+            "stocks": LIVE_STOCKS,
+            "index": LIVE_INDEX
+        })
+
     except Exception as e:
         print("WS ERROR:", e)
 

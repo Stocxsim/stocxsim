@@ -1,9 +1,10 @@
-
-from decimal import Decimal as decimal
-from flask import Blueprint, jsonify, request,session
+from decimal import Decimal
+from flask import Blueprint, jsonify, request, session
 from service.trade_service import place_order
+from decimal import Decimal
 
 trade_bp = Blueprint('trade_bp', __name__)
+
 
 @trade_bp.route("/order", methods=["POST"])
 def place_trade_order():
@@ -15,8 +16,8 @@ def place_trade_order():
         quantity = data.get("quantity")
         quantity = int(quantity) if quantity else 0
         order_type = data.get("order_type")
-        price = data.get("price")  
-        price = decimal(price) if price else None
+        price = data.get("price")
+        price = Decimal(price) if price else None
         transaction_type = data.get("transaction_type")
 
         result = place_order(
