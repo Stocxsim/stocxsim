@@ -79,8 +79,9 @@ function updateWatchlistRow(token, info) {
 
   const priceEl = row.querySelector(".price");
   const changeEl = row.querySelector(".change");
+  const trendEl = row.querySelector(".trend");
 
-  if (!priceEl || !changeEl) return;
+  if (!priceEl || !changeEl || !trendEl) return;
 
   // safety
   if (
@@ -106,6 +107,11 @@ function updateWatchlistRow(token, info) {
 
   changeEl.classList.remove("text-success", "text-danger");
   changeEl.classList.add(isUp ? "text-success" : "text-danger");
+
+  // TREND UI 
+  trendEl.innerText = isUp ? "↗" : "↘";
+  trendEl.classList.remove("up", "down");
+  trendEl.classList.add(isUp ? "up" : "down");
 }
 
 function buildTable(stocks) {
@@ -113,22 +119,22 @@ function buildTable(stocks) {
   const tbody = document.getElementById("watchlistBody");
   tbody.innerHTML = "";
 
-    stocks.forEach(stock => {
-      const isUp = stock.change >= 0;
+  stocks.forEach(stock => {
+    const isUp = stock.change >= 0;
 
-      const row = document.createElement("tr");
-      row.id = "token-" + stock.token;
-      row.style.cursor = "pointer";
+    const row = document.createElement("tr");
+    row.id = "token-" + stock.token;
+    row.style.cursor = "pointer";
 
-      // 🔥 CLICK EVENT
-      row.addEventListener("click", () => {
-        const params = new URLSearchParams({
-          token: stock.token,
-          name: stock.name
-        });
-
-        window.location.href = `/stocks/${stock.token}`;
+    // 🔥 CLICK EVENT
+    row.addEventListener("click", () => {
+      const params = new URLSearchParams({
+        token: stock.token,
+        name: stock.name
       });
+
+      window.location.href = `/stocks/${stock.token}`;
+    });
 
     row.innerHTML = `
       <td>
@@ -140,12 +146,11 @@ function buildTable(stocks) {
         </div>
       </td>
 
-      <td class="trend">--</td>
-
+      <td>
+        <span class="trend">--</span>
+      </td>
       <td class="text-end price">--</td>
-
       <td class="text-end change">--</td>
-
       <td class="text-end">--</td>
       <td class="text-end perf">L ───●── H</td>
     `;
