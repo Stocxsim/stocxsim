@@ -21,13 +21,15 @@ body {
 ======================= */
 
 .navbar-brand {
+  padding-top: 0px;
+  padding-bottom: 0px;
   padding-left: 50px;
 }
 
 .navbar {
+  height: 55px;
   position: sticky;
   top: 0;
-  z-index: 1000;
 }
 
 .navbar .container-fluid {
@@ -62,13 +64,13 @@ body {
   align-items: center;
   gap: 6px;
   border: 1px solid #e5e7eb;
-  padding: 8px 12px;
+  margin-top: 2px;
+  padding: 5px 10px;
   border-radius: 10px;
   background: #fff;
   max-width: 260px;
   flex: 0 1 260px;
   min-width: 0;
-  z-index: 10000;
 }
 
 .search-box input {
@@ -192,7 +194,7 @@ body {
 }
 
 .tab-item {
-     padding: 15px 5px;
+     padding: 5px 5px;
      color: #7c7e8c;
      font-weight: 500;
      font-size: 16px;
@@ -229,8 +231,7 @@ body {
 
 .ticker-bar {
      position: sticky;
-     top: 98px;
-     z-index: 800;
+     height: 30px;
 }
 
 .ticker-item {

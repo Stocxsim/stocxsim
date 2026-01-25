@@ -26,7 +26,7 @@
 
       <!-- LEFT -->
       <a class="navbar-brand" href="/">
-        <img src="/static/resources/logo.png" class="me-1 rounded" id="logo" />
+        <img src="/static/resources/logo.png" class="rounded" id="logo" />
         <span class="brand-title">Stocks</span>
       </a>
 
@@ -71,12 +71,11 @@
   </nav>
 
   <!-- TABS -->
-  <div class="d-flex sticky-top bg-white" style="top:58px">
+  <div class="d-flex sticky-top bg-white" style="top:55px">
     <div style="margin-left:40px">
       <div class="tab-container">
         <a href="/login/dashboard" class="tab-item {% if active_tab=='explore' %}active{% endif %}">Explore</a>
         <a href="/login/holding" class="tab-item {% if active_tab=='holdings' %}active{% endif %}">Holdings</a>
-        <a href="/login/positions" class="tab-item {% if active_tab=='positions' %}active{% endif %}">Positions</a>
         <a href="/login/orders" class="tab-item {% if active_tab=='orders' %}active{% endif %}">Orders</a>
         <a href="/login/watchlist" class="tab-item {% if active_tab=='watchlist' %}active{% endif %}">Watchlist</a>
       </div>
@@ -84,7 +83,7 @@
   </div>
 
   <!-- TICKER -->
-  <div class="ticker-bar sticky-top border-bottom border-top bg-white" style="top:98px">
+  <div class="ticker-bar sticky-top border-bottom border-top bg-white" style="top:90px">
     <div class="container">
       <div class="d-grid" style="grid-template-columns:repeat(4,1fr)">
         <div class="ticker-item" id="NIFTY">
