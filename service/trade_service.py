@@ -4,7 +4,6 @@ from service.market_data_service import get_full_market_data
 from database.order_dao import insert_order
 from database.holding_dao import add_holding, get_holdings_by_user, update_holding_on_sell
 
-
 def place_order(user_id, symbol_token, quantity, order_type, price, transaction_type):
 
     if not user_id:
@@ -20,7 +19,8 @@ def place_order(user_id, symbol_token, quantity, order_type, price, transaction_
 
     # ✅ MARKET PRICE — convert FLOAT → Decimal
     if order_type == "market":
-        ltp = get_full_market_data([symbol_token]).get(symbol_token, {}).get("ltp")
+        ltp = get_full_market_data([symbol_token]).get(
+            symbol_token, {}).get("ltp")
         if ltp is None:
             raise ValueError("Could not fetch market price")
         price = Decimal(str(ltp))
@@ -71,3 +71,4 @@ def place_order(user_id, symbol_token, quantity, order_type, price, transaction_
         update_holding_on_sell(order_details)
 
     return "Order placed successfully"
+

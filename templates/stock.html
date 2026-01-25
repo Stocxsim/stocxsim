@@ -80,6 +80,106 @@
         </div>
     </div>
 
+    <div class="gauge-container">
+        <div class="gauge-title">Technical Indicator (RSI)</div>
+        <svg class="gauge-svg" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid meet">
+            <!-- Gradient definitions for smooth color zones -->
+            <defs>
+                <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#c0392b;stop-opacity:1" />
+                    <stop offset="20%" style="stop-color:#e74c3c;stop-opacity:1" />
+                    <stop offset="40%" style="stop-color:#f39c12;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#7f8c8d;stop-opacity:1" />
+                    <stop offset="60%" style="stop-color:#27ae60;stop-opacity:1" />
+                    <stop offset="80%" style="stop-color:#2ecc71;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#16a085;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+
+            <!-- Semi-circular arc (180° from 180° to 0°) -->
+            <path class="gauge-arc" d="M 20 160 A 140 140 0 0 1 300 160" fill="none" stroke="url(#arcGradient)"
+                stroke-width="3" stroke-linecap="round" />
+
+            <!-- Needle group (rotates around center) -->
+            <g class="needle-group">
+                <!-- Needle line -->
+                <line class="needle-line" x1="160" y1="160" x2="160" y2="40" stroke="black" stroke-width="2"
+                    stroke-linecap="round" />
+
+                <!-- Center dot -->
+                <circle class="center-dot" cx="160" cy="160" r="5" fill="black" />
+            </g>
+        </svg>
+
+        <div class="label-container">
+            <div class="label-text" id="label">Neutral</div>
+        </div>
+    </div>
+
+    <script>
+        const STOCK_RSI = "{{ stock.rsi if stock.rsi else 50 }}";
+        console.log("{{stock.rsi}}")
+
+        setGauge()
+        /**
+         * Sets the gauge to a specific value with smooth animation.
+         * @param {number} value - Range from -100 to +100
+         */
+        function setGauge(value) {
+            // Clamp value to range [-100, 100]
+            value = Math.max(-100, Math.min(100, value));
+
+            // Convert linear value to rotation angle
+            // -100 → -90°, 0 → 0°, +100 → +90°
+            const angle = (value / 100) * 90;
+
+            // Apply rotation to needle group
+            const needleGroup = document.querySelector('.needle-group');
+            needleGroup.style.transform = `rotate(${angle}deg)`;
+            needleGroup.style.transformOrigin = '160px 160px';
+
+            // Update label text and color based on value
+            updateLabel(value);
+        }
+
+        /**
+         * Updates the label text and color based on gauge value.
+         * @param {number} value - Range from -100 to +100
+         */
+        function updateLabel(value) {
+            const label = document.getElementById('label');
+            let text, colorClass;
+
+            rsi = (value / 2) + 50
+
+            if (rsi <= 30) {
+                text = 'Over Sold';
+                colorClass = 'color-strong-sell';
+            } else if (rsi <= 45) {
+                text = 'Weak But Improving';
+                colorClass = 'color-sell';
+            } else if (rsi <= 55) {
+                text = 'Neutral';
+                colorClass = 'color-neutral';
+            } else if (rsi <= 65) {
+                text = 'Strong';
+                colorClass = 'color-buy';
+            } else {
+                text = 'Over Baught';
+                colorClass = 'color-strong-buy';
+            }
+
+            label.textContent = text;
+            label.className = `label-text ${colorClass}`;
+        }
+
+        // Initialize gauge with RSI data (RSI: 0-100, convert to -100 to +100 scale)
+        // RSI < 30 = Oversold (Sell), RSI > 70 = Overbought (Buy), RSI 30-70 = Neutral
+        const rsiValue = parseFloat(STOCK_RSI);
+        const gaugeValue = (rsiValue - 50) * 2; // Convert 0-100 to -100 to +100
+        setGauge(gaugeValue);
+    </script>
+
     <script>
         const STOCK_TOKEN = "{{ stock.stock_token }}";
         const STOCK_NAME = "{{ stock.stock_name }}";

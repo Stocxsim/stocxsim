@@ -87,6 +87,7 @@ def fetch_historical_data(symbol_token):
         "fromdate": fromdate_str,
         "todate": todate_str
     }
-    result=obj.getCandleData(historic_params)['data']
-    np_result = np.array(result)
-    return np_result[:,4].astype(float)  # Return closing prices column
+    result=obj.getCandleData(historic_params)
+    data=result['data']
+    np_result = np.array(data)
+    return np_result
