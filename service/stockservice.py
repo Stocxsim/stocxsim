@@ -1,5 +1,8 @@
 from database.stockdao import search_stocks, get_stock_by_token
 from modal.Stock import Stock
+from service.market_data_service import fetch_historical_data
+
+import numpy as np
 
 # Service function to search stocks
 def search_stocks_service(query):
@@ -19,8 +22,29 @@ def get_stock_detail_service(stock_token):
 
      if not row:
         return None
-
+     
      return Stock(
           stock_token=row[0],
-          stock_name=row[1]
+          stock_name=row[1],
      )
+
+def rsi_cal(token):
+    np_result = fetch_historical_data(token)
+    closes=np_result[:,4].astype(dtype=float)
+    delta = np.diff(closes)
+
+    gains = np.where(delta > 0, delta, 0)
+    losses = np.where(delta < 0, -delta, 0)
+
+    avg_gain = np.mean(gains[-14:])
+    avg_loss = np.mean(losses[-14:])
+
+    if avg_loss == 0:
+        rsi = 100.0
+
+    else:
+        rs = avg_gain / avg_loss
+        rsi = 100 - (100 / (1 + rs))
+        rsi = round(rsi, 2)
+
+    return rsi
