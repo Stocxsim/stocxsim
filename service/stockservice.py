@@ -28,9 +28,12 @@ def get_stock_detail_service(stock_token):
           stock_name=row[1],
      )
 
-def rsi_cal(token):
+def get_closes(token):
     np_result = fetch_historical_data(token)
-    closes=np_result[:,4].astype(dtype=float)
+    return np_result[:, 4].astype(float)
+
+
+def rsi_cal(closes):
     delta = np.diff(closes)
 
     gains = np.where(delta > 0, delta, 0)
@@ -48,3 +51,13 @@ def rsi_cal(token):
         rsi = round(rsi, 2)
 
     return rsi
+
+def ema_cal(closes, period):
+     
+    ema = closes[-1]
+    multiplier = 2 / (period + 1)
+
+    for price in reversed(closes[-period:]):
+        ema = (price - ema) * multiplier + ema
+
+    return round(ema, 2)
