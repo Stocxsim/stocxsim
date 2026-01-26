@@ -91,3 +91,4 @@ def fetch_historical_data(symbol_token):
     data=result['data']
     np_result = np.array(data)
     return np_result
+

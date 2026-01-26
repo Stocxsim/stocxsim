@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template, session
 from database.user_stock_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data
-from service.stockservice import search_stocks_service, get_stock_detail_service, rsi_cal
+from service.stockservice import search_stocks_service, get_stock_detail_service, rsi_cal,ema_cal,get_closes
 from data.live_data import register_equity_token, LIVE_STOCKS
 from modal.Stock import Stock
 
@@ -26,8 +26,10 @@ def stock_detail(stock_token):
 
     # 🔥 REGISTER TOKEN FOR LIVE UPDATES
     register_equity_token(str(stock_token))
-
-    stock.set_rsi(rsi_cal(stock_token))
+    closes=get_closes(stock_token)
+    stock.set_rsi(rsi_cal(closes))
+    stock.set_ema_9(ema_cal(closes, 9))
+    stock.set_ema_20(ema_cal(closes, 20))
     return render_template("stock.html", stock=stock)
 
 
