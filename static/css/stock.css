@@ -273,6 +273,18 @@ body {
 }
 
 /* ============================================
+   Indicators Wrapper - Side by Side Layout
+   ============================================ */
+
+.indicators-wrapper {
+    display: flex;
+    gap: 40px;
+    margin: 0 40px 40px 40px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* ============================================
    Gauge Container & SVG
    ============================================ */
 
@@ -280,8 +292,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 40px;
-    margin-left: 150px;
+    flex: 1;
+    max-width: 400px;
 }
 
 .gauge-title {
@@ -326,8 +338,11 @@ body {
    ============================================ */
 
 .label-container {
-    margin-top: 20px;
-    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;   /* horizontal center */
+    align-items: center;
+    margin-top: 12px;
 }
 
 .label-text {
@@ -448,7 +463,23 @@ body {
    Responsive Design
    ============================================ */
 
+@media (max-width: 992px) {
+    .indicators-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .gauge-container {
+        max-width: 100%;
+        margin-bottom: 40px;
+    }
+}
+
 @media (max-width: 480px) {
+    .indicators-wrapper {
+        margin: 0 20px 40px 20px;
+    }
+
     .gauge-svg {
         width: 280px;
         height: 155px;
