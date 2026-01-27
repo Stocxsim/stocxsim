@@ -88,14 +88,15 @@ body {
 
 /* Search dropdown */
 .search-results {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  width: 120%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 360px;
   background: rgb(231, 231, 231);
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  max-height: 220px;
+  max-height: 300px;
   overflow-y: auto;
   display: none;
   z-index: 10001;
@@ -136,9 +137,10 @@ body {
 }
 
 .profile-dropdown {
-  position: absolute;
-  top: 48px;
-  right: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 320px;
   background: #fff;
   border-radius: 14px;
@@ -188,7 +190,6 @@ body {
      z-index: 800;
      background: white;
      padding: 1px 20px;
-     border-bottom: 1px solid #e0e0e0;
      display: flex;
      gap: 40px;
 }
@@ -229,10 +230,7 @@ body {
    TICKER
 ======================= */
 
-.ticker-bar {
-     position: sticky;
-     height: 30px;
-}
+
 
 .ticker-item {
      font-weight: 500;
@@ -291,4 +289,13 @@ body {
     font-size: 14px;
     padding: 10px 5px;
   }
+}
+/* GREEN */
+.up {
+  color: #04b488;   /* nice green */
+}
+
+/* RED */
+.down {
+  color: #Ed5533;   /* clean red */
 }

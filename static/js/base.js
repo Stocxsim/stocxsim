@@ -10,8 +10,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // Profile dropdown
   window.toggleProfile = function () {
     const dropdown = document.getElementById("profileDropdown");
+    const Profile = document.querySelector(".profile-wrapper");
+
     if (dropdown) dropdown.classList.toggle("show");
   };
+
+  document.addEventListener("click", (e) => {
+  const dropdown = document.getElementById("profileDropdown");
+  const profileWrapper = document.querySelector(".profile-wrapper");
+
+  if (!dropdown || !profileWrapper) return;
+
+  // If click is outside the profile wrapper, close the dropdown
+  if (!profileWrapper.contains(e.target)) {
+    dropdown.classList.remove("show");
+  }
+});
+
 
   // Search
   const input = document.getElementById("searchInput");
@@ -54,6 +69,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Close search when clicking outside
+  document.addEventListener("click", (e) => {
+    const searchBox = document.querySelector(".search-box");
+    const resultsBox = document.getElementById("searchResults");
+
+    if (!searchBox || !resultsBox) return;
+
+    // If click is outside search box
+    if (!searchBox.contains(e.target)) {
+      resultsBox.style.display = "none";
+    }
+  });
+  
 
   // live market socket
   if (typeof io === 'undefined') {
@@ -110,7 +138,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const sign = info.change >= 0 ? "+" : "";
     changeEl.innerText = `${sign}${info.change.toFixed(2)}`;
 
+    // Remove old classes
+    priceEl.classList.remove("up", "down");
     changeEl.classList.remove("up", "down");
-    changeEl.classList.add(info.change >= 0 ? "up" : "down");
+
+    const cls = info.change >= 0 ? "up" : "down";
+    priceEl.classList.add(cls);
+    changeEl.classList.add(cls);
   }
 });
