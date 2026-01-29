@@ -41,7 +41,7 @@ function buildOrdersList(orders) {
 
           item.innerHTML = `
       <div class="col order-info">
-        <strong style="color:#44475B">${order.symbol}</strong><br>
+        <strong style="color:#44475b">${order.symbol}</strong><br>
         <small>
           ${order.transaction_type} · ${order.order_type} · ${order.product}
         </small>

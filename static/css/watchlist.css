@@ -26,18 +26,6 @@
      background: #111827;
 }
 
-.add-watchlist {
-     color: #16a34a;
-     font-weight: 500;
-     cursor: pointer;
-}
-
-/* Search */
-.search-input {
-     max-width: 320px;
-     border-radius: 10px;
-}
-
 /* Table */
 .groww-table thead th {
      background-color: #0f0f0f0f !important;
