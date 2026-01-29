@@ -216,3 +216,13 @@
 .form-floating:focus-within .form-label {
      color: #04b488;
 }
+.spinner-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}

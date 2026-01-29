@@ -32,8 +32,18 @@ function f1() {
             body: form
         }).then(response => response.json()).then(data => {
             if (data.success === true) {
-            alert("Login Successful");
-            window.location.href = "/login/dashboard";
+            // Hide modal backdrop & freeze UI
+    document.getElementById("loginModal").classList.remove("show");
+    document.querySelector(".modal-backdrop")?.remove();
+
+    // Show spinner
+    document.getElementById("login-spinner").classList.remove("d-none");
+
+    // Redirect after short delay
+    setTimeout(() => {
+        window.location.href = "/login/dashboard";
+    }, 1500);
+
         } else {
             alert("Wrong password");
         }
