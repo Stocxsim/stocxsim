@@ -10,6 +10,8 @@ from utils.market_time import is_market_open
 
 ws = None
 subscribed_tokens = set()
+last_emit_time = 0
+EMIT_THROTTLE_MS = 100  # Emit max every 100ms to reduce network overhead
 
 
 def start_websocket(jwt_token, feed_token):
@@ -45,6 +47,19 @@ def subscribe_user_watchlist(user_id, tokens):
         subscribe(ws, 1, token)
 
 
+def subscribe_equity_tokens(tokens):
+    """Subscribe additional equity tokens (e.g., holdings) if WS is connected."""
+    global ws
+
+    if ws is None:
+        return
+
+    for token in tokens:
+        if token is None:
+            continue
+        subscribe(ws, 1, str(token))
+
+
 def on_open(ws):
     print("🔗 WebSocket Connected")
 
@@ -69,6 +84,7 @@ def subscribe(ws, exchange, token):
 
 def on_data(ws, message):
     try:
+        global last_emit_time
         token = message["token"]
         ltp = message["last_traded_price"] / 100
 
@@ -87,6 +103,7 @@ def on_data(ws, message):
         else:
             LIVE_STOCKS[token].update(data)
 
+<<<<<<< HEAD
         # print(f"LIVE INDEX: {LIVE_INDEX}")
         # print(f"LIVE STOCKS: {LIVE_STOCKS}")
 
@@ -95,6 +112,16 @@ def on_data(ws, message):
             "stocks": LIVE_STOCKS,
             "index": LIVE_INDEX
         })
+=======
+        # Throttle emissions to reduce network overhead
+        current_time = time() * 1000
+        if current_time - last_emit_time > EMIT_THROTTLE_MS:
+            last_emit_time = current_time
+            socketio.emit("live_prices", {
+                "stocks": LIVE_STOCKS,
+                "index": LIVE_INDEX
+            })
+>>>>>>> d206d5cfef5027407e150ad8635065554b94b07c
 
     except Exception as e:
         print("WS ERROR:", e)

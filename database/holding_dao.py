@@ -1,115 +1,155 @@
-from database.connection import get_connection
+from database.connection import get_connection, return_connection
 from database.stockdao import get_stock_by_token
-from data.live_data import LIVE_STOCKS
+from data.live_data import LIVE_STOCKS, BASELINE_DATA
 
 
 def add_holding(order_details):
     conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
 
-    # Check if the holding already exists
-    query_check = """
-    SELECT quantity , avg_buy_price FROM holdings WHERE user_id = %s AND symbol_token = %s
-    """
-    cursor.execute(
-        query_check, (order_details["user_id"], order_details["symbol_token"]))
-    result = cursor.fetchone()
-
-    if result:
-        # Update existing holding
-        new_quantity = result[0] + order_details["quantity"]
-        query_update = """
-        UPDATE holdings SET quantity = %s , avg_buy_price = %s WHERE user_id = %s AND symbol_token = %s
-        """
-        new_avg_price = ((result[1] * result[0]) + (order_details["price"]
-                         * order_details["quantity"])) / new_quantity
-        cursor.execute(query_update, (new_quantity, new_avg_price,
-                       order_details["user_id"], order_details["symbol_token"]))
-    else:
-        # Insert new holding
-        query_insert = """
-        INSERT INTO holdings (user_id, symbol_token, quantity, avg_buy_price)
-        VALUES (%s, %s, %s, %s)
+        # Check if the holding already exists
+        query_check = """
+        SELECT quantity , avg_buy_price FROM holdings WHERE user_id = %s AND symbol_token = %s
         """
         cursor.execute(
-            query_insert, (order_details["user_id"], order_details["symbol_token"], order_details["quantity"], order_details["price"]))
+            query_check, (order_details["user_id"], order_details["symbol_token"]))
+        result = cursor.fetchone()
 
-    conn.commit()
-    cursor.close()
-    conn.close()
+        if result:
+            # Update existing holding
+            new_quantity = result[0] + order_details["quantity"]
+            query_update = """
+            UPDATE holdings SET quantity = %s , avg_buy_price = %s WHERE user_id = %s AND symbol_token = %s
+            """
+            new_avg_price = ((result[1] * result[0]) + (order_details["price"]
+                             * order_details["quantity"])) / new_quantity
+            cursor.execute(query_update, (new_quantity, new_avg_price,
+                           order_details["user_id"], order_details["symbol_token"]))
+        else:
+            # Insert new holding
+            query_insert = """
+            INSERT INTO holdings (user_id, symbol_token, quantity, avg_buy_price)
+            VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(
+                query_insert, (order_details["user_id"], order_details["symbol_token"], order_details["quantity"], order_details["price"]))
+
+        conn.commit()
+    finally:
+        cursor.close()
+        return_connection(conn)
 
 
 def update_holding_on_sell(order_details):
     conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
 
-    # Fetch current holding
-    query_check = """
-    SELECT quantity FROM holdings WHERE user_id = %s AND symbol_token = %s
-    """
-    cursor.execute(
-        query_check, (order_details["user_id"], order_details["symbol_token"]))
-    result = cursor.fetchone()
+        # Fetch current holding
+        query_check = """
+        SELECT quantity FROM holdings WHERE user_id = %s AND symbol_token = %s
+        """
+        cursor.execute(
+            query_check, (order_details["user_id"], order_details["symbol_token"]))
+        result = cursor.fetchone()
 
-    if result:
-        current_quantity = result[0]
-        sell_quantity = order_details["quantity"]
+        if result:
+            current_quantity = result[0]
+            sell_quantity = order_details["quantity"]
 
-        # 🔴 MAIN VALIDATION (THIS WAS MISSING)
-        if sell_quantity > current_quantity:
-            cursor.close()
-            conn.close()
-            return False, "Insufficient quantity to sell"
-        new_quantity = current_quantity - sell_quantity
+            # 🔴 MAIN VALIDATION (THIS WAS MISSING)
+            if sell_quantity > current_quantity:
+                return False, "Insufficient quantity to sell"
+            new_quantity = current_quantity - sell_quantity
 
-        if new_quantity > 0:
-            # Update holding with reduced quantity
-            query_update = """
-            UPDATE holdings SET quantity = %s WHERE user_id = %s AND symbol_token = %s
-            """
-            cursor.execute(query_update, (new_quantity,
-                           order_details["user_id"], order_details["symbol_token"]))
-            conn.commit()
+            if new_quantity > 0:
+                # Update holding with reduced quantity
+                query_update = """
+                UPDATE holdings SET quantity = %s WHERE user_id = %s AND symbol_token = %s
+                """
+                cursor.execute(query_update, (new_quantity,
+                               order_details["user_id"], order_details["symbol_token"]))
+                conn.commit()
+            else:
+                # Remove holding if quantity is zero or less
+                query_delete = """
+                DELETE FROM holdings WHERE user_id = %s AND symbol_token = %s
+                """
+                cursor.execute(
+                    query_delete, (order_details["user_id"], order_details["symbol_token"]))
+                conn.commit()
+            return True
         else:
-            # Remove holding if quantity is zero or less
-            query_delete = """
-            DELETE FROM holdings WHERE user_id = %s AND symbol_token = %s
-            """
-            cursor.execute(
-                query_delete, (order_details["user_id"], order_details["symbol_token"]))
-            conn.commit()
-            cursor.close()
-            conn.close()
-        return True
-    else:
+            return False
+    finally:
         cursor.close()
-        conn.close()
-        return False
+        return_connection(conn)
 
 
 def get_holdings_by_user(user_id):
     conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
 
-    query = """
-    SELECT symbol_token, quantity, avg_buy_price FROM holdings WHERE user_id = %s
-    """
-    cursor.execute(query, (user_id,))
-    holdings = cursor.fetchall()
+        query = """
+        SELECT h.symbol_token, h.quantity, h.avg_buy_price,
+               s.stock_name, s.stock_short_name
+        FROM holdings h
+        LEFT JOIN stocks s ON s.stock_token = h.symbol_token
+        WHERE h.user_id = %s
+        """
+        cursor.execute(query, (user_id,))
+        holdings = cursor.fetchall()
 
-    cursor.close()
-    conn.close()
+        holdings_dict = {}
 
-    holdings_dict = {}
+        for holding in holdings:
+            symbol_token = holding[0]
+            token_str = str(symbol_token)
 
-    for holding in holdings:
-        symbol_token = holding[0]
-        market_price = LIVE_STOCKS.get(symbol_token, {}).get(
-            "ltp", 0)  # Default to 0 if not available
-        holdings_dict[str(symbol_token)] = {
-            "symbol_token": holding[0],
-            "quantity": holding[1],
-            "avg_buy_price": holding[2],
-            "market_price": market_price
-        }
-    return holdings_dict
+            live = LIVE_STOCKS.get(token_str) or {}
+            base = BASELINE_DATA.get(token_str) or {}
+            market_price = live.get("ltp")
+            if market_price is None:
+                market_price = base.get("ltp")
+            if market_price is None:
+                market_price = base.get("prev_close")
+            if market_price is None:
+                market_price = 0
+
+            holdings_dict[token_str] = {
+                "symbol_token": symbol_token,
+                "quantity": holding[1],
+                "avg_buy_price": holding[2],
+                "market_price": market_price,
+                "prev_close": (base.get("prev_close") if base else None),
+                "stock_name": holding[3],
+                "stock_symbol": holding[4],
+            }
+        return holdings_dict
+    finally:
+        cursor.close()
+        return_connection(conn)
+
+
+def get_holding_by_user_and_token(user_id, symbol_token):
+    """Return a single holding row (quantity, avg_buy_price) for a user/token."""
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT quantity, avg_buy_price
+            FROM holdings
+            WHERE user_id = %s AND symbol_token = %s
+            """,
+            (user_id, symbol_token),
+        )
+        row = cursor.fetchone()
+        if not row:
+            return {"quantity": 0, "avg_buy_price": 0}
+        return {"quantity": row[0], "avg_buy_price": row[1]}
+    finally:
+        cursor.close()
+        return_connection(conn)

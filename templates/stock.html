@@ -12,6 +12,15 @@
 
 <body>
 
+    <div id="stockPage"
+         data-stock-token="{{ stock.stock_token }}"
+         data-stock-name="{{ stock.stock_name }}"
+         data-ema20="{{ stock.ema_20 if stock.ema_20 else 0 }}"
+            data-rsi="{{ stock.rsi if stock.rsi else 50 }}"
+            data-holding-qty="{{ holding.quantity if holding else 0 }}"
+            data-holding-avg="{{ holding.avg_buy_price if holding else 0 }}"
+         style="display:none"></div>
+
     <div class="container">
         <div class="left-panel">
             <div class="header-top">
@@ -48,6 +57,9 @@
             <div class="order-header">
                 <h2 id="orderStockName">{{ stock.stock_name }}</h2>
                 <p class="exchange-info" id="exchange-id"></p>
+                <p class="exchange-info" style="margin-top:6px;">
+                    Holding: <span id="holdingQty">0</span> shares
+                </p>
             </div>
 
             <div class="tabs">

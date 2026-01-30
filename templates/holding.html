@@ -12,46 +12,45 @@
   <div class="row gx-3">
 
     <!-- LEFT -->
-    <div class="col-lg-8">
+    <div class="col-lg-12">
       <div class="holdings-header">
         <span class="title">Holdings</span>
       </div>
 
-      <div class="holdings-summary">
-        <div>
-          <p>Current value</p>
-          <h4 id="total-current">₹0.00</h4>
+      <div class="holdings-summary-card">
+        <div class="summary-top">
+          <div>
+            <p class="summary-label">Current value</p>
+            <h2 class="summary-value" id="total-current">₹0.00</h2>
+          </div>
         </div>
-        <div>
-          <p>Invested value</p>
-          <h4 id="total-invested">₹0.00</h4>
-        </div>
-        <div>
-          <p>Total returns</p>
-          <h4 id="total-returns">₹0.00 (0.00%)</h4>
+
+        <div class="summary-bottom">
+          <div class="summary-item">
+            <p class="summary-label">Invested value</p>
+            <div class="summary-subvalue" id="total-invested">₹0.00</div>
+          </div>
+          <div class="summary-item">
+            <p class="summary-label">1D returns</p>
+            <div class="summary-subvalue" id="one-day-returns">₹0.00 (0.00%)</div>
+          </div>
+          <div class="summary-item">
+            <p class="summary-label">Total returns</p>
+            <div class="summary-subvalue" id="total-returns">₹0.00 (0.00%)</div>
+          </div>
         </div>
       </div>
 
       <div class="holdings-card">
         <div class="table-header">
           <span>Company</span>
-          <span>Market price</span>
+          <span>Market price (1D%)</span>
           <span>Returns</span>
-          <span>Current</span>
+          <span>Current (Invested)</span>
         </div>
-        <div id="holding-body"></div>
-      </div>
-    </div>
-
-    <!-- ✅ RIGHT (INSIDE SAME ROW) -->
-    <div class="col-lg-3 border rounded right-panel">
-      <div class="select-box">
-        <p>Select a stock to get started</p>
-      </div>
-
-      <div class="balance-box">
-        <span>Balance: ₹0.00</span>
-        <a href="#">Add money</a>
+        <div id="holding-body">
+          <div class="holding-loading">Loading holdings…</div>
+        </div>
       </div>
     </div>
 

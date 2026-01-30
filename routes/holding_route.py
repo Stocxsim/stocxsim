@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, session
+import threading
 # from service.holding_service import get_holdings_by_user
 from database.holding_dao import get_holdings_by_user
 # for live data registration
-from data.live_data import register_equity_token, refresh_live_data
+from data.live_data import register_equity_token, ensure_baseline_data
+from websockets.angle_ws import subscribe_equity_tokens
 
 
 holding_bp = Blueprint('holding_bp', __name__)
@@ -19,12 +21,19 @@ def get_user_holdings():
 
         holdings = get_holdings_by_user(user_id)
 
+        tokens = []
+
         # Register tokens for live data
         for symbol, h in holdings.items():
-            register_equity_token(str(h["symbol_token"]))
+            token = str(h["symbol_token"])
+            tokens.append(token)
+            register_equity_token(token)
 
-        # Refresh live data for the registered tokens
-        refresh_live_data()
+        # Subscribe holdings tokens to Angel WS (non-blocking) so Socket.IO emits updates.
+        subscribe_equity_tokens(tokens)
+
+        # Ensure we have baseline data for holdings; run in background to keep API fast.
+        threading.Thread(target=ensure_baseline_data, args=(tokens,), daemon=True).start()
 
         return jsonify({
             "holdings": holdings
