@@ -16,6 +16,14 @@ def get_stock_tokens_by_user(user_id):
 # To check if a stock is in the user's watchlist
 
 
+def safe_subscribe(user_id, stock_token):
+    if not check_watchlist(user_id, stock_token):
+        print(f"❌ Cannot subscribe {stock_token}, not in watchlist")
+        return False  # Or return an error to the frontend
+    # Otherwise, proceed with your subscription logic
+    # ...
+    return True
+
 def check_watchlist(user_id, stock_token):
     stock_token = str(stock_token)
     conn = get_connection()
@@ -28,6 +36,7 @@ def check_watchlist(user_id, stock_token):
     result = cur.fetchone()
 
     conn.close()
+    print("🔥 in check_watchlist", result)
     return result is not None
 
 

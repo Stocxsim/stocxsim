@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify, session, redirect, render_template
+import threading
 from modal.User import User
 from service.userservice import login_service, signup_service, verify_otp, send_otp, getUserDetails
-from websockets.angle_ws import subscribe_user_watchlist
-from data.live_data import BASELINE_DATA
 from database.watchlist_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data, load_baseline_data
+from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlist
+from data.live_data import register_equity_token, ensure_baseline_data, BASELINE_DATA
+from database.user_stock_dao import get_stock_tokens_by_user
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -32,10 +34,22 @@ def save_user():
 
     # 🔥 SUBSCRIBE USER WATCHLIST
     user_id = user.get_user_id()
-    tokens = get_stock_tokens_by_user(user_id)   # e.g. 20 tokens
-    BASELINE_DATA.update(get_full_market_data(tokens))
-    load_baseline_data()
-    subscribe_user_watchlist(user_id, tokens)
+    tokens = [str(t) for t in get_stock_tokens_by_user(user_id)]   # e.g. 20 tokens
+
+    # Keep login response fast: do live-data warmup in background.
+    for token in tokens:
+        register_equity_token(token)
+
+    def _warm_watchlist():
+        try:
+            subscribe_equity_tokens(tokens)
+            ensure_baseline_data(tokens)
+        except Exception:
+            # Never block login due to market-data issues.
+            return
+
+    threading.Thread(target=_warm_watchlist, daemon=True).start()
+
     return jsonify({"success": True})
 
 

@@ -1,112 +1,333 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>TradingView Technical Indicator Gauge</title>
-     <link rel="stylesheet" href="try.css">
+<meta charset="UTF-8">
+<title>TradingView Horizontal Price Lines</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0e1621;
+  color: #d1d4dc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow: hidden;
+}
+
+#chartWrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#chart {
+  width: 100%;
+  height: 100%;
+}
+
+#labelsContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.price-label {
+  position: absolute;
+  right: 0;
+  background: #2962ff;
+  color: white;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 2px 0 0 2px;
+  cursor: ns-resize;
+  pointer-events: auto;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.price-label.dragging {
+  opacity: 0.8;
+}
+
+.delete-btn {
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+}
+
+#controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
+
+#controls button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #2962ff;
+  color: white;
+}
+
+#controls button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background: #1e53e5;
+}
+
+#controls button:active {
+  transform: translateY(0);
+}
+</style>
 </head>
 
 <body>
-     <div class="gauge-container">
-          <svg class="gauge-svg" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid meet">
-               <!-- Gradient definitions for smooth color zones -->
-               <defs>
-                    <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                         <stop offset="0%" style="stop-color:#c0392b;stop-opacity:1" />
-                         <stop offset="20%" style="stop-color:#e74c3c;stop-opacity:1" />
-                         <stop offset="40%" style="stop-color:#f39c12;stop-opacity:1" />
-                         <stop offset="50%" style="stop-color:#7f8c8d;stop-opacity:1" />
-                         <stop offset="60%" style="stop-color:#27ae60;stop-opacity:1" />
-                         <stop offset="80%" style="stop-color:#2ecc71;stop-opacity:1" />
-                         <stop offset="100%" style="stop-color:#16a085;stop-opacity:1" />
-                    </linearGradient>
-               </defs>
 
-               <!-- Semi-circular arc (180° from 180° to 0°) -->
-               <path class="gauge-arc" d="M 20 160 A 140 140 0 0 1 300 160" fill="none" stroke="url(#arcGradient)"
-                    stroke-width="3" stroke-linecap="round" />
+<div id="chartWrapper">
+  <div id="chart"></div>
+  <div id="labelsContainer"></div>
+  <div id="controls">
+    <button id="addLineBtn">+ Add Horizontal Line</button>
+  </div>
+</div>
 
-               <!-- Needle group (rotates around center) -->
-               <g class="needle-group">
-                    <!-- Needle line -->
-                    <line class="needle-line" x1="160" y1="160" x2="160" y2="40" stroke="black" stroke-width="2"
-                         stroke-linecap="round" />
+<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 
-                    <!-- Center dot -->
-                    <circle class="center-dot" cx="160" cy="160" r="5" fill="black" />
-               </g>
-          </svg>
+<script>
+const chartContainer = document.getElementById('chart');
+const labelsContainer = document.getElementById('labelsContainer');
 
-          <div class="label-container">
-               <div class="label-text" id="label">Neutral</div>
-          </div>
-     </div>
+const chart = LightweightCharts.createChart(chartContainer, {
+  layout: {
+    background: { color: '#131722' },
+    textColor: '#d1d4dc',
+  },
+  grid: {
+    vertLines: { color: '#1e222d' },
+    horzLines: { color: '#1e222d' },
+  },
+  crosshair: {
+    mode: LightweightCharts.CrosshairMode.Normal,
+  },
+  rightPriceScale: {
+    borderColor: '#2b2b43',
+  },
+  timeScale: {
+    borderColor: '#2b2b43',
+    timeVisible: true,
+    secondsVisible: false,
+  },
+});
 
-     <!-- Control buttons for testing -->
-     <div class="button-container">
-          <button class="btn btn-strong-sell" onclick="setGauge(-80)">Strong Sell</button>
-          <button class="btn btn-sell" onclick="setGauge(-40)">Sell</button>
-          <button class="btn btn-neutral" onclick="setGauge(0)">Neutral</button>
-          <button class="btn btn-buy" onclick="setGauge(45)">Buy</button>
-          <button class="btn btn-strong-buy" onclick="setGauge(85)">Strong Buy</button>
-     </div>
+const candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
+  upColor: '#26a69a',
+  downColor: '#ef5350',
+  borderVisible: false,
+  wickUpColor: '#26a69a',
+  wickDownColor: '#ef5350',
+});
 
-     <script>
-          /**
-           * Sets the gauge to a specific value with smooth animation.
-           * @param {number} value - Range from -100 to +100
-           */
-          function setGauge(value) {
-               // Clamp value to range [-100, 100]
-               value = Math.max(-100, Math.min(100, value));
+const candles = [
+  { time: '2025-01-01', open: 100, high: 110, low: 95, close: 105 },
+  { time: '2025-01-02', open: 105, high: 115, low: 100, close: 110 },
+  { time: '2025-01-03', open: 110, high: 120, low: 105, close: 115 },
+  { time: '2025-01-04', open: 115, high: 125, low: 110, close: 120 },
+  { time: '2025-01-05', open: 120, high: 130, low: 115, close: 125 },
+  { time: '2025-01-06', open: 125, high: 135, low: 120, close: 130 },
+  { time: '2025-01-07', open: 130, high: 140, low: 125, close: 135 },
+  { time: '2025-01-08', open: 135, high: 145, low: 130, close: 140 },
+  { time: '2025-01-09', open: 140, high: 150, low: 135, close: 145 },
+  { time: '2025-01-10', open: 145, high: 145, low: 110, close: 115 },
+  { time: '2025-01-11', open: 150, high: 190, low: 100, close: 105 },
+  { time: '2025-01-12', open: 125, high: 135, low: 120, close: 130 },
+  { time: '2025-01-13', open: 130, high: 140, low: 125, close: 135 },
+  { time: '2025-01-14', open: 135, high: 145, low: 130, close: 140 },
+  { time: '2025-01-15', open: 140, high: 150, low: 135, close: 145 },
+  { time: '2025-01-16', open: 145, high: 155, low: 140, close: 150 },
+  { time: '2025-01-17', open: 150, high: 160, low: 145, close: 155 },
+  { time: '2025-01-18', open: 155, high: 165, low: 150, close: 160 },
+  { time: '2025-01-19', open: 160, high: 170, low: 155, close: 165 },
+  { time: '2025-01-20', open: 165, high: 175, low: 160, close: 170 },
+];
 
-               // Convert linear value to rotation angle
-               // -100 → -90°, 0 → 0°, +100 → +90°
-               const angle = (value / 100) * 90;
+candleSeries.setData(candles);
+chart.timeScale().fitContent();
 
-               // Apply rotation to needle group
-               const needleGroup = document.querySelector('.needle-group');
-               needleGroup.style.transform = `rotate(${angle}deg)`;
-               needleGroup.style.transformOrigin = '160px 160px';
+let horizontalLines = [];
+let nextId = 1;
+let lastCrosshairPrice = null;
+let dragState = null;
 
-               // Update label text and color based on value
-               updateLabel(value);
-          }
+chart.subscribeCrosshairMove((param) => {
+  if (param.seriesData && param.seriesData.size > 0) {
+    const seriesData = param.seriesData.get(candleSeries);
+    if (seriesData) {
+      lastCrosshairPrice = seriesData.close;
+    }
+  }
+});
 
-          /**
-           * Updates the label text and color based on gauge value.
-           * @param {number} value - Range from -100 to +100
-           */
-          function updateLabel(value) {
-               const label = document.getElementById('label');
-               let text, colorClass;
+function createHorizontalLine(price) {
+  const id = nextId++;
+  const color = '#2962ff';
+  
+  const priceLine = candleSeries.createPriceLine({
+    price: price,
+    color: color,
+    lineWidth: 2,
+    lineStyle: LightweightCharts.LineStyle.Solid,
+    axisLabelVisible: false,
+  });
+  
+  const labelEl = document.createElement('div');
+  labelEl.className = 'price-label';
+  labelEl.innerHTML = `
+    <span class="price-text">${price.toFixed(2)}</span>
+    <span class="delete-btn">×</span>
+  `;
+  
+  labelsContainer.appendChild(labelEl);
+  
+  const lineObj = {
+    id,
+    price,
+    color,
+    priceLine,
+    labelEl,
+  };
+  
+  horizontalLines.push(lineObj);
+  
+  setupLabelDrag(lineObj);
+  setupLabelDelete(lineObj);
+  updateLabelPosition(lineObj);
+  
+  return lineObj;
+}
 
-               if (value <= -60) {
-                    text = 'Strong Sell';
-                    colorClass = 'color-strong-sell';
-               } else if (value <= -20) {
-                    text = 'Sell';
-                    colorClass = 'color-sell';
-               } else if (value < 20) {
-                    text = 'Neutral';
-                    colorClass = 'color-neutral';
-               } else if (value < 60) {
-                    text = 'Buy';
-                    colorClass = 'color-buy';
-               } else {
-                    text = 'Strong Buy';
-                    colorClass = 'color-strong-buy';
-               }
+function setupLabelDrag(lineObj) {
+  const { labelEl } = lineObj;
+  
+  labelEl.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('delete-btn')) return;
+    
+    e.preventDefault();
+    labelEl.classList.add('dragging');
+    
+    dragState = {
+      lineObj,
+      startY: e.clientY,
+      startPrice: lineObj.price,
+    };
+  });
+}
 
-               label.textContent = text;
-               label.className = `label-text ${colorClass}`;
-          }
+function setupLabelDelete(lineObj) {
+  const deleteBtn = lineObj.labelEl.querySelector('.delete-btn');
+  deleteBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    removeHorizontalLine(lineObj.id);
+  });
+}
 
-          // Initialize gauge at neutral position
-          setGauge(0);
-     </script>
+function removeHorizontalLine(id) {
+  const index = horizontalLines.findIndex(line => line.id === id);
+  if (index === -1) return;
+  
+  const lineObj = horizontalLines[index];
+  candleSeries.removePriceLine(lineObj.priceLine);
+  lineObj.labelEl.remove();
+  horizontalLines.splice(index, 1);
+}
+
+function updateLabelPosition(lineObj) {
+  const y = candleSeries.priceToCoordinate(lineObj.price);
+  if (y === null) {
+    lineObj.labelEl.style.display = 'none';
+    return;
+  }
+  
+  lineObj.labelEl.style.display = 'flex';
+  lineObj.labelEl.style.top = `${y - 12}px`;
+}
+
+function updateAllLabels() {
+  horizontalLines.forEach(lineObj => {
+    updateLabelPosition(lineObj);
+  });
+}
+
+document.addEventListener('mousemove', (e) => {
+  if (!dragState) return;
+  
+  const rect = chartContainer.getBoundingClientRect();
+  const y = e.clientY - rect.top;
+  const price = candleSeries.coordinateToPrice(y);
+  
+  if (price === null) return;
+  
+  dragState.lineObj.price = price;
+  
+  candleSeries.removePriceLine(dragState.lineObj.priceLine);
+  dragState.lineObj.priceLine = candleSeries.createPriceLine({
+    price: price,
+    color: dragState.lineObj.color,
+    lineWidth: 2,
+    lineStyle: LightweightCharts.LineStyle.Solid,
+    axisLabelVisible: false,
+  });
+  
+  dragState.lineObj.labelEl.querySelector('.price-text').textContent = price.toFixed(2);
+  updateLabelPosition(dragState.lineObj);
+});
+
+document.addEventListener('mouseup', () => {
+  if (dragState) {
+    dragState.lineObj.labelEl.classList.remove('dragging');
+    dragState = null;
+  }
+});
+
+document.getElementById('addLineBtn').addEventListener('click', () => {
+  const price = lastCrosshairPrice || 150;
+  createHorizontalLine(price);
+});
+
+chart.timeScale().subscribeVisibleTimeRangeChange(() => {
+  updateAllLabels();
+});
+
+window.addEventListener('resize', () => {
+  chart.applyOptions({
+    width: chartContainer.clientWidth,
+    height: chartContainer.clientHeight,
+  });
+  updateAllLabels();
+});
+
+createHorizontalLine(130);
+</script>
+
 </body>
-
 </html>

@@ -35,14 +35,16 @@ def toggle(stock_token):
 #     print("🧪 TOGGLE HIT:", stock_token)
 #     print("🧪 SESSION:", dict(session))
 
-    user_id = session.get("user_id")
+     user_id = session.get("user_id")
 #     print("🧪 USER ID:", user_id)
 
-    if not user_id:
-        return jsonify({"error": "Unauthorized"}), 401
+     if not user_id:
+          return jsonify({"error": "Unauthorized"}), 401
 
-    status = toggle_watchlist(user_id, stock_token)
-    return jsonify({"watchlisted": status})
+     print("🧪 TOGGLE:")
+     status = toggle_watchlist(user_id, stock_token)
+     print("🧪 STATUS:", status)
+     return jsonify({"watchlisted": status})
 
 
 # To check watchlist status for a stock

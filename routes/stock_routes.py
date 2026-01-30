@@ -1,9 +1,16 @@
 from flask import Blueprint, request, jsonify, render_template, session
-from database.watchlist_dao import get_stock_tokens_by_user
-from websockets.angle_ws import subscribe, unsubscribe, ws
-from service.stockservice import search_stocks_service, get_stock_detail_service, rsi_cal, ema_cal, get_closes
-from data.live_data import register_equity_token, LIVE_STOCKS
-from websockets.angle_ws import subscribe, ws
+
+from database.watchlist_dao import check_watchlist, get_stock_tokens_by_user
+from websockets.angle_ws import subscribe, unsubscribe, ws, subscribe_equity_tokens
+from database.user_stock_dao import get_stock_tokens_by_user
+from service.market_data_service import get_full_market_data
+from service.stockservice import search_stocks_service, get_stock_detail_service
+from data.live_data import register_equity_token, ensure_baseline_data
+from database.holding_dao import get_holding_by_user_and_token
+from service.indicator_cache import get_cached_indicators, compute_and_cache_indicators
+from modal.Stock import Stock
+
+import threading
 
 stock_bp = Blueprint("stock_bp", __name__)
 
@@ -11,6 +18,12 @@ stock_bp = Blueprint("stock_bp", __name__)
 # for subscribing and unsubscribing stocks for live data (Specially for search)
 @stock_bp.route("/subscribe/<token>", methods=["POST"])
 def subscribe_stock(token):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    if not check_watchlist(user_id, token):
+        return jsonify({"error": "Stock not in watchlist"}), 400
     try:
         if ws is None:
             return jsonify({"error": "WS not connected"}), 500
@@ -60,13 +73,41 @@ def stock_detail(stock_token):
     stock = get_stock_detail_service(stock_token)
     if not stock:
         return render_template("404.html"), 404
+    # 🔥 REGISTER TOKEN FOR LIVE UPDATES
+    token = str(stock_token)
+    register_equity_token(token)
+    subscribe_equity_tokens([token])
+    threading.Thread(target=ensure_baseline_data,
+                     args=([token],), daemon=True).start()
 
-    # REGISTER TOKEN FOR LIVE UPDATES
-    register_equity_token(str(stock_token))
-    closes = get_closes(stock_token)
-    stock.set_rsi(rsi_cal(closes))
-    stock.set_ema_9(ema_cal(closes, 9))
-    stock.set_ema_20(ema_cal(closes, 20))
+    user_id = session.get("user_id")
+    holding = {"quantity": 0, "avg_buy_price": 0}
+    if user_id:
+        holding = get_holding_by_user_and_token(user_id, stock_token)
+
+    # Indicators are expensive (candle fetch). Use cache + background compute.
+    cached = get_cached_indicators(token)
+    if cached:
+        stock.set_rsi(cached.get("rsi"))
+        stock.set_ema_9(cached.get("ema_9"))
+        stock.set_ema_20(cached.get("ema_20"))
+    else:
+        threading.Thread(target=compute_and_cache_indicators,
+                         args=(token,), daemon=True).start()
+    return render_template("stock.html", stock=stock, holding=holding)
+
+
+@stock_bp.route("/<stock_token>/indicators")
+def stock_indicators(stock_token):
+    token = str(stock_token)
+    cached = get_cached_indicators(token)
+    if cached:
+        return jsonify({"status": "ok", "token": token, **cached})
+
+    # Trigger background compute and let client retry.
+    threading.Thread(target=compute_and_cache_indicators,
+                     args=(token,), daemon=True).start()
+    return jsonify({"status": "pending", "token": token})
 
     # Fetch user watchlist tokens
     user_id = session.get("user_id")
@@ -74,6 +115,3 @@ def stock_detail(stock_token):
         user_id)] if user_id else []
 
     return render_template("stock.html", stock=stock, watchlist_tokens=watchlist_tokens)
-
-
-
