@@ -124,18 +124,18 @@
         <h5 class="mb-3">Your investments</h5>
         <div class="card investments-card p-3">
           <div class="mb-2 text-muted">Current</div>
-          <div class="fs-3 mb-3 fs" style="color: #44475b">₹34,085</div>
+          <div id="dashboard-current" class="fs-3 mb-3 fs" style="color: #44475b">--</div>
           <div class="d-flex justify-content-between mb-1">
             <span class="text-muted">1D returns</span>
-            <span style="color: #Ed5533;">-₹606.00 (1.75%)</span>
+            <span id="dashboard-1d" style="color: #Ed5533;">--</span>
           </div>
           <div class="d-flex justify-content-between mb-1">
             <span class="text-muted">Total returns</span>
-            <span style="color: #04b488;">+₹1,096.50 (3.32%)</span>
+            <span id="dashboard-total" style="color: #04b488;">--</span>
           </div>
           <div class="d-flex justify-content-between mt-2">
             <span class="text-muted">Invested</span>
-            <span class="">₹32,988</span>
+            <span id="dashboard-invested" class="">--</span>
           </div>
         </div>
       </aside>
@@ -147,5 +147,6 @@
 
 {% block js %}
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/static/js/holding.js"></script>
 <script src="/static/js/dashboard.js"></script>
 {% endblock %}

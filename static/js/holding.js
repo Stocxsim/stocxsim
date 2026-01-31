@@ -211,6 +211,23 @@ function updateHoldingsSummary(totalInvested, totalCurrent, oneDayPnl = 0, prevD
           oneDayEl.innerText = `${oneDayPnl >= 0 ? "+" : ""}₹${oneDayPnl.toFixed(2)} (${oneDayPercent.toFixed(2)}%)`;
           oneDayEl.style.color = oneDayPnl >= 0 ? "#04b488" : "#ff4d4f";
      }
+
+      // --- Dashboard sidebar elements ---
+    const dashboardInvested = document.getElementById("dashboard-invested");
+    const dashboardCurrent = document.getElementById("dashboard-current");
+    const dashboardTotal = document.getElementById("dashboard-total");
+    const dashboard1D = document.getElementById("dashboard-1d");
+
+    if (dashboardInvested) dashboardInvested.innerText = `₹${Number(totalInvested).toFixed(2)}`;
+    if (dashboardCurrent) dashboardCurrent.innerText = `₹${Number(totalCurrent).toFixed(2)}`;
+    if (dashboardTotal) {
+        dashboardTotal.innerText = `${totalProfit >= 0 ? "+" : ""}₹${totalProfit.toFixed(2)} (${totalReturnPercent.toFixed(2)}%)`;
+        dashboardTotal.style.color = totalProfit >= 0 ? "#04b488" : "#ff4d4f";
+    }
+    if (dashboard1D) {
+        dashboard1D.innerText = `${oneDayPnl >= 0 ? "+" : ""}₹${oneDayPnl.toFixed(2)} (${oneDayPercent.toFixed(2)}%)`;
+        dashboard1D.style.color = oneDayPnl >= 0 ? "#04b488" : "#ff4d4f";
+    }
 }
 
 function loadUserHoldings() {
@@ -223,15 +240,36 @@ function loadUserHoldings() {
      })
           .then(res => res.json())
           .then(data => {
-               if (data.error) {
-                    console.error(data.error);
-                    setHoldingsLoading(true, "Unable to load holdings");
-                    return;
-               }
+               if (!data.holdings || Object.keys(data.holdings).length === 0) {
+                    if (retry < 1) {
+                         setHoldingsLoading(true, "Unable to load holdings");
+                         setTimeout(() => loadUserHoldings(retry + 1), 300);
+            }
+            return;
+          }
 
                holdingsData = data.holdings;
-               renderHoldings(data.holdings);
-          })
+               // ✅ Holdings page
+        if (document.getElementById("holding-body")) {
+            renderHoldings(data.holdings);
+        } 
+        // ✅ Dashboard page only
+        else {
+            let totalInvested = 0;
+            let totalCurrent = 0;
+
+            Object.values(data.holdings).forEach(h => {
+                const buy = Number(h.avg_buy_price ?? 0);
+                const qty = Number(h.quantity ?? 0);
+                const price = Number(h.market_price ?? buy ?? 0);
+
+                totalInvested += buy * qty;
+                totalCurrent += price * qty;
+            });
+
+            updateHoldingsSummary(totalInvested, totalCurrent);
+        }
+    })
           .catch(err => {
                console.error("Holdings error:", err);
                setHoldingsLoading(true, "Unable to load holdings");

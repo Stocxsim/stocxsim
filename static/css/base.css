@@ -154,6 +154,11 @@ body {
   overflow: hidden;
   z-index: 9999;
 }
+.profile-dropdown,
+.profile-dropdown * {
+  user-select: none;
+}
+
 
 .profile-dropdown.show {
   display: block;
@@ -165,6 +170,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
 }
 
 .profile-item {

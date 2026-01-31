@@ -5,9 +5,11 @@ from routes.user_routes import user_bp
 from routes.stock_routes import stock_bp
 from routes.trade_routes import trade_bp
 from routes.holding_route import holding_bp
+ 
+
 from routes.watchlist_route import watchlist_bp
 from routes.order_route import order_bp
-
+from routes.profile_route import profile_bp
 from data.live_data import LIVE_STOCKS, LIVE_INDEX
 
 app = Flask(__name__)
@@ -18,8 +20,11 @@ app.register_blueprint(user_bp, url_prefix="/login")
 app.register_blueprint(stock_bp, url_prefix="/stocks")
 app.register_blueprint(trade_bp, url_prefix="/trade")
 app.register_blueprint(holding_bp, url_prefix="/holding")
+ 
+
 app.register_blueprint(watchlist_bp, url_prefix="/watchlist")
 app.register_blueprint(order_bp, url_prefix="/order")
+app.register_blueprint(profile_bp, url_prefix="/profile")
 
 @app.route("/")
 def home():
