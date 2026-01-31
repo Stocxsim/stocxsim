@@ -27,11 +27,11 @@ const EMA_20 = parseFloat("{{ stock.ema_20 if stock.ema_20 else 0 }}");
 socket.on("live_prices", (data) => {
 
      if (!data.stocks || !data.stocks[STOCK_TOKEN]) {
-          const stockData = feed[id] || {};
-          if (!stockData.price) {
-               console.debug(`Waiting for feed initialization for: ${id}`);
-               return; // Don't log a full error/warning yet
-          }
+          // const stockData = feed[id] || {};
+          // if (!stockData.price) {
+          //      console.debug(`Waiting for feed initialization for: ${id}`);
+          //      return; // Don't log a full error/warning yet
+          // }
           console.warn("Stock not in feed yet:", STOCK_TOKEN);
           return;
      }
@@ -42,8 +42,10 @@ socket.on("live_prices", (data) => {
      // console.log("LTP:", stock.ltp);
      // console.log("EMA:", EMA_20);
 
-     updateStockUI(stock);
-     setEmaGauge(stock.ltp, EMA_20);
+     if (stock && stock.ltp) {
+          updateStockUI(stock);
+          setEmaGauge(stock.ltp, EMA_20);
+     }
 
      // 2️⃣ INDEX PAGE (future / optional)
      // Example:
@@ -351,7 +353,7 @@ function emaToGaugeValue(price, ema20) {
 }
 
 // =========================
-// UNSUBSCRIBE ON PAGE UNLOAD
+// DYNAMIC SUBSCRIPTION & UNLOAD
 // =========================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -360,13 +362,21 @@ document.addEventListener("DOMContentLoaded", () => {
      fetch(`/stocks/subscribe/${STOCK_TOKEN}`, {
           method: "POST"
      })
-          .then(() => console.log("✅ Subscribed:", STOCK_TOKEN))
-          .catch(() => console.warn("❌ Subscribe failed"));
+          .then(async res => {
+               if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || 'Server Error');
+               }
+               return res.json();
+          })
+          .then(data => console.log("✅ Subscribed:", data.token))
+          .catch(err => console.error("❌ Subscribe failed:", err.message));
 });
 
 window.addEventListener("beforeunload", () => {
      if (!STOCK_TOKEN) return;
-     if (!watchlistTokens.includes(STOCK_TOKEN)) {
+
+     if (!isWatchlisted) {
           navigator.sendBeacon(`/stocks/unsubscribe/${STOCK_TOKEN}`);
           console.log("❌ Unsubscribed:", STOCK_TOKEN);
      } else {
@@ -388,8 +398,6 @@ document.addEventListener("DOMContentLoaded", () => {
      const stockToken = document.body.dataset.stockToken;
 
      if (!watchlistBtn || !stockToken) return;
-
-     let isWatchlisted = false; // Default state
 
      // 1. Force sync with DB truth on page load
      fetch(`/watchlist/status/${stockToken}`)

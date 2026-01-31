@@ -34,7 +34,7 @@ def save_user():
 
     # 🔥 SUBSCRIBE USER WATCHLIST
     user_id = user.get_user_id()
-    tokens = [str(t) for t in get_stock_tokens_by_user(user_id)]   # e.g. 20 tokens
+    tokens = [str(t[0]) for t in get_stock_tokens_by_user(user_id)]   # e.g. 20 tokens
 
     # Keep login response fast: do live-data warmup in background.
     for token in tokens:

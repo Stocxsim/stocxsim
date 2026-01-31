@@ -1,4 +1,3 @@
-// create socket ONLY ONCE
 const socket = io();
 
 // socket event handlers
@@ -22,12 +21,10 @@ socket.on("live_prices", function (data) {
      }
 
      // INDEX UPDATE
-     for (const token in data.index) {
+     if (data.index) {
           for (const token in data.index) updateUI(token, data.index[token]);
      }
-
-     // STOCK UPDATE
-     for (const token in data.stocks) {
+     if (data.stocks) {
           for (const token in data.stocks) updateUI(token, data.stocks[token]);
      }
 });
@@ -63,10 +60,11 @@ fetch("/watchlist/api")
           buildDashboardWatchlist(stocks);
 
           // apply prices if socket already came
-          console.log("Building UI, filling cached prices:", latestPrices);
-          Object.keys(latestPrices).forEach(token => {
-               updateUI(token, latestPrices[token]);
-          });
+          const tokens = stocks.map(s => s.token);
+          if (tokens.length > 0) {
+               console.log("Subscribing to tokens:", tokens);
+               socket.emit("subscribe_watchlist", { tokens: tokens });
+          }
      });
 
 // build watchlist UI
@@ -75,10 +73,11 @@ function buildDashboardWatchlist(stocks) {
      row.innerHTML = "";
 
      stocks.forEach(stock => {
-
           if (stock.category === 'INDEX') {
                return; // Skip this iteration
           }
+
+          const cached = latestPrices[stock.token];
 
           const wrapper = document.createElement("div");
           wrapper.className = "watchlist-item";
@@ -86,10 +85,12 @@ function buildDashboardWatchlist(stocks) {
 
 
           wrapper.innerHTML = `
-          <div class="stock_card p-3" id="${String(stock.token)}">
-          <div class="stock_name mb-2">${stock.name}</div>
-          <div class="stock_price price">--</div>
-          <div class="stock_change change">--</div>
+          <div class="stock_card p-3" id="${String(stock.token)}" style="cursor: pointer;">
+               <div class="stock_name mb-2">${stock.name}</div>
+               <div class="stock_price price">${cached ? cached.ltp.toFixed(2) : "--"}</div>
+               <div class="stock_change change ${cached ? (cached.change >= 0 ? 'up' : 'down') : ''}">
+                    ${cached ? `${cached.change >= 0 ? '+' : ''}${cached.change.toFixed(2)} (${cached.percent_change.toFixed(2)}%)` : "--"}
+               </div>
           </div>
           `;
 

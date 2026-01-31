@@ -111,19 +111,23 @@ def on_data(ws, message):
         ltp = message["last_traded_price"] / 100
 
         base = BASELINE_DATA.get(token)
-        if not base:
-            return
-
-        data = {
-            "ltp": ltp,
-            "change": round(ltp - base['prev_close'], 2),
-            "percent_change": round(((ltp - base['prev_close']) / base['prev_close']) * 100, 2)
-        }
-
-        if token in INDEX_TOKENS:
-            LIVE_INDEX[token].update(data)
+        if base and 'prev_close' in base:
+            data = {
+                "ltp": ltp,
+                "change": round(ltp - base['prev_close'], 2),
+                "percent_change": round(((ltp - base['prev_close']) / base['prev_close']) * 100, 2)
+            }
+            
+            if token in INDEX_TOKENS:
+                LIVE_INDEX[token].update(data)
+            else:
+                LIVE_STOCKS[token].update(data)
         else:
-            LIVE_STOCKS[token].update(data)
+            # If no base, just update the LTP so the UI at least shows the price
+            if token in INDEX_TOKENS:
+                LIVE_INDEX[token]['ltp'] = ltp
+            else:
+                LIVE_STOCKS[token]['ltp'] = ltp
 
         # Throttle emissions to reduce network overhead
         current_time = time() * 1000
