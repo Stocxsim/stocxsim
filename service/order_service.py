@@ -24,7 +24,8 @@ def get_order_details(user_id, filter_params):
             "quantity": order.get_quantity(),
             "price": order.get_price(),
             "order_type": order.get_order_type(),
-            "time": order.get_created_at().strftime("%I:%M %p") if order.get_created_at() else ""
+            "time": order.get_created_at().strftime("%I:%M %p"),
+            "date": order.get_created_at().strftime("%d %b %Y")
         })
 
     return orders_list

@@ -2,24 +2,29 @@ import psycopg2
 from psycopg2 import pool
 from config import POSTGRES
 
-# Create a connection pool (reuse connections instead of creating new ones)
+# Thread-safe connection pool
 connection_pool = None
 
 def init_pool():
     global connection_pool
     if connection_pool is None:
-        connection_pool = psycopg2.pool.SimpleConnectionPool(
-            1,  # minconn
-            10, # maxconn
-            dbname=POSTGRES["DB_NAME"],
-            user=POSTGRES["USER"],
-            password=POSTGRES["PASSWORD"],
-            host=POSTGRES["HOST"],
-            port=POSTGRES["PORT"]
-        )
+        try:
+            # ThreadedConnectionPool is required for multi-threaded Flask apps
+            connection_pool = psycopg2.pool.ThreadedConnectionPool(
+                1,   # minconn: minimum connections kept open
+                20,  # maxconn: increased to 20 to prevent exhaustion
+                dbname=POSTGRES["DB_NAME"],
+                user=POSTGRES["USER"],
+                password=POSTGRES["PASSWORD"],
+                host=POSTGRES["HOST"],
+                port=POSTGRES["PORT"]
+            )
+            print("✅ Database connection pool initialized")
+        except Exception as e:
+            print(f"❌ Failed to initialize pool: {e}")
 
 def get_connection():
-    """Get connection from pool instead of creating new ones"""
+    """Get connection from pool"""
     global connection_pool
     if connection_pool is None:
         init_pool()
@@ -28,5 +33,5 @@ def get_connection():
 def return_connection(conn):
     """Return connection back to pool"""
     global connection_pool
-    if connection_pool is not None:
+    if connection_pool is not None and conn is not None:
         connection_pool.putconn(conn)

@@ -34,7 +34,20 @@ function buildOrdersList(orders) {
           return;
      }
 
+     let lastDate = ""; // Track the date change
+
      orders.forEach(order => {
+
+          // Insert date header if the date has changed
+          if (order.date !== lastDate) {
+               lastDate = order.date;
+               const dateHeader = document.createElement("div");
+               dateHeader.className = "mt-4 mb-2 fw-bold text-muted small border-bottom";
+               dateHeader.innerHTML = lastDate;
+               container.appendChild(dateHeader);
+          }
+
+
           const item = document.createElement("div");
           item.className =
                "order-item d-flex justify-content-between align-items-center mb-3";
@@ -59,9 +72,8 @@ function buildOrdersList(orders) {
 
       <div class="col text-center ms-1">
           ${order.time}
-          <span class="order-arrow ${
-               order.transaction_type === "BUY" ? "text-success" : "text-danger"
-          }">
+          <span class="order-arrow ${order.transaction_type === "BUY" ? "text-success" : "text-danger"
+               }">
           &#8250;
           </span>
      </div>

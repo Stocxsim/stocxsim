@@ -27,6 +27,11 @@ const EMA_20 = parseFloat("{{ stock.ema_20 if stock.ema_20 else 0 }}");
 socket.on("live_prices", (data) => {
 
      if (!data.stocks || !data.stocks[STOCK_TOKEN]) {
+          const stockData = feed[id] || {};
+          if (!stockData.price) {
+               console.debug(`Waiting for feed initialization for: ${id}`);
+               return; // Don't log a full error/warning yet
+          }
           console.warn("Stock not in feed yet:", STOCK_TOKEN);
           return;
      }
@@ -374,22 +379,32 @@ window.addEventListener("beforeunload", () => {
 // WATCHLIST BUTTON
 // =========================
 
+// =========================
+// WATCHLIST BUTTON (FINAL)
+// =========================
 document.addEventListener("DOMContentLoaded", () => {
      const watchlistBtn = document.getElementById("watchlistBtn");
      const watchlistText = document.getElementById("watchlistText");
-
      const stockToken = document.body.dataset.stockToken;
-     let isWatchlisted = watchlistTokens.includes(stockToken);
 
-     // Initial check (optional but recommended)
+     if (!watchlistBtn || !stockToken) return;
+
+     let isWatchlisted = false; // Default state
+
+     // 1. Force sync with DB truth on page load
      fetch(`/watchlist/status/${stockToken}`)
           .then(res => res.json())
           .then(data => {
                isWatchlisted = data.watchlisted;
                updateWatchlistUI();
-          });
+          })
+          .catch(err => console.error("❌ Watchlist status sync failed:", err));
 
+     // 2. Toggle logic
      watchlistBtn.addEventListener("click", () => {
+          // Disable button briefly to prevent double-clicks
+          watchlistBtn.style.pointerEvents = "none";
+
           fetch(`/watchlist/toggle/${stockToken}`, {
                method: "POST",
                headers: { "Content-Type": "application/json" }
@@ -398,6 +413,9 @@ document.addEventListener("DOMContentLoaded", () => {
                .then(data => {
                     isWatchlisted = data.watchlisted;
                     updateWatchlistUI();
+               })
+               .finally(() => {
+                    watchlistBtn.style.pointerEvents = "auto";
                });
      });
 

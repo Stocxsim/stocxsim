@@ -6,7 +6,7 @@ from database.watchlist_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data, load_baseline_data
 from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlist
 from data.live_data import register_equity_token, ensure_baseline_data, BASELINE_DATA
-from database.user_stock_dao import get_stock_tokens_by_user
+from database.watchlist_dao import get_stock_tokens_by_user
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -98,7 +98,7 @@ def holdings():
 
     return render_template("holding.html", user=user, active_tab="holdings")
 
-
+# NOTE - this is for watchlist page button, not for the Watchlist data itself.
 # this is login/watchlist not stocks/watchlist
 # this is for rendering the watchlist page
 @user_bp.route("/watchlist")
