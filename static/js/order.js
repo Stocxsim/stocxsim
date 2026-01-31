@@ -82,3 +82,17 @@ function buildOrdersList(orders) {
           container.appendChild(item);
      });
 }
+const fromDate = document.getElementById("fromDate");
+const toDate = document.getElementById("toDate");
+
+fromDate.addEventListener("change", function () {
+    const selectedFromDate = this.value;
+
+    // toDate ma minimum date set karo
+    toDate.min = selectedFromDate;
+
+    // jo already select karel toDate fromDate karta nani hoy to clear kari do
+    if (toDate.value && toDate.value < selectedFromDate) {
+        toDate.value = "";
+    }
+});
