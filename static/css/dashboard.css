@@ -128,3 +128,34 @@
 .watchlist-item .stock_card {
   width: 100%;
 }
+.watchlist-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 15px;
+}
+
+.mini-btn {
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  flex: 1 1 calc(50% - 6px); /* 2 buttons per row */
+  text-align: center;
+  white-space: nowrap;
+  border-color: #04b488; 
+  color: #04b488;
+}
+.mini-btn:hover {
+  background-color: #04b488;
+  border-color: #04b488;
+  color: white;
+}
+/* Desktop ma auto width */
+@media (min-width: 768px) {
+  .mini-btn {
+    flex: 0 0 auto;
+  }
+}
