@@ -2,14 +2,36 @@ document.addEventListener("DOMContentLoaded", () => {
      fetchOrders();
 });
 
+document.querySelectorAll('.filters input').forEach(el => {
+     el.addEventListener("change", () => {
+          fetchOrders();
+     });
+});
+
+const clearFiltersBtn = document.getElementById("clearFilters");
+if (clearFiltersBtn) {
+     clearFiltersBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          document.querySelectorAll('.filters input').forEach(el => {
+               if (el.type === "checkbox") el.checked = false;
+               else el.value = "";
+          });
+
+          fetchOrders();
+     });
+}
+
+
 function fetchOrders() {
+     const filterParams = getFilterParams();
      fetch("/order/history", {
           method: "POST",
           headers: {
                "Content-Type": "application/json"
           },
           body: JSON.stringify({
-               filter_params: {}
+               filter_params: filterParams
           })
      })
           .then(res => res.json())
@@ -96,3 +118,27 @@ fromDate.addEventListener("change", function () {
         toDate.value = "";
     }
 });
+
+function getFilterParams() {
+     const params = {};
+
+     const dates = document.querySelectorAll('input[type="date"]');
+
+     if (dates[0].value) {
+          params.from_date = dates[0].value;
+     }
+
+     if (dates[1].value) {
+          params.to_date = dates[1].value;
+     }
+
+     const transaction_type = [];
+     if (document.getElementById("buyOrders").checked) transaction_type.push("buy");
+     if (document.getElementById("sellOrders").checked) transaction_type.push("sell");
+
+     if (transaction_type.length > 0) {
+          params.transaction_type = transaction_type;
+     }
+
+     return params;
+}

@@ -61,6 +61,7 @@ if (input) {
      });
 }
 
+const formatCurrency = (val) => `₹${Number(val || 0).toFixed(2)}`;
 
 // holding auto load
 let holdingsData = {};
@@ -103,22 +104,18 @@ function setupLiveSocket() {
 }
 
 function updateHoldingPrices(liveStocks) {
-     const holdingRows = document.querySelectorAll(".holding-row");
-
      let totalInvested = 0;
      let totalCurrent = 0;
      let oneDayPnl = 0;
      let prevDayValue = 0;
      
-     holdingRows.forEach(row => {
-          const token = row.dataset.token;
-          if (!token || !holdingsData[token]) return;
-
+     Object.keys(holdingsData).forEach(token => {
           const h = holdingsData[token];
-          const buyPrice = Number(h.avg_buy_price ?? 0);
-          const quantity = Number(h.quantity ?? 0);
+          
+          // 🔥 CACHE USE: Direct element uthavo (No querySelector needed)
+          const cachedEls = holdingDOMCache[token]; 
 
-          // Check if live price exists
+          // 1. Jo Live Price aavi hoy to Data update karo
           if (liveStocks[token] && liveStocks[token].ltp != null) {
                const newPrice = Number(liveStocks[token].ltp);
                const change = Number(liveStocks[token].change);
@@ -127,61 +124,63 @@ function updateHoldingPrices(liveStocks) {
                if (!Number.isNaN(newPrice)) h.market_price = newPrice;
                if (!Number.isNaN(change)) h.one_day_change = change;
                if (!Number.isNaN(pct)) h.one_day_percent = pct;
-               
-               // Update market price in the row only
-               const priceEl = row.querySelector(".holding-price");
-               if (priceEl && !Number.isNaN(newPrice)) priceEl.textContent = `₹${newPrice.toFixed(2)}`;
 
-               // Update 1D display
-               const mpSubEl = row.querySelector(".holding-mp-sub");
-               if (mpSubEl) {
-                    const localChange = Number(h.one_day_change ?? 0);
-                    const localPct = Number(h.one_day_percent ?? 0);
-                    const mpColor = localChange >= 0 ? "#04b488" : "#ff4d4f";
-                    mpSubEl.style.color = mpColor;
-                    mpSubEl.textContent = `${localChange >= 0 ? "+" : ""}${localChange.toFixed(2)} (${Math.abs(localPct).toFixed(2)}%)`;
+               // 2. UI UPDATE (FAST): Cache mathi direct text badlo
+               if (cachedEls) {
+                    if (cachedEls.priceEl) {
+                         cachedEls.priceEl.textContent = formatCurrency(newPrice);
+                    }
+
+                    if (cachedEls.mpSubEl) {
+                         const mpColor = change >= 0 ? "#04b488" : "#ff4d4f";
+                         cachedEls.mpSubEl.style.color = mpColor;
+                         cachedEls.mpSubEl.textContent = `${change >= 0 ? "+" : ""}${change.toFixed(2)} (${Math.abs(pct).toFixed(2)}%)`;
+                    }
                }
           }
 
-          // Recalculate row values (even if ltp missing, use existing market_price)
-          let marketPrice = Number(h.market_price ?? buyPrice ?? 0);
-          if ((!marketPrice || marketPrice <= 0) && buyPrice > 0) marketPrice = buyPrice;
+          // 3. Calculation Logic (Junu logic same che)
+          const buyPrice = Number(h.avg_buy_price ?? 0);
+          const quantity = Number(h.quantity ?? 0);
+          
+          let marketPrice = Number(h.market_price ?? buyPrice);
+          if (marketPrice <= 0) marketPrice = buyPrice; // Fallback
 
           const investedValue = buyPrice * quantity;
           const currentValue = marketPrice * quantity;
           const profitLoss = currentValue - investedValue;
           const returnPercent = investedValue === 0 ? 0 : (profitLoss / investedValue) * 100;
-          const color = returnPercent >= 0 ? "#04b488" : "#ff4d4f";
 
-          // Portfolio 1D (use baseline prev_close if present, else use websocket change if present)
+          // 4. P&L Colors & Text Update using Cache
+          if (cachedEls) {
+               const color = returnPercent >= 0 ? "#04b488" : "#ff4d4f";
+
+               if (cachedEls.plEl) {
+                    cachedEls.plEl.style.color = color;
+                    cachedEls.plEl.textContent = `${profitLoss >= 0 ? "+" : ""}₹${profitLoss.toFixed(2)}`;
+               }
+
+               if (cachedEls.plPctEl) {
+                    cachedEls.plPctEl.style.color = color;
+                    cachedEls.plPctEl.textContent = `${returnPercent >= 0 ? "+" : ""}${returnPercent.toFixed(2)}%`;
+               }
+
+               if (cachedEls.currentEl) {
+                    cachedEls.currentEl.textContent = `₹${currentValue.toFixed(2)}`;
+               }
+          }
+
+          // 5. Totals Calculation
+          totalInvested += investedValue;
+          totalCurrent += currentValue;
+
           const prevClose = Number(h.prev_close ?? 0);
           if (prevClose > 0) {
                prevDayValue += prevClose * quantity;
                oneDayPnl += (marketPrice - prevClose) * quantity;
           } else if (h.one_day_change != null) {
-               oneDayPnl += Number(h.one_day_change ?? 0) * quantity;
+               oneDayPnl += Number(h.one_day_change) * quantity;
           }
-
-          const plEl = row.querySelector(".holding-pl");
-          if (plEl) {
-               plEl.style.color = color;
-               plEl.textContent = `${profitLoss >= 0 ? "+" : ""}₹${profitLoss.toFixed(2)}`;
-          }
-
-          const plPctEl = row.querySelector(".holding-pl-pct");
-          if (plPctEl) {
-               plPctEl.style.color = color;
-               plPctEl.textContent = `${returnPercent >= 0 ? "+" : ""}${returnPercent.toFixed(2)}%`;
-          }
-
-          const currentEl = row.querySelector(".holding-current");
-          if (currentEl) currentEl.textContent = `₹${currentValue.toFixed(2)}`;
-
-          const investedEl = row.querySelector(".holding-invested");
-          if (investedEl) investedEl.textContent = `₹${investedValue.toFixed(2)}`;
-
-          totalInvested += investedValue;
-          totalCurrent += currentValue;
      });
 
      // Update summary totals
@@ -230,7 +229,7 @@ function updateHoldingsSummary(totalInvested, totalCurrent, oneDayPnl = 0, prevD
     }
 }
 
-function loadUserHoldings() {
+function loadUserHoldings(retry = 0) {
      setHoldingsLoading(true);
      fetch("/holding/order", {
           method: "POST",
@@ -244,50 +243,67 @@ function loadUserHoldings() {
                     if (retry < 1) {
                          setHoldingsLoading(true, "Unable to load holdings");
                          setTimeout(() => loadUserHoldings(retry + 1), 300);
-            }
-            return;
-          }
+                    }
+                    return;
+               }
 
                holdingsData = data.holdings;
+               
                // ✅ Holdings page
-        if (document.getElementById("holding-body")) {
-            renderHoldings(data.holdings);
-        } 
-        // ✅ Dashboard page only
-        else {
-            let totalInvested = 0;
-            let totalCurrent = 0;
+               if (document.getElementById("holding-body")) {
+                    renderHoldings(data.holdings);
+               } 
+               // ✅ Dashboard page only (Aa part fix karyo che)
+               else {
+                    let totalInvested = 0;
+                    let totalCurrent = 0;
+                    // 🔥 1. Aa be nava variables add karya
+                    let totalOneDayPnl = 0;
+                    let totalPrevDayValue = 0;
 
-            Object.values(data.holdings).forEach(h => {
-                const buy = Number(h.avg_buy_price ?? 0);
-                const qty = Number(h.quantity ?? 0);
-                const price = Number(h.market_price ?? buy ?? 0);
+                    Object.values(data.holdings).forEach(h => {
+                         const buy = Number(h.avg_buy_price ?? 0);
+                         const qty = Number(h.quantity ?? 0);
+                         const price = Number(h.market_price ?? buy ?? 0);
+                         // 🔥 2. Prev Close value lavya calculation mate
+                         const prevClose = Number(h.prev_close ?? 0);
 
-                totalInvested += buy * qty;
-                totalCurrent += price * qty;
-            });
+                         totalInvested += buy * qty;
+                         totalCurrent += price * qty;
 
-            updateHoldingsSummary(totalInvested, totalCurrent);
-        }
-    })
+                         // 🔥 3. 1D Calculation Logic add karyu
+                         if (prevClose > 0) {
+                              totalPrevDayValue += prevClose * qty;
+                              totalOneDayPnl += (price - prevClose) * qty;
+                         }
+                    });
+
+                    // 🔥 4. Have summary ma chare (4) values pass kari
+                    updateHoldingsSummary(totalInvested, totalCurrent, totalOneDayPnl, totalPrevDayValue);
+               }
+          })
           .catch(err => {
                console.error("Holdings error:", err);
                setHoldingsLoading(true, "Unable to load holdings");
           });
 }
+let holdingDOMCache = {}; 
 
 function renderHoldings(holdings) {
      const container = document.getElementById("holding-body");
      container.innerHTML = "";
+     
      let totalInvested = 0;
      let totalCurrent = 0;
+     
+     // 🔥 Aa 2 nava variables add karya initial calculation mate
+     let totalOneDayPnl = 0;
+     let totalPrevDayValue = 0;
 
      const tokens = Object.keys(holdings);
 
      if (tokens.length === 0) {
-          container.innerHTML =
-               `<div class="holding-row">No holdings</div>`;
-
+          container.innerHTML = `<div class="holding-row">No holdings</div>`;
           console.log("No holdings to display");
           return;
      }
@@ -315,6 +331,12 @@ function renderHoldings(holdings) {
 
           totalInvested += invested_value;
           totalCurrent += current_value;
+
+          // 🔥 AA LOGIC MISSING HATU - Total 1D P&L Calculation
+          if (prev_close > 0) {
+               totalPrevDayValue += prev_close * qnt;
+               totalOneDayPnl += (market_price - prev_close) * qnt;
+          }
 
           const name = (h.stock_symbol || h.stock_name || token);
           const color = return_percent >= 0 ? "#04b488" : "#ff4d4f";
@@ -344,5 +366,23 @@ function renderHoldings(holdings) {
 
      container.innerHTML = rows.join("");
 
-     updateHoldingsSummary(totalInvested, totalCurrent);
+     // --- Caching Logic (Same as before) ---
+     holdingDOMCache = {}; 
+     const allRows = container.querySelectorAll(".holding-row");
+     allRows.forEach(row => {
+          const token = row.dataset.token;
+          if (token) {
+               holdingDOMCache[token] = {
+                    priceEl: row.querySelector(".holding-price"),      
+                    mpSubEl: row.querySelector(".holding-mp-sub"),     
+                    plEl: row.querySelector(".holding-pl"),            
+                    plPctEl: row.querySelector(".holding-pl-pct"),     
+                    currentEl: row.querySelector(".holding-current")   
+               };
+          }
+     });
+
+     // 🔥 HAVE AAPNE 4 ARGUMENTS PASS KARISHU
+     // Pehla tame fakt (totalInvested, totalCurrent) pass karta hata, etle 1D 0 aavtu hatu.
+     updateHoldingsSummary(totalInvested, totalCurrent, totalOneDayPnl, totalPrevDayValue);
 }

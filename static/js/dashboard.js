@@ -1,51 +1,69 @@
 
 
 
-// Only run Socket.IO if on holdings page (detect by .holding-row or #holdingsTable)
-const isHoldingsPage = document.querySelector('.holding-row') || document.getElementById('holdingsTable');
+// Dashboard live prices (Socket.IO event: "live_prices")
+// Backend payload shape: { stocks: { [token]: {ltp, change, percent_change}}, index: {...} }
 
-if (isHoldingsPage) {
-     // create socket ONLY ONCE
+// Cache latest known prices so UI can render even if socket updates come
+// before watchlist cards are inserted into the DOM.
+let latestPrices = {};
+
+if (typeof io !== 'undefined') {
      const socket = io();
 
+     socket.on("connect", () => {
+          // console.log("✅ Dashboard socket connected", socket.id);
+     });
 
-     // Merge stock prices into the global object
-     if (data.stocks) {
-          Object.assign(latestPrices, data.stocks);
-     }
-     // Merge index prices as well
-     if (data.index) {
-          Object.assign(latestPrices, data.index);
-     }
+     socket.on("live_prices", (payload) => {
+          if (!payload) return;
 
-     // INDEX UPDATE
-     for (const token in data.index) {
-          for (const token in data.index) updateUI(token, data.index[token]);
-     }
+          if (payload.stocks && typeof payload.stocks === 'object') {
+               Object.assign(latestPrices, payload.stocks);
+               for (const token in payload.stocks) {
+                    updateUI(token, payload.stocks[token]);
+               }
+          }
 
-     // STOCK UPDATE
-     for (const token in data.stocks) {
-          for (const token in data.stocks) updateUI(token, data.stocks[token]);
-     }
-});
+          if (payload.index && typeof payload.index === 'object') {
+               Object.assign(latestPrices, payload.index);
+               for (const token in payload.index) {
+                    updateUI(token, payload.index[token]);
+               }
+          }
+     });
+} else {
+     // Socket.IO not loaded; dashboard will still show watchlist names,
+     // but prices will remain "--".
+     // console.log("Socket.IO not loaded");
+}
+
 
 // update UI for a stock/index
 function updateUI(token, info) {
      const el = document.getElementById(token);
      if (!el) return;
 
+     if (!info || info.ltp === undefined || info.ltp === null) return;
+
      const priceEl = el.querySelector(".price");
      const changeEl = el.querySelector(".change");
 
-     if (priceEl) priceEl.innerText = info.ltp.toFixed(2);
+     const ltp = Number(info.ltp);
+     const change = Number(info.change);
+     const percent = Number(info.percent_change);
+
+     if (priceEl && !Number.isNaN(ltp)) priceEl.innerText = ltp.toFixed(2);
 
      if (changeEl) {
-          const sign = info.change >= 0 ? "+" : "";
+          if (Number.isNaN(change) || Number.isNaN(percent)) return;
+
+          const sign = change >= 0 ? "+" : "";
           changeEl.innerText =
-               `${sign}${info.change.toFixed(2)} (${info.percent_change.toFixed(2)}%)`;
+               `${sign}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
 
           changeEl.classList.remove("up", "down");
-          changeEl.classList.add(info.change >= 0 ? "up" : "down");
+          changeEl.classList.add(change >= 0 ? "up" : "down");
      }
 }
 
@@ -60,11 +78,10 @@ fetch("/watchlist/api")
           buildDashboardWatchlist(stocks);
 
           // apply prices if socket already came
-          console.log("Building UI, filling cached prices:", latestPrices);
           Object.keys(latestPrices).forEach(token => {
                updateUI(token, latestPrices[token]);
           });
-}
+});
 
 function buildDashboardWatchlist(stocks) {
      if (!row) return;
@@ -137,12 +154,6 @@ function updateDashboardSidebarTotals(holdings) {
           if (prev !== null && !isNaN(prev)) {
                oneDayReturn += (ltp - prev) * qty;
           } 
-          if (!isNaN(oneDayReturn) && oneDayReturn !== 0) {
-    dashboard1d.innerText = `${oneDayReturn >= 0 ? '+' : ''}${oneDayReturn.toFixed(2)}`;
-} else {
-    dashboard1d.innerText = '--';
-}
-   
           // If prev_close is missing, skip this holding (do not add 0 or NaN)
      });
 

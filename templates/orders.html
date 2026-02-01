@@ -12,20 +12,10 @@
     <div class="filters rounded">
         <div class="d-flex justify-content-between align-items-center mb-3 border-bottom">
             <h5>Filters</h5>
-            <a href="#" class="text-success text-decoration-none">Clear all</a>
+            <a id="clearFilters" href="#" class="text-success text-decoration-none">Clear all</a>
         </div>
 
-        <div class="mb-3">
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="category" id="equity" checked>
-                <label class="form-check-label" for="equity">Equity</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="category" id="gtt">
-                <label class="form-check-label" for="gtt">GTT - Equity</label>
-            </div>
-        </div>
-
+        
         <div class="mb-3 pb-3 border-bottom">
             <input type="text" class="form-control" placeholder="Search for a Stock">
         </div>
@@ -49,25 +39,6 @@
             <div class="form-check border-bottom pb-2 m-2">
                 <input class="form-check-input" type="checkbox" id="sellOrders">
                 <label class="form-check-label" for="sellOrders">Sell orders</label>
-            </div>
-            <div class="form-check m-2">
-                <input class="form-check-input" type="checkbox" id="inProgress">
-                <label class="form-check-label" for="inProgress">Orders in progress <span
-                        class="rounded-circle bg-warning d-inline-block" style="width:10px;height:10px;"></span>
-                </label>
-            </div>
-            <div class="form-check m-2">
-                <input class="form-check-input" type="checkbox" id="successOrders">
-                <label class="form-check-label" for="successOrders">Successful orders <span
-                        class="rounded-circle bg-success d-inline-block" style="width:10px;height:10px;"></span>
-
-                </label>
-            </div>
-            <div class="form-check m-2">
-                <input class="form-check-input" type="checkbox" id="failedOrders">
-                <label class="form-check-label" for="failedOrders">Unsuccessful orders <span
-                        class="rounded-circle bg-danger d-inline-block" style="width:10px;height:10px;"></span>
-                </label>
             </div>
         </div>
     </div>

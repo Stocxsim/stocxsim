@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, render_template, session
 
 from database.watchlist_dao import check_watchlist, get_stock_tokens_by_user
 from websockets.angle_ws import subscribe, unsubscribe, ws, subscribe_equity_tokens
-from database.watchlist_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data
 from service.stockservice import search_stocks_service, get_stock_detail_service
 from data.live_data import register_equity_token, ensure_baseline_data
