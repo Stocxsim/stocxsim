@@ -208,27 +208,21 @@ function updateHoldingsLivePrices(stocks) {
 
 function loadChart(type) {
     let url = "";
-    let title = "";
 
     if (type === "weekly") {
         url = "/order/history/weekly-orders-chart";
-        title = "Weekly Orders";
     }
     else if (type === "win") {
         url = "/order/history/win-rate-chart";
-        title = "Win Rate";
     }
     else if (type === "pl") {
         url = "/order/history/profit-loss-chart";
-        title = "Profit / Loss";
     }
     else if (type === "top") {
         url = "/order/history/top-traded-chart";
-        title = "Top Traded Stocks";
     }
 
           const titleEl = document.getElementById("chartTitle");
-          if (titleEl) titleEl.innerText = title;
 
           fetch(url)
                .then(async (res) => {
@@ -247,4 +241,8 @@ function loadChart(type) {
                          console.error("Chart load failed:", err);
                });
 }
+document.addEventListener("DOMContentLoaded", function () {
+    loadChart("weekly");   // default chart
+});
+
 

@@ -239,15 +239,52 @@ def weekly_orders_chart(user_id):
     x = orders.get("week_start", [])
     y = orders.get("total_orders", [])
 
-    with plt.style.context("dark_background"):
-        fig, ax = plt.subplots(figsize=(7, 3))
-        ax.bar(x, y, color="#4ade80")
-        ax.set_xlabel("Week Starting")
-        ax.set_ylabel("Total Orders")
-        ax.set_title("Weekly Orders")
-        ax.tick_params(axis="x", rotation=45)
-        fig.savefig(f"weekly_orders_debug_user_{user_id}.png", bbox_inches="tight")
-        return _fig_to_base64(fig)
+    fig, ax = plt.subplots(figsize=(7, 3))
+
+    # --- White background ---
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    # --- Bar chart with soft color ---
+    bars = ax.bar(x, y, color="#4fad96", edgecolor="#166534", linewidth=0.6)
+
+    # --- Labels & title ---
+    ax.set_xlabel("Week Starting", fontsize=10, labelpad=8)
+    ax.set_ylabel("Total Orders", fontsize=10, labelpad=8)
+    ax.set_title("Weekly Orders", fontsize=12, fontweight="bold", pad=10)
+
+    # --- Grid (light & clean) ---
+    ax.set_axisbelow(True)
+
+    # --- X ticks rotation ---
+    ax.tick_params(axis="x", rotation=45, labelsize=9)
+    ax.tick_params(axis="y", labelsize=9)
+
+    # --- Remove extra borders (modern look) ---
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # --- Value labels on bars (attractive touch) ---
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            height,
+            f"{int(height)}",
+            ha="center",
+            va="bottom",
+            fontsize=8
+        )
+
+    # # --- Save figure ---
+    # fig.savefig(
+    #     f"weekly_orders_user_{user_id}.png",
+    #     dpi=150,
+    #     bbox_inches="tight",
+    #     facecolor="white"
+    # )
+
+    return _fig_to_base64(fig)
 
 
 def calculate_win_loss(user_id):
@@ -294,25 +331,77 @@ def win_rate_chart(user_id):
     wins = int(results.get("wins", 0) or 0)
     losses = int(results.get("losses", 0) or 0)
 
-    # Avoid Matplotlib NaN/ValueError when both values are 0.
+    # --- No trades case ---
     if (wins + losses) == 0:
-        with plt.style.context("dark_background"):
-            fig, ax = plt.subplots(figsize=(5, 3))
-            ax.set_title("Win Rate")
-            ax.text(0.5, 0.5, "No closed trades yet", ha="center", va="center")
-            ax.axis("off")
-            return _fig_to_base64(fig)
+        fig, ax = plt.subplots(figsize=(5, 3))
 
+        # White background
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
+
+        ax.set_title("Win Rate", fontsize=12, fontweight="bold", pad=10)
+        ax.text(
+            0.5, 0.5,
+            "No closed trades yet",
+            ha="center",
+            va="center",
+            fontsize=10,
+            color="#6b7280"
+        )
+        ax.axis("off")
+
+        return _fig_to_base64(fig)
+
+    # --- Data ---
     labels = ["Wins", "Losses"]
     sizes = [wins, losses]
-    colors = ["#22c55e", "#ef4444"]
+    colors = ["#22c55e", "#ef4444"]  # green & red
 
-    with plt.style.context("dark_background"):
-        fig, ax = plt.subplots(figsize=(5, 5))
-        ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=140)
-        ax.set_title("Win Rate", fontsize=12, fontweight="bold", pad=10)
-        fig.savefig(f"win_rate_debug_user_{user_id}.png", bbox_inches="tight")
-        return _fig_to_base64(fig)
+    fig, ax = plt.subplots(figsize=(5, 5))
+
+    # White background
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    # Pie chart (donut style → more attractive)
+    wedges, texts, autotexts = ax.pie(
+        sizes,
+        labels=labels,
+        colors=colors,
+        autopct="%1.1f%%",
+        startangle=140,
+        wedgeprops=dict(width=0.45, edgecolor="white")
+    )
+
+    # Text styling
+    for text in texts:
+        text.set_fontsize(9)
+    for autotext in autotexts:
+        autotext.set_fontsize(9)
+        autotext.set_color("black")
+
+    # Center text (extra UI touch)
+    ax.text(
+        0, 0,
+        f"{wins + losses}\nTrades",
+        ha="center",
+        va="center",
+        fontsize=10,
+        fontweight="bold",
+        color="#374151"
+    )
+
+    ax.set_title("Win Rate", fontsize=12, fontweight="bold", pad=12)
+
+    # fig.savefig(
+    #     f"win_rate_user_{user_id}.png",
+    #     dpi=150,
+    #     bbox_inches="tight",
+    #     facecolor="white"
+    # )
+
+    return _fig_to_base64(fig)
+
 
 
 def profit_loss_chart(user_id):
@@ -364,17 +453,53 @@ def profit_loss_chart(user_id):
     values = [total_profit, total_loss]
     colors = ["#22c55e", "#ef4444"]  # green, red
 
-    with plt.style.context("dark_background"):
-        fig, ax = plt.subplots(figsize=(6, 3))
-        ax.bar(labels, values, color=colors)
-        ax.set_title("Total Profit / Loss")
-        ax.set_ylabel("Amount")
+    fig, ax = plt.subplots(figsize=(6, 3))
 
-        # value labels on bars
-        for i, v in enumerate(values):
-            ax.text(i, v, f"{v:.2f}", ha="center", va="bottom", color="white")
+    # --- White background ---
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor("white")
 
-        return _fig_to_base64(fig)
+    # --- Bars ---
+    bars = ax.bar(labels, values, color=colors, width=0.45)
+
+    # --- Title & labels ---
+    ax.set_title("Total Profit / Loss", fontsize=12, fontweight="bold", pad=10)
+    ax.set_ylabel("Amount", fontsize=10)
+
+    # --- Grid (soft) ---
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
+    ax.set_axisbelow(True)
+
+    # --- Remove extra borders ---
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # --- Value labels on bars ---
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            height,
+            f"{height:.2f}",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+            color="#111827"
+        )
+
+    # --- Ticks styling ---
+    ax.tick_params(axis="x", labelsize=9)
+    ax.tick_params(axis="y", labelsize=9)
+
+    # fig.savefig(
+    #     "total_profit_loss.png",
+    #     dpi=150,
+    #     bbox_inches="tight",
+    #     facecolor="white"
+    # )
+
+    return _fig_to_base64(fig)
+
 
 
 def top_traded_chart(user_id, limit=5):
@@ -388,15 +513,63 @@ def top_traded_chart(user_id, limit=5):
     labels = [k for k, _ in top]
     values = [v for _, v in top]
 
-    with plt.style.context("dark_background"):
-        fig, ax = plt.subplots(figsize=(7, 3))
-        ax.set_title("Top Traded")
-        if not labels:
-            ax.text(0.5, 0.5, "No orders yet", ha="center", va="center")
-            ax.axis("off")
-            return _fig_to_base64(fig)
+    fig, ax = plt.subplots(figsize=(7, 3))
 
-        ax.bar(labels, values, color="#60a5fa")
-        ax.set_ylabel("Orders")
-        ax.tick_params(axis="x", rotation=45)
+    # --- White background ---
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    ax.set_title("Top Traded", fontsize=12, fontweight="bold", pad=10)
+
+    # --- No data case ---
+    if not labels:
+        ax.text(
+            0.5, 0.5,
+            "No orders yet",
+            ha="center",
+            va="center",
+            fontsize=10,
+            color="#6b7280"
+        )
+        ax.axis("off")
         return _fig_to_base64(fig)
+
+    # --- Bars ---
+    bars = ax.bar(labels, values, color="#60a5fa", width=0.5)
+
+    # --- Y label ---
+    ax.set_ylabel("Orders", fontsize=10)
+
+    # --- Grid (soft & clean) ---
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
+    ax.set_axisbelow(True)
+
+    # --- Ticks styling ---
+    ax.tick_params(axis="x", rotation=45, labelsize=9)
+    ax.tick_params(axis="y", labelsize=9)
+
+    # --- Remove extra borders (modern look) ---
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # --- Value labels on bars (nice touch) ---
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            height,
+            f"{int(height)}",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+            color="#111827"
+        )
+
+    # fig.savefig(
+    #     "top_traded.png",
+    #     dpi=150,
+    #     bbox_inches="tight",
+    #     facecolor="white"
+    # )
+
+    return _fig_to_base64(fig)
