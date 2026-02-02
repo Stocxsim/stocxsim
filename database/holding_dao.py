@@ -1,5 +1,4 @@
 from database.connection import get_connection, return_connection
-from database.stockdao import get_stock_by_token
 from data.live_data import LIVE_STOCKS, BASELINE_DATA
 
 

@@ -1,216 +1,3 @@
-'''
-CORRUPTED CONTENT (kept for reference only). This entire block is ignored.
-'''
-
-'''
-import io
-import base64
-import matplotlib.pyplot as plt
-from database.order_dao import get_weekly_orders,get_orders_sorted
-def weekly_orders_chart(user_id): 
-    orders = get_weekly_orders(user_id) 
-    x = orders["week_start"] 
-    y = orders["total_orders"] # 🔥 VERY IMPORTANT 
-
-        # IMPORTANT: force non-GUI backend for Flask/threads (prevents Tkinter "main loop" crashes)
-        matplotlib.use("Agg")
-
-        import matplotlib.pyplot as plt
-
-        with plt.style.context("dark_background"):
-            fig, ax = plt.subplots(figsize=(7, 3))
-            ax.bar(x, y, color="#4ade80")
-            ax.set_xlabel("Week Starting")
-            ax.set_ylabel("Total Orders")
-            ax.set_title("Weekly Orders")
-            ax.tick_params(axis="x", rotation=45)
-
-            debug_path = f"weekly_orders_debug_user_{user_id}.png"
-            fig.savefig(debug_path, bbox_inches="tight")
-            return _fig_to_base64(fig)
-def calculate_win_loss(user_id):
-    orders = get_orders_sorted(user_id)  
-    # ORDER BY created_at ASC
-
-    buy_stack = {}
-    wins = 0
-    losses = 0
-
-    for o in orders:
-        key = o["symbol_token"]
-
-        if o["transaction_type"] == "BUY":
-            buy_stack.setdefault(key, []).append(o)
-
-        elif o["transaction_type"] == "SELL":
-            if key in buy_stack and buy_stack[key]:
-                buy = buy_stack[key].pop(0)  # FIFO
-
-                profit = (o["price"] - buy["price"]) * min(
-                    o["quantity"], buy["quantity"]
-                )
-
-                if profit > 0:
-                    wins += 1
-                else:
-                    losses += 1
-
-    return {
-        "wins": wins,
-        "losses": losses
-    }
-
-def win_rate_chart(user_id):
-    results = calculate_win_loss(user_id)
-    wins = results["wins"]
-    losses = results["losses"]
-
-        # If user has no closed trades yet (or all profit computations are 0), pie chart will break.
-        if (wins + losses) == 0:
-            with plt.style.context("dark_background"):
-                import base64
-                import io
-
-                import matplotlib
-
-                # Force a non-GUI backend so charts can be rendered from Flask request threads.
-                matplotlib.use("Agg")
-
-                import matplotlib.pyplot as plt
-
-                from database.order_dao import get_orders_sorted, get_weekly_orders
-
-
-                def _fig_to_base64(fig) -> str:
-                    img = io.BytesIO()
-                    fig.savefig(img, format="png", bbox_inches="tight")
-                    plt.close(fig)
-                    img.seek(0)
-                    return base64.b64encode(img.getvalue()).decode("utf-8")
-
-
-                def weekly_orders_chart(user_id):
-                    orders = get_weekly_orders(user_id)
-                    x = orders.get("week_start", [])
-                    y = orders.get("total_orders", [])
-
-                    with plt.style.context("dark_background"):
-                        fig, ax = plt.subplots(figsize=(7, 3))
-                        ax.bar(x, y, color="#4ade80")
-                        ax.set_xlabel("Week Starting")
-                        ax.set_ylabel("Total Orders")
-                        ax.set_title("Weekly Orders")
-                        ax.tick_params(axis="x", rotation=45)
-                        fig.savefig(f"weekly_orders_debug_user_{user_id}.png", bbox_inches="tight")
-                        return _fig_to_base64(fig)
-
-
-                def calculate_win_loss(user_id):
-                    orders = get_orders_sorted(user_id)
-
-                    buy_stack = {}
-                    wins = 0
-                    losses = 0
-
-                    for o in orders:
-                        key = o["symbol_token"]
-                        side = str(o["transaction_type"]).upper()
-
-                        if side == "BUY":
-                            buy_stack.setdefault(key, []).append({
-                                "quantity": float(o["quantity"]),i
-                                "price": float(o["price"]),
-                            })
-                            continue
-
-                        if side == "SELL":
-                            if key in buy_stack and buy_stack[key]:
-                                buy = buy_stack[key].pop(0)  # FIFO
-                                sell_qty = float(o["quantity"])
-                                buy_qty = float(buy["quantity"])
-                                profit = (float(o["price"]) - float(buy["price"])) * min(sell_qty, buy_qty)
-                                if profit > 0:
-                                    wins += 1
-                                else:
-                                    losses += 1
-
-                    return {"wins": wins, "losses": losses}
-
-
-                def win_rate_chart(user_id):
-                    results = calculate_win_loss(user_id)
-                    wins = int(results.get("wins", 0) or 0)
-                    losses = int(results.get("losses", 0) or 0)
-
-                    if (wins + losses) == 0:
-                        with plt.style.context("dark_background"):
-                            fig, ax = plt.subplots(figsize=(5, 3))
-                            ax.set_title("Win Rate")
-                            ax.text(0.5, 0.5, "No closed trades yet", ha="center", va="center")
-                            ax.axis("off")
-                            return _fig_to_base64(fig)
-
-                    labels = ["Wins", "Losses"]
-                    sizes = [wins, losses]
-                    colors = ["#22c55e", "#ef4444"]
-
-                    with plt.style.context("dark_background"):
-                        fig, ax = plt.subplots(figsize=(5, 5))
-                        ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=140)
-                        ax.set_title("Win Rate", fontsize=12, fontweight="bold", pad=10)
-                        fig.savefig(f"win_rate_debug_user_{user_id}.png", bbox_inches="tight")
-                        return _fig_to_base64(fig)
-
-
-                def profit_loss_chart(user_id):
-                    """Realized P/L by symbol (FIFO matching of BUY/SELL orders)."""
-                    orders = get_orders_sorted(user_id)
-
-                    lots_by_symbol = {}
-                    pnl_by_symbol = {}
-
-                    for o in orders:
-                        symbol = str(o.get("symbol_token"))
-                        side = str(o.get("transaction_type") or "").upper()
-                        qty = float(o.get("quantity") or 0)
-                        price = float(o.get("price") or 0)
-                        if qty <= 0:
-                            continue
-
-                        if side == "BUY":
-                            lots_by_symbol.setdefault(symbol, []).append({"qty": qty, "price": price})
-                            continue
-
-                        if side == "SELL":
-                            remaining = qty
-                            lots = lots_by_symbol.get(symbol, [])
-                            while remaining > 0 and lots:
-                                lot = lots[0]
-                                matched = min(remaining, lot["qty"])
-                                pnl_by_symbol[symbol] = pnl_by_symbol.get(symbol, 0.0) + (price - lot["price"]) * matched
-                                lot["qty"] -= matched
-                                remaining -= matched
-                                if lot["qty"] <= 0:
-                                    lots.pop(0)
-
-                    labels = list(pnl_by_symbol.keys())
-                    values = [pnl_by_symbol[k] for k in labels]
-
-                    with plt.style.context("dark_background"):
-                        fig, ax = plt.subplots(figsize=(7, 3))
-                        ax.set_title("Profit / Loss")
-                        if not labels:
-                            ax.text(0.5, 0.5, "No realized P/L yet", ha="center", va="center")
-                            ax.axis("off")
-                            return _fig_to_base64(fig)
-
-                        bar_colors = ["#22c55e" if v >= 0 else "#ef4444" for v in values]
-                        ax.bar(labels, values, color=bar_colors)
-                        ax.set_ylabel("P/L")
-                        ax.tick_params(axis="x", rotation=45)
-                        return _fig_to_base64(fig)
-'''
-
 # --- Clean implementation below ---
 
 import base64
@@ -224,6 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from database.order_dao import get_orders_sorted, get_weekly_orders
+from database.stockdao import get_stock_short_name_by_token
 
 
 def _fig_to_base64(fig) -> str:
@@ -505,9 +293,22 @@ def profit_loss_chart(user_id):
 def top_traded_chart(user_id, limit=5):
     orders = get_orders_sorted(user_id)
     counts = {}
+    name_cache = {}
+
     for o in orders:
-        symbol = str(o.get("symbol_token"))
-        counts[symbol] = counts.get(symbol, 0) + 1
+        symbol_token = o.get("symbol_token")
+        if not symbol_token:
+            continue
+
+        symbol_token = str(symbol_token)
+
+        if symbol_token not in name_cache:
+            row = get_stock_short_name_by_token(symbol_token)
+            # row is (stock_token, stock_name) or None
+            name_cache[symbol_token] =row
+
+        symbol_name = name_cache[symbol_token]
+        counts[symbol_name] = counts.get(symbol_name, 0) + 1
 
     top = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)[: max(0, int(limit))]
     labels = [k for k, _ in top]

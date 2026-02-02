@@ -179,3 +179,6 @@ function goToFunds() {
 }
 
 
+function goToOrders() {
+  window.location.href = "/login/orders";
+}
