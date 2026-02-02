@@ -7,6 +7,7 @@ from service.market_data_service import get_full_market_data, load_baseline_data
 from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlist
 from data.live_data import register_equity_token, ensure_baseline_data, BASELINE_DATA
 from database.watchlist_dao import get_stock_tokens_by_user
+from database.userdao import checkBalance
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -140,3 +141,12 @@ def orders():
 def logout():
     session.clear() 
     return jsonify({"success": True}), 200
+
+
+@user_bp.route("/get-balance")
+def get_balance():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+    
+    balance = checkBalance(session['user_id'])
+    return jsonify({"balance": balance})

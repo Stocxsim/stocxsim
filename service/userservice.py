@@ -61,3 +61,5 @@ def verify_otp(email, user_otp):
 def getUserDetails(email):
     user = getUserByEmail(email)
     return user
+
+
