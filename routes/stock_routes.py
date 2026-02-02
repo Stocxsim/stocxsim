@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify, render_template, session
-
 from database.watchlist_dao import check_watchlist, get_stock_tokens_by_user
-from websockets.angle_ws import subscribe, unsubscribe, ws, subscribe_equity_tokens
+from websockets.angle_ws import subscribe, unsubscribe, subscribe_equity_tokens
+from websockets import angle_ws
+from database.watchlist_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data
 from service.stockservice import search_stocks_service, get_stock_detail_service
 from data.live_data import register_equity_token, ensure_baseline_data
@@ -20,19 +21,19 @@ def subscribe_stock(token):
     user_id = session.get("user_id")
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 401
-
-    if not check_watchlist(user_id, token):
-        return jsonify({"error": "Stock not in watchlist"}), 400
     try:
-        if ws is None:
+
+        register_equity_token(token)
+        try:
+            ensure_baseline_data([token])
+        except Exception as e:
+            print(f"⚠️ Baseline fetch failed for {token}: {e}")
+
+        if angle_ws.ws is None:
             return jsonify({"error": "WS not connected"}), 500
-
-        print("📡 SUBSCRIBE REQUEST:", token)
-
-        subscribe(ws, 1, str(token))
-
+        
+        subscribe(angle_ws.ws, 1, str(token))
         return jsonify({"status": "subscribed", "token": token})
-
     except Exception as e:
         print("❌ SUBSCRIBE ERROR:", e)
         return jsonify({"error": str(e)}), 500
@@ -41,12 +42,12 @@ def subscribe_stock(token):
 @stock_bp.route("/unsubscribe/<token>", methods=["POST"])
 def unsubscribe_stock(token):
     try:
-        if ws is None:
+        if angle_ws.ws is None:
             return jsonify({"error": "WS not connected"}), 500
 
         print("📡 UNSUBSCRIBE REQUEST:", token)
 
-        unsubscribe(ws, 1, str(token))
+        unsubscribe(angle_ws.ws, 1, str(token))
 
         return jsonify({"status": "unsubscribed", "token": token})
 

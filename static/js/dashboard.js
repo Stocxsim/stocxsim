@@ -1,12 +1,22 @@
-
-
-
+const socket = io();
 // Dashboard live prices (Socket.IO event: "live_prices")
 // Backend payload shape: { stocks: { [token]: {ltp, change, percent_change}}, index: {...} }
 
 // Cache latest known prices so UI can render even if socket updates come
 // before watchlist cards are inserted into the DOM.
 let latestPrices = {};
+
+// socket.on("live_prices", (data) => {
+//      if (!data) return;
+
+//      // INDEX UPDATE
+//      if (data.index) {
+//           for (const token in data.index) updateUI(token, data.index[token]);
+//      }
+//      if (data.stocks) {
+//           for (const token in data.stocks) updateUI(token, data.stocks[token]);
+//      }
+// });
 
 if (typeof io !== 'undefined') {
      const socket = io();
@@ -78,19 +88,28 @@ fetch("/watchlist/api")
           buildDashboardWatchlist(stocks);
 
           // apply prices if socket already came
-          Object.keys(latestPrices).forEach(token => {
-               updateUI(token, latestPrices[token]);
-          });
-});
+          const tokens = stocks.map(s => s.token);
+          if (tokens.length > 0) {
+               console.log("Subscribing to tokens:", tokens);
+               socket.emit("subscribe_watchlist", { tokens: tokens });
+          }
+     });
+
+// Object.keys(latestPrices).forEach(token => {
+//      updateUI(token, latestPrices[token]);
+// });
+// });
+
 
 function buildDashboardWatchlist(stocks) {
      if (!row) return;
      row.innerHTML = "";
      stocks.forEach(stock => {
-
           if (stock.category === 'INDEX') {
                return; // Skip this iteration
           }
+
+          const cached = latestPrices[stock.token];
 
           const wrapper = document.createElement("div");
           wrapper.className = "watchlist-item";
@@ -98,10 +117,12 @@ function buildDashboardWatchlist(stocks) {
 
 
           wrapper.innerHTML = `
-          <div class="stock_card p-3" id="${String(stock.token)}">
-          <div class="stock_name mb-2">${stock.name}</div>
-          <div class="stock_price price">--</div>
-          <div class="stock_change change">--</div>
+          <div class="stock_card p-3" id="${String(stock.token)}" style="cursor: pointer;">
+               <div class="stock_name mb-2">${stock.name}</div>
+               <div class="stock_price price">${cached ? cached.ltp.toFixed(2) : "--"}</div>
+               <div class="stock_change change ${cached ? (cached.change >= 0 ? 'up' : 'down') : ''}">
+                    ${cached ? `${cached.change >= 0 ? '+' : ''}${cached.change.toFixed(2)} (${cached.percent_change.toFixed(2)}%)` : "--"}
+               </div>
           </div>
           `;
 
@@ -130,7 +151,7 @@ if (dashboardCurrent && dashboard1d && dashboardTotal && dashboardInvested) {
           .then(data => {
                if (!data || !data.holdings) return;
                updateDashboardSidebarTotals(data.holdings);
-})
+          })
           .catch(() => {
                // Do not overwrite with 0 on error
           });
@@ -153,17 +174,17 @@ function updateDashboardSidebarTotals(holdings) {
           // Only add if prev_close is a valid number
           if (prev !== null && !isNaN(prev)) {
                oneDayReturn += (ltp - prev) * qty;
-          } 
+          }
           // If prev_close is missing, skip this holding (do not add 0 or NaN)
      });
 
      // Format values, never show NaN or 0 unless truly empty
-     dashboardCurrent.innerText = current ? `₹${current.toLocaleString(undefined, {maximumFractionDigits:2})}` : '--';
-     dashboardInvested.innerText = invested ? `₹${invested.toLocaleString(undefined, {maximumFractionDigits:2})}` : '--';
-     dashboardTotal.innerText = totalReturn ? `${totalReturn >= 0 ? '+' : ''}${totalReturn.toLocaleString(undefined, {maximumFractionDigits:2})}` : '--';
+     dashboardCurrent.innerText = current ? `₹${current.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '--';
+     dashboardInvested.innerText = invested ? `₹${invested.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '--';
+     dashboardTotal.innerText = totalReturn ? `${totalReturn >= 0 ? '+' : ''}${totalReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '--';
      // 1D return: show '--' if no valid holdings, else show value
      if (typeof oneDayReturn === 'number' && !isNaN(oneDayReturn) && holdings.some(h => h.prev_close !== undefined && h.prev_close !== null && !isNaN(Number(h.prev_close)))) {
-          dashboard1d.innerText = `${oneDayReturn >= 0 ? '+' : ''}${oneDayReturn.toLocaleString(undefined, {maximumFractionDigits:2})}`;
+          dashboard1d.innerText = `${oneDayReturn >= 0 ? '+' : ''}${oneDayReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
      } else {
           dashboard1d.innerText = '--';
      }

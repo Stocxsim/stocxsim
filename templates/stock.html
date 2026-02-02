@@ -12,22 +12,23 @@
 
 <body data-stock-token="{{ stock.stock_token }}">
 
-    <div id="stockPage"
-         data-stock-token="{{ stock.stock_token }}"
-         data-stock-name="{{ stock.stock_name }}"
-         data-ema20="{{ stock.ema_20 if stock.ema_20 else 0 }}"
-            data-rsi="{{ stock.rsi if stock.rsi else 50 }}"
-            data-holding-qty="{{ holding.quantity if holding else 0 }}"
-            data-holding-avg="{{ holding.avg_buy_price if holding else 0 }}"
-         style="display:none"></div>
+    <div id="stockPage" data-stock-token="{{ stock.stock_token }}" data-stock-name="{{ stock.stock_name }}"
+        data-ema20="{{ stock.ema_20 if stock.ema_20 else 0 }}" data-rsi="{{ stock.rsi if stock.rsi else 50 }}"
+        data-holding-qty="{{ holding.quantity if holding else 0 }}"
+        data-holding-avg="{{ holding.avg_buy_price if holding else 0 }}" style="display:none"></div>
 
     <div class="container">
         <div class="left-panel">
             <div class="header-top">
                 <div class="stock-logo">{{ stock.stock_name[0] }}</div>
+                <button id="closeStockBtn" class="close-btn">
+                    <i class="bi bi-x-lg"></i>
+                </button>
                 <div class="action-buttons">
-                    <button id="watchlistBtn"><i class="bi bi-bookmark"></i><span id="watchlistText">Watchlist</span>s</button>
+                    <button id="watchlistBtn"><i class="bi bi-bookmark"></i><span
+                            id="watchlistText">Watchlist</span>s</button>
                 </div>
+
             </div>
 
             <div class="price-section">

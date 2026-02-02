@@ -7,6 +7,7 @@ from service.market_data_service import get_full_market_data, load_baseline_data
 from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlist
 from data.live_data import register_equity_token, ensure_baseline_data, BASELINE_DATA
 from database.watchlist_dao import get_stock_tokens_by_user
+from database.userdao import checkBalance
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -34,7 +35,7 @@ def save_user():
 
     # 🔥 SUBSCRIBE USER WATCHLIST
     user_id = user.get_user_id()
-    tokens = [str(t) for t in get_stock_tokens_by_user(user_id)]   # e.g. 20 tokens
+    tokens = [str(t[0]) for t in get_stock_tokens_by_user(user_id)]   # e.g. 20 tokens
 
     # Keep login response fast: do live-data warmup in background.
     for token in tokens:
@@ -134,3 +135,18 @@ def orders():
         user=user,
         active_tab="orders"
     )
+
+
+@user_bp.route('/logout', methods=['POST'])
+def logout():
+    session.clear() 
+    return jsonify({"success": True}), 200
+
+
+@user_bp.route("/get-balance")
+def get_balance():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+    
+    balance = checkBalance(session['user_id'])
+    return jsonify({"balance": balance})

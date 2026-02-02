@@ -1,15 +1,32 @@
-// const STOCK_TOKEN = "{{ stock.stock_token }}";
+// =========================
+// Global variables
+// =========================
 const STOCK_TOKEN = document.body.dataset.stockToken;
 const STOCK_NAME = "{{ stock.stock_name }}";
-// Grab the watchlist as a JSON string from template
 const watchlistTokens = '{{ watchlist_tokens | default([]) | tojson | safe }}';
+const socket = io();
+
+let transactionType = "buy";
+let isWatchlisted = watchlistTokens.includes(STOCK_TOKEN);
+window.lastLTP = 0;
+
+// UI Elements
+const qtyInput = document.getElementById("qty");
+const priceInput = document.getElementById("price");
+const approxReqEl = document.querySelector(".info-row span:last-child");
+const balanceEl = document.querySelector(".info-row span:first-child");
+const buyTab = document.getElementById("buy-tab");
+const sellTab = document.getElementById("sell-tab");
+const submitBtn = document.getElementById("submitOrderBtn");
+
+// listeners to update the "Approx req" as type
+qtyInput.addEventListener("input", updateApproxReq);
+priceInput.addEventListener("input", updateApproxReq);
+
 
 // Example usage
 const stockToken = document.body.dataset.stockToken;
-let isWatchlisted = watchlistTokens.includes(stockToken);
-console.log("Watchlist:", watchlistTokens, "Is watchlisted?", isWatchlisted);
 
-const socket = io();
 
 // =========================
 // SOCKET EVENTS
@@ -27,27 +44,15 @@ const EMA_20 = parseFloat("{{ stock.ema_20 if stock.ema_20 else 0 }}");
 socket.on("live_prices", (data) => {
 
      if (!data.stocks || !data.stocks[STOCK_TOKEN]) {
-          const stockData = feed[id] || {};
-          if (!stockData.price) {
-               console.debug(`Waiting for feed initialization for: ${id}`);
-               return; // Don't log a full error/warning yet
-          }
           console.warn("Stock not in feed yet:", STOCK_TOKEN);
           return;
      }
 
      const stock = data.stocks[STOCK_TOKEN];
-
-     // console.log("LIVE STOCK:", stock);
-     // console.log("LTP:", stock.ltp);
-     // console.log("EMA:", EMA_20);
-
-     updateStockUI(stock);
-     setEmaGauge(stock.ltp, EMA_20);
-
-     // 2️⃣ INDEX PAGE (future / optional)
-     // Example:
-     // updateIndexUI("26009", data.index["26009"]);
+     if (stock && stock.ltp) {
+          updateStockUI(stock);
+          setEmaGauge(stock.ltp, EMA_20);
+     }
 });
 
 
@@ -64,7 +69,6 @@ function updateStockUI(stock) {
      const isUp = stock.change >= 0;
      const sign = isUp ? "+" : "";
      window.lastLTP = stock.ltp;
-
 
      // 🔹 Price
      priceEl.innerText = "₹" + stock.ltp.toFixed(2);
@@ -84,20 +88,14 @@ function updateStockUI(stock) {
                     (${sign}${stock.percent_change.toFixed(2)}%)
                     </span>
                 `;
-     if (orderType === "limit") {
+     if (!priceInput.value) {
           priceInput.value = stock.ltp.toFixed(2);
      }
-
+     updateApproxReq();
 }
-// =========================
-// GLOBAL STATE
-// =========================
-let transactionType = "buy";     // buy | sell
-let orderType = "limit";         // limit | market
 
-const buyTab = document.getElementById("buy-tab");
-const sellTab = document.getElementById("sell-tab");
-const submitBtn = document.getElementById("submitOrderBtn");
+
+let orderType = "limit";         // limit | market
 
 // =========================
 // BUY TAB
@@ -111,6 +109,8 @@ buyTab.addEventListener("click", () => {
      submitBtn.innerText = "Buy";
      submitBtn.classList.remove("sell-btn");
      submitBtn.classList.add("buy-btn");
+
+     updateApproxReq();
 });
 
 // =========================
@@ -125,14 +125,15 @@ sellTab.addEventListener("click", () => {
      submitBtn.innerText = "Sell";
      submitBtn.classList.remove("buy-btn");
      submitBtn.classList.add("sell-btn");
+
+     updateApproxReq();
 });
 
 // =========================
 // SUBMIT ORDER
 // =========================
-submitBtn.addEventListener("click", function () {
+submitBtn.addEventListener("click", async function () {
 
-     // 🔐 Snapshot (race condition avoid)
      const currentTransactionType = transactionType;
      const currentOrderType = orderType;
 
@@ -143,15 +144,8 @@ submitBtn.addEventListener("click", function () {
      // VALIDATION
      // =========================
      if (!qtyValue || isNaN(qtyValue) || Number(qtyValue) <= 0) {
-          alert("❌ Valid quantity aapo");
+          alert("❌ Give valid quantity");
           return;
-     }
-
-     if (currentOrderType === "limit") {
-          if (!priceValue || isNaN(priceValue) || Number(priceValue) <= 0) {
-               alert("❌ Valid price aapo");
-               return;
-          }
      }
 
      const payload = {
@@ -161,34 +155,98 @@ submitBtn.addEventListener("click", function () {
           price: currentOrderType === "market" ? "" : priceValue,
           transaction_type: currentTransactionType
      };
+     // Calculate Total Value
+     // const totalOrderValue = Number(qtyValue) * Number(priceValue);
 
-     fetch("/trade/order", {
-          method: "POST",
-          headers: {
-               "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: new URLSearchParams(payload)
-     })
-          .then(res => res.json())
-          .then(data => {
-               console.log("ORDER RESPONSE:", data);
+     try {
+          // const response = await fetch("/login/get-balance");
+          // const balanceData = await response.json();
+          // const currentBalance = balanceData.balance;
 
-               if (data.error) {
-                    alert("❌ " + data.error);
-               } else {
-                    alert("✅ " + data.message);
 
-                    // optional reset
-                    document.getElementById("qty").value = "";
+          // // Balance check for BUY orders
+          // if (currentTransactionType === "buy") {
+          //      if (totalOrderValue > currentBalance) {
+          //           alert(`❌ Insufficient Balance!\nRequired: ₹${totalOrderValue.toFixed(2)}\nAvailable: ₹${currentBalance.toFixed(2)}`);
+          //           return; // Stop the process
+          //      }
+          // }
 
-               }
-          })
-          .catch(err => {
-               console.error("Order error:", err);
-               alert("⚠️ Something went wrong!");
+          // place order
+
+          const orderRes = await fetch("/trade/order", {
+               method: "POST",
+               headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+               },
+               body: new URLSearchParams(payload)
           });
+
+          const orderData = await orderRes.json();
+
+          if (orderData.error) {
+               alert("❌ " + orderData.error);
+          } else {
+               alert("✅ " + orderData.message);
+               if (orderData.new_balance !== undefined) {
+                    balanceEl.innerText = `Balance: ₹${orderData.new_balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+               }
+
+               document.getElementById("qty").value = "1";
+
+               updateApproxReq();
+          }
+     } catch (err) {
+          console.error("Order error:", err);
+          alert("⚠️ Connection error!");
+     }
+
+     // =========================
+     // .then(res => res.json())
+     // .then(data => {
+     //      console.log("ORDER RESPONSE:", data);
+
+     //      if (data.error) {
+     //           alert("❌ " + data.error);
+     //      } else {
+     //           alert("✅ " + data.message);
+
+     //           // optional reset
+     //           document.getElementById("qty").value = "";
+
+     //      }
+     // })
+     // .catch(err => {
+     //      console.error("Order error:", err);
+     //      alert("⚠️ Something went wrong!");
+     // });
 });
-const priceInput = document.getElementById("price");
+
+
+
+// =========================
+// REAL-TIME COST CALCULATION
+// =========================
+function updateApproxReq() {
+     const q = parseFloat(qtyInput.value) || 0;
+     const p = parseFloat(priceInput.value) || 0;
+     const total = q * p;
+
+     // Updates the "Approx req.: ₹0" text
+     approxReqEl.innerHTML = `Approx req.: <b>₹${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</b>`;
+
+     // Visual Cue: Turn text red if you can't afford it
+     const balanceText = balanceEl.innerText.replace(/[^\d.]/g, '');
+     const currentBal = parseFloat(balanceText) || 0;
+
+     if (transactionType === "buy" && total > currentBal) {
+          approxReqEl.style.color = "#e74c3c"; // Red
+     } else {
+          approxReqEl.style.color = ""; // Default
+     }
+}
+
+
 const orderTypeText = document.getElementById("orderTypeText");
 const priceToggle = document.getElementById("priceTypeToggle");
 
@@ -213,6 +271,8 @@ priceToggle.addEventListener("click", () => {
           // current price muki do
           priceInput.value = window.lastLTP.toFixed(2);
      }
+
+     updateApproxReq();
 });
 
 
@@ -276,9 +336,6 @@ function updateLabel(value) {
 const rsiValue = parseFloat(STOCK_RSI);
 const gaugeValue = (rsiValue - 50) * 2; // Convert 0-100 to -100 to +100
 setGauge(gaugeValue);
-
-
-
 
 
 // console.log("EMA 20:", EMA_20, "Price:", PRICE);
@@ -351,22 +408,41 @@ function emaToGaugeValue(price, ema20) {
 }
 
 // =========================
-// UNSUBSCRIBE ON PAGE UNLOAD
+// DYNAMIC SUBSCRIPTION & UNLOAD
 // =========================
 
 document.addEventListener("DOMContentLoaded", () => {
+
+     fetch("/login/get-balance")
+          .then(res => res.json())
+          .then(data => {
+               if (data.balance !== undefined) {
+                    balanceEl.innerText = `Balance: ₹${data.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+               }
+               updateApproxReq(); // Run once balance is loaded
+          });
+
+
      if (!STOCK_TOKEN) return;
 
      fetch(`/stocks/subscribe/${STOCK_TOKEN}`, {
           method: "POST"
      })
-          .then(() => console.log("✅ Subscribed:", STOCK_TOKEN))
-          .catch(() => console.warn("❌ Subscribe failed"));
+          .then(async res => {
+               if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || 'Server Error');
+               }
+               return res.json();
+          })
+          .then(data => console.log("✅ Subscribed:", data.token))
+          .catch(err => console.error("❌ Subscribe failed:", err.message));
 });
 
 window.addEventListener("beforeunload", () => {
      if (!STOCK_TOKEN) return;
-     if (!watchlistTokens.includes(STOCK_TOKEN)) {
+
+     if (!isWatchlisted) {
           navigator.sendBeacon(`/stocks/unsubscribe/${STOCK_TOKEN}`);
           console.log("❌ Unsubscribed:", STOCK_TOKEN);
      } else {
@@ -378,18 +454,12 @@ window.addEventListener("beforeunload", () => {
 // =========================
 // WATCHLIST BUTTON
 // =========================
-
-// =========================
-// WATCHLIST BUTTON (FINAL)
-// =========================
 document.addEventListener("DOMContentLoaded", () => {
      const watchlistBtn = document.getElementById("watchlistBtn");
      const watchlistText = document.getElementById("watchlistText");
      const stockToken = document.body.dataset.stockToken;
 
      if (!watchlistBtn || !stockToken) return;
-
-     let isWatchlisted = false; // Default state
 
      // 1. Force sync with DB truth on page load
      fetch(`/watchlist/status/${stockToken}`)
@@ -428,4 +498,27 @@ document.addEventListener("DOMContentLoaded", () => {
                watchlistText.innerText = "Watchlist";
           }
      }
+});
+
+// =========================
+// Back Button
+// =========================
+
+document.addEventListener("DOMContentLoaded", () => {
+     const closeBtn = document.getElementById("closeStockBtn");
+
+     if (!closeBtn) return;
+
+     closeBtn.addEventListener("click", () => {
+          /* document.referrer is the URL of the page that linked to this one.
+              We check if it exists and if it belongs to your website.
+           */
+          if (document.referrer && document.referrer.includes(window.location.hostname)) {
+               window.location.href = document.referrer;
+          } else {
+               // If they landed here from Google or a direct link, 
+               // send them to a safe default.
+               window.location.href = "/login/watchlist";
+          }
+     });
 });

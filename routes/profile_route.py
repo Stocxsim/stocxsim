@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, redirect
 from service.userservice import getUserDetails
+from database.userdao import checkBalance
 
 profile_bp = Blueprint("profile", __name__)
 
@@ -14,7 +15,6 @@ def profile():
     if not user_obj:
         return redirect("/login/dashboard")
 
-    from database.userdao import checkBalance
     balance = checkBalance(user_obj.get_user_id())
 
     user = {

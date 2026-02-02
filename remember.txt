@@ -1,0 +1,1 @@
+Remove ordertype (limit) with its flow from stock.js -> IN submitBtn.addEvenetListner

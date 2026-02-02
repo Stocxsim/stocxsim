@@ -10,14 +10,20 @@ trade_bp = Blueprint('trade_bp', __name__)
 def place_trade_order():
     try:
         user_id = session.get("user_id")
-        data = request.form
+        if not user_id:
+            return jsonify({"error": "Please login first"}), 401
 
+        data = request.form
         symbol_token = data.get("symbol_token")
+
         quantity = data.get("quantity")
         quantity = Decimal(quantity) if quantity else Decimal("0")
+
         order_type = data.get("order_type")
+
         price = data.get("price")
         price = Decimal(price) if price else None
+
         transaction_type = data.get("transaction_type")
 
         result = place_order(
@@ -29,9 +35,7 @@ def place_trade_order():
             transaction_type=transaction_type
         )
 
-        return jsonify({
-            "message": result,
-        })
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400

@@ -33,6 +33,9 @@
             <span>Change PIN</span>
             <i class="bi bi-chevron-right"></i>
           </li>
+          <li>
+            <button class="ms-auto btn" id="logout">Log out</button>
+          </li>
         </ul>
 
       </div>
@@ -89,7 +92,7 @@
           <!-- bubbles -->
           <div class="bubble bubble-1"></div>
           <div class="bubble bubble-2"></div>
-          </form>
+        </form>
       </div>
 
       <!-- CHANGE PIN -->
@@ -97,15 +100,15 @@
 
         <h5>Change PIN</h5>
         <form autocomplete="new-pin">
-        <div class="form-group">
-          <label>New PIN</label>
-          <input type="password" maxlength="4" class="form-control" autocomplete="new-pin">
-        </div>
+          <div class="form-group">
+            <label>New PIN</label>
+            <input type="password" maxlength="4" class="form-control" autocomplete="new-pin">
+          </div>
 
-        <div class="form-group">
-          <label>Confirm PIN</label>
-          <input type="password" maxlength="4" class="form-control" autocomplete="new-pin">
-        </div>
+          <div class="form-group">
+            <label>Confirm PIN</label>
+            <input type="password" maxlength="4" class="form-control" autocomplete="new-pin">
+          </div>
         </form>
 
         <button class="btn mt-3" style="color: white; background-color: #04b488;">Update PIN</button>
@@ -142,5 +145,27 @@
 
     event.currentTarget?.classList.add('active');
   }
+
+  const logout1 = document.getElementById("logout");
+  if (logout1) {
+    logout1.addEventListener("click", async () => {
+      try {
+        const res = await fetch('/login/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (res.ok) {
+          window.location.href = '/';
+        } else {
+          console.error('Logout failed');
+        }
+      } catch (e) {
+        console.error('Error during logout:', e);
+      }
+    });
+  } 
 </script>
 {% endblock %}

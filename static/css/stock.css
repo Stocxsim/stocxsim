@@ -72,6 +72,19 @@ body {
     color: #04b488;
 }
 
+.close-btn {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 8px;
+    color: #333;
+}
+
+.close-btn:hover {
+    color: #dc3545;
+}
+
 .action-buttons button {
     background: white;
     border: 1px solid var(--border-color);

@@ -74,3 +74,16 @@ def checkBalance(user_id):
     finally:
         cur.close()
         return_connection(conn)
+
+def updateBalance(user_id, new_balance):
+    """Updates the user's balance in the database."""
+    
+    query = "UPDATE users SET balance = %s WHERE user_id = %s"
+    conn = gc()
+    try:
+        cur = conn.cursor()
+        cur.execute(query, (new_balance, user_id))
+        conn.commit()
+    finally:
+        cur.close()
+        return_connection(conn)

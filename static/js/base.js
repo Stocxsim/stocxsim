@@ -14,16 +14,16 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   document.addEventListener("click", (e) => {
-  const dropdown = document.getElementById("profileDropdown");
-  const profileWrapper = document.querySelector(".profile-wrapper");
+    const dropdown = document.getElementById("profileDropdown");
+    const profileWrapper = document.querySelector(".profile-wrapper");
 
-  if (!dropdown || !profileWrapper) return;
+    if (!dropdown || !profileWrapper) return;
 
-  // If click is outside the profile wrapper, close the dropdown
-  if (!profileWrapper.contains(e.target)) {
-    dropdown.classList.remove("show");
-  }
-});
+    // If click is outside the profile wrapper, close the dropdown
+    if (!profileWrapper.contains(e.target)) {
+      dropdown.classList.remove("show");
+    }
+  });
 
 
   // Search
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resultsBox.style.display = "none";
     }
   });
-  
+
 
   // live market socket
   if (typeof io === 'undefined') {
@@ -145,6 +145,31 @@ document.addEventListener("DOMContentLoaded", () => {
     changeEl.classList.add(cls);
   }
 });
+
+
+const logout = document.getElementById("logoutBtn");
+if (logout) {
+  logout.addEventListener("click", async () => {
+    try {
+      const res = await fetch('/login/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (e) {
+      console.error('Error during logout:', e);
+    }
+  });
+} 
+
+
 function goToProfile(e) {
   e.stopPropagation();
   window.location.href = "/profile";
@@ -152,4 +177,5 @@ function goToProfile(e) {
 function goToFunds() {
   window.location.href = "/profile/funds";
 }
+
 

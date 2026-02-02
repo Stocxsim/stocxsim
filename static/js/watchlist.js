@@ -152,7 +152,6 @@ function buildTable(stocks) {
       <td class="text-end price">--</td>
       <td class="text-end change">--</td>
       <td class="text-end">--</td>
-      <td class="text-end perf">L ───●── H</td>
     `;
 
     tbody.appendChild(row);
