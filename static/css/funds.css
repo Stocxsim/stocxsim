@@ -1,0 +1,33 @@
+/* Funds page styles (was referenced but missing) */
+
+.card {
+  border: 1px solid rgba(17, 24, 39, 0.06);
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.06);
+}
+
+#transactions {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+#transactions:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.10);
+}
+
+/* Transactions modal table */
+.txn-table thead th {
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: #6b7280;
+}
+
+.txn-table tbody td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.txn-badge {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}

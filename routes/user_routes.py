@@ -9,6 +9,7 @@ from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlis
 from data.live_data import register_equity_token, ensure_baseline_data, BASELINE_DATA
 from database.watchlist_dao import get_stock_tokens_by_user
 from database.userdao import checkBalance, updateBalance
+from service.transaction_service import record_transaction
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -171,6 +172,7 @@ def add_funds():
     new_balance = current_balance + amount
 
     updateBalance(user_id, new_balance)
+    record_transaction(user_id, amount, "ADD")
     return redirect("/profile/funds?success=added")
 
 
@@ -196,4 +198,5 @@ def withdraw_funds():
 
     new_balance = current_balance - amount
     updateBalance(user_id, new_balance)
+    record_transaction(user_id, amount, "WITHDRAW")
     return redirect("/profile/funds?success=withdrawn")

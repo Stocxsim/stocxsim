@@ -1,5 +1,6 @@
 from service.market_data_service import get_full_market_data
 import threading
+import time
 from typing import Iterable
 
 LIVE_PRICES={}
@@ -10,6 +11,8 @@ EQUITY_TOKENS = []  # List of equity stock tokens to track
 INDEX_TOKENS = ["26000","19000","26009","26037","53886"]  # List of index tokens to track
 
 _baseline_lock = threading.Lock()
+_baseline_in_flight = set()
+_baseline_retry_after = 0.0
 
 
 # def refresh_live_data():
@@ -58,13 +61,33 @@ def ensure_baseline_data(tokens: Iterable[str]) -> None:
     if not token_list:
         return
 
+    global _baseline_retry_after
+    now = time.time()
+    if now < _baseline_retry_after:
+        return
+
+    # Decide what to fetch under lock; do network call outside lock.
     with _baseline_lock:
-        missing = [t for t in token_list if t not in BASELINE_DATA]
+        missing = [t for t in token_list if t not in BASELINE_DATA and t not in _baseline_in_flight]
         if not missing:
             return
+        for t in missing:
+            _baseline_in_flight.add(t)
 
+    try:
         fetched = get_full_market_data(tokens=missing)
+    except Exception as e:
+        # Never crash the caller thread; just retry later.
+        print(f"⚠️ Baseline fetch error: {e}")
+        fetched = {}
+
+    with _baseline_lock:
+        for t in missing:
+            _baseline_in_flight.discard(t)
+
         if not fetched:
+            # Most common cause is SmartAPI rate limit; wait a bit before retry.
+            _baseline_retry_after = time.time() + 60
             return
 
         BASELINE_DATA.update(fetched)
