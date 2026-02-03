@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, session, redirect, render_template
+from decimal import Decimal, InvalidOperation
 import threading
 from modal.User import User
 from service.userservice import login_service, signup_service, verify_otp, send_otp, getUserDetails
@@ -7,7 +8,7 @@ from service.market_data_service import get_full_market_data, load_baseline_data
 from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlist
 from data.live_data import register_equity_token, ensure_baseline_data, BASELINE_DATA
 from database.watchlist_dao import get_stock_tokens_by_user
-from database.userdao import checkBalance
+from database.userdao import checkBalance, updateBalance
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -80,7 +81,7 @@ def dashboard():
     user = {
         "username": session.get("username"),
         "email": session.get("email"),
-        "balance": session.get("balance", 0)
+        "balance": checkBalance(session.get("user_id"))
     }
 
     return render_template("dashboard.html", user=user, active_tab="explore")
@@ -94,7 +95,7 @@ def holdings():
     user = {
         "username": session.get("username"),
         "email": session.get("email"),
-        "balance": session.get("balance", 0) 
+        "balance": checkBalance(session.get("user_id"))
     }
 
     return render_template("holding.html", user=user, active_tab="holdings")
@@ -110,7 +111,7 @@ def watchlist():
     user = {
         "username": session.get("username"),
         "email": session.get("email"),
-        "balance": session.get("balance", 0)
+        "balance": checkBalance(session.get("user_id"))
     }
 
     return render_template(
@@ -127,7 +128,7 @@ def orders():
     user = {
         "username": session.get("username"),
         "email": session.get("email"),
-        "balance": session.get("balance", 0)
+        "balance": checkBalance(session.get("user_id"))
     }
 
     return render_template(
@@ -150,3 +151,49 @@ def get_balance():
     
     balance = checkBalance(session['user_id'])
     return jsonify({"balance": balance})
+
+@user_bp.route("/add_funds")
+def add_funds():
+    if not session.get("logged_in") or "user_id" not in session:
+        return redirect("/login")
+
+    amount_raw = request.args.get("amount", "0")
+    try:
+        amount = Decimal(str(amount_raw))
+    except (InvalidOperation, TypeError):
+        return redirect("/profile/funds?error=invalid_amount")
+
+    if amount <= 0:
+        return redirect("/profile/funds?error=invalid_amount")
+
+    user_id = session["user_id"]
+    current_balance = Decimal(str(checkBalance(user_id) or 0))
+    new_balance = current_balance + amount
+
+    updateBalance(user_id, new_balance)
+    return redirect("/profile/funds?success=added")
+
+
+@user_bp.route("/withdraw_funds")
+def withdraw_funds():
+    if not session.get("logged_in") or "user_id" not in session:
+        return redirect("/login")
+
+    amount_raw = request.args.get("amount", "0")
+    try:
+        amount = Decimal(str(amount_raw))
+    except (InvalidOperation, TypeError):
+        return redirect("/profile/funds?error=invalid_amount")
+
+    if amount <= 0:
+        return redirect("/profile/funds?error=invalid_amount")
+
+    user_id = session["user_id"]
+    current_balance = Decimal(str(checkBalance(user_id) or 0))
+
+    if current_balance < amount:
+        return redirect("/profile/funds?error=insufficient_balance")
+
+    new_balance = current_balance - amount
+    updateBalance(user_id, new_balance)
+    return redirect("/profile/funds?success=withdrawn")

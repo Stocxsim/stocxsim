@@ -26,5 +26,4 @@ def get_order_details(user_id, filter_params):
             "time": order.get_created_at().strftime("%I:%M %p"),
             "date": order.get_created_at().strftime("%d %b %Y")
         })
-    print("🧾 ORDERS LIST:", orders_list)
     return orders_list

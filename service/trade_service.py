@@ -14,7 +14,7 @@ def place_order(user_id, symbol_token, quantity, order_type, price, transaction_
     if quantity <= 0:
         raise ValueError("Quantity must be greater than zero")
 
-    if order_type not in ["market", "limit", "mtf"]:
+    if order_type not in ["market", "mtf"]:
         raise ValueError("Invalid order type")
 
     # ✅ MARKET PRICE — convert FLOAT → Decimal
@@ -25,7 +25,7 @@ def place_order(user_id, symbol_token, quantity, order_type, price, transaction_
             raise ValueError("Could not fetch market price")
         price = Decimal(str(ltp))
 
-    # LIMIT / MTF price
+    # MTF price
     if order_type in ["mtf"] and (price is None or price <= 0):
         raise ValueError("Price must be greater than zero")
 
@@ -35,7 +35,7 @@ def place_order(user_id, symbol_token, quantity, order_type, price, transaction_
     # ✅ BALANCE CHECK
     total_cost = price * quantity
 
-    if order_type == "market" or order_type == "limit":
+    if order_type == "market" :
         if transaction_type == "buy" and balance < total_cost:
             raise ValueError("Insufficient balance")
 

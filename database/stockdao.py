@@ -39,3 +39,22 @@ def get_stock_by_token(stock_token):
     finally:
         cur.close()
         return_connection(conn)
+
+def get_stock_short_name_by_token(stock_token):
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT stock_short_name
+            FROM stocks
+            WHERE stock_token = %s
+        """, (stock_token,))
+
+        row = cur.fetchone()
+        if row:
+            return row[0]
+        return None
+    finally:
+        cur.close()
+        return_connection(conn)

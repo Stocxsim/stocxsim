@@ -93,6 +93,7 @@
 {% endblock %}
 {% block js %}
 <script>
+    var currentTab = "add";
   function switchTab(type) {
     const addTab = document.getElementById("addTab");
     const withdrawTab = document.getElementById("withdrawTab");
@@ -107,6 +108,7 @@
       actionBtn.innerText = "Add money";
       actionBtn.style.backgroundColor = "#04b488";
       infoBox.innerText = "Enter amount to add";
+      currentTab = "add";
     } 
     else {
       withdrawTab.classList.add("active");
@@ -117,6 +119,7 @@
 
       infoBox.innerText = "No balance available to withdraw";
       amountInput.value = 0;
+    currentTab = "withdraw";
     }
   }
 
@@ -125,5 +128,23 @@
     let current = parseInt(amountInput.value || 0);
     amountInput.value = current + value;
   }
+
+    document.getElementById("actionBtn").addEventListener("click", function() {
+        const amountInput = document.getElementById("amountInput");
+        let amount = parseInt(amountInput.value || 0);
+    
+        if (amount <= 0) {
+        alert("Please enter a valid amount greater than 0.");
+        return;
+        }
+    
+        if (currentTab === "add") {
+        // Redirect to add funds route
+        window.location.href = `/login/add_funds?amount=${amount}`;
+        } else {
+        // Redirect to withdraw funds route
+        window.location.href = `/login/withdraw_funds?amount=${amount}`;
+        }
+    });
 </script>
 {% endblock %}

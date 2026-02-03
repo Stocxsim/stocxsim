@@ -78,7 +78,7 @@ function buildOrdersList(orders) {
       <div class="col order-info">
         <strong style="color:#44475b">${order.symbol}</strong><br>
         <small>
-          ${order.transaction_type} · ${order.order_type} · ${order.product}
+          ${order.transaction_type} · ${order.order_type} 
         </small>
       </div>
 

@@ -2,12 +2,11 @@
 // Global variables
 // =========================
 const STOCK_TOKEN = document.body.dataset.stockToken;
-const STOCK_NAME = "{{ stock.stock_name }}";
-const watchlistTokens = '{{ watchlist_tokens | default([]) | tojson | safe }}';
+const stockPageEl = document.getElementById("stockPage");
 const socket = io();
 
 let transactionType = "buy";
-let isWatchlisted = watchlistTokens.includes(STOCK_TOKEN);
+let isWatchlisted = false;
 window.lastLTP = 0;
 
 // UI Elements
@@ -39,7 +38,7 @@ socket.on("disconnect", () => {
      console.log("❌ Socket disconnected");
 });
 
-const EMA_20 = parseFloat("{{ stock.ema_20 if stock.ema_20 else 0 }}");
+const EMA_20 = parseFloat(stockPageEl?.dataset.ema20 || "0");
 
 socket.on("live_prices", (data) => {
 
@@ -95,7 +94,44 @@ function updateStockUI(stock) {
 }
 
 
-let orderType = "limit";         // limit | market
+let orderType = "market"; // market | mtf
+
+// =========================
+// DELIVERY / MTF TOGGLE
+// =========================
+const orderTypeText = document.getElementById("orderTypeText");
+
+function syncPriceUIForOrderType() {
+     if (!priceInput) return;
+
+     if (orderType === "mtf") {
+          if (orderTypeText) orderTypeText.innerText = "MTF";
+          priceInput.disabled = false;
+          if (!priceInput.value && window.lastLTP) {
+               priceInput.value = window.lastLTP.toFixed(2);
+          }
+     } else {
+          if (orderTypeText) orderTypeText.innerText = "Market";
+          priceInput.disabled = true;
+          if (window.lastLTP) {
+               priceInput.value = window.lastLTP.toFixed(2);
+          }
+     }
+}
+
+document.querySelectorAll(".order-type-chips .chip").forEach((chip) => {
+     chip.addEventListener("click", () => {
+          document
+               .querySelectorAll(".order-type-chips .chip")
+               .forEach((c) => c.classList.remove("active"));
+
+          chip.classList.add("active");
+
+          orderType = chip.dataset.type || "market";
+          syncPriceUIForOrderType();
+          updateApproxReq();
+     });
+});
 
 // =========================
 // BUY TAB
@@ -146,6 +182,13 @@ submitBtn.addEventListener("click", async function () {
      if (!qtyValue || isNaN(qtyValue) || Number(qtyValue) <= 0) {
           alert("❌ Give valid quantity");
           return;
+     }
+
+     if (currentOrderType === "mtf") {
+          if (!priceValue || isNaN(priceValue) || Number(priceValue) <= 0) {
+               alert("❌ Give valid price for MTF");
+               return;
+          }
      }
 
      const payload = {
@@ -230,16 +273,25 @@ submitBtn.addEventListener("click", async function () {
 function updateApproxReq() {
      const q = parseFloat(qtyInput.value) || 0;
      const p = parseFloat(priceInput.value) || 0;
+
      const total = q * p;
 
-     // Updates the "Approx req.: ₹0" text
-     approxReqEl.innerHTML = `Approx req.: <b>₹${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</b>`;
+     // Backend behavior: MTF deducts 25% upfront
+     let required = total;
+     if (transactionType !== "buy") {
+          required = 0;
+     } else if (orderType === "mtf") {
+          required = total * 0.25;
+     }
+
+     // Updates the "Approx req" text
+     approxReqEl.innerHTML = `Approx req.: <b>₹${required.toLocaleString(undefined, { minimumFractionDigits: 2 })}</b>`;
 
      // Visual Cue: Turn text red if you can't afford it
-     const balanceText = balanceEl.innerText.replace(/[^\d.]/g, '');
+     const balanceText = balanceEl.innerText.replace(/[^\d.]/g, "");
      const currentBal = parseFloat(balanceText) || 0;
 
-     if (transactionType === "buy" && total > currentBal) {
+     if (transactionType === "buy" && required > currentBal) {
           approxReqEl.style.color = "#e74c3c"; // Red
      } else {
           approxReqEl.style.color = ""; // Default
@@ -247,38 +299,36 @@ function updateApproxReq() {
 }
 
 
-const orderTypeText = document.getElementById("orderTypeText");
-const priceToggle = document.getElementById("priceTypeToggle");
+// const orderTypeText = document.getElementById("orderTypeText");
+// const priceToggle = document.getElementById("priceTypeToggle");
 
-// =========================
-// PRICE TYPE TOGGLE
-// =========================
-priceToggle.addEventListener("click", () => {
-     if (orderType === "limit") {
-          // 👉 LIMIT → MARKET
-          orderType = "market";
-          orderTypeText.innerText = "Market";
+// // =========================
+// // PRICE TYPE TOGGLE
+// // =========================
+// priceToggle.addEventListener("click", () => {
+//      if (orderType === "limit") {
+//           // 👉 LIMIT → MARKET
+//           orderType = "market";
+//           orderTypeText.innerText = "Market";
 
-          priceInput.value = window.lastLTP.toFixed(2);
-          priceInput.disabled = true;
-     } else {
-          // 👉 MARKET → LIMIT
-          orderType = "limit";
-          orderTypeText.innerText = "Limit";
+//           priceInput.value = window.lastLTP.toFixed(2);
+//           priceInput.disabled = true;
+//      } else {
+//           // 👉 MARKET → LIMIT
+//           orderType = "limit";
+//           orderTypeText.innerText = "Limit";
 
-          priceInput.disabled = false;
+//           priceInput.disabled = false;
 
-          // current price muki do
-          priceInput.value = window.lastLTP.toFixed(2);
-     }
+//           // current price muki do
+//           priceInput.value = window.lastLTP.toFixed(2);
+//      }
 
-     updateApproxReq();
-});
+//      updateApproxReq();
+// });
 
 
-const STOCK_RSI = parseFloat("{{ stock.rsi if stock.rsi else 50 }}");
-
-setGauge(STOCK_RSI)
+const STOCK_RSI = parseFloat(stockPageEl?.dataset.rsi || "50");
 /**
  * Sets the gauge to a specific value with smooth animation.
  * @param {number} value - Range from -100 to +100
