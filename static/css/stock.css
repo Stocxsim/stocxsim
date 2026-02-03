@@ -215,6 +215,38 @@ body {
     border-color: var(--primary-green);
 }
 
+/* =========================
+   Indicators loading state
+   ========================= */
+.gauge-container {
+    position: relative;
+}
+
+.indicator-loading {
+    position: absolute;
+    top: 42px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #555;
+    font-size: 12px;
+    z-index: 2;
+    backdrop-filter: blur(4px);
+}
+
+.indicator-loading.hidden {
+    display: none;
+}
+
+.indicator-dim .gauge-svg {
+    opacity: 0.35;
+}
+
 .input-group {
     display: flex;
     justify-content: space-between;

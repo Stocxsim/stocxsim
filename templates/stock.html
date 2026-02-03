@@ -20,8 +20,8 @@
       id="stockPage"
       data-stock-token="{{ stock.stock_token }}"
       data-stock-name="{{ stock.stock_name }}"
-      data-ema20="{{ stock.ema_20 if stock.ema_20 else 0 }}"
-      data-rsi="{{ stock.rsi if stock.rsi else 50 }}"
+      data-ema20="{{ stock.ema_20 if stock.ema_20 is not none else '' }}"
+      data-rsi="{{ stock.rsi if stock.rsi is not none else '' }}"
       data-holding-qty="{{ holding.quantity if holding else 0 }}"
       data-holding-avg="{{ holding.avg_buy_price if holding else 0 }}"
       style="display: none"
@@ -114,8 +114,12 @@
     </div>
 
     <div class="indicators-wrapper">
-      <div class="gauge-container">
+      <div class="gauge-container" id="rsiGauge">
         <div class="gauge-title">Technical Indicator (RSI)</div>
+        <div class="indicator-loading hidden" id="loading-rsi">
+          <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading RSI"></div>
+          <span class="ms-2">Calculating…</span>
+        </div>
         <svg
           class="gauge-svg"
           viewBox="0 0 320 180"
@@ -171,8 +175,12 @@
         </div>
       </div>
 
-      <div class="gauge-container">
+      <div class="gauge-container" id="ema20Gauge">
         <div class="gauge-title">Technical Indicator (EMA 20)</div>
+        <div class="indicator-loading hidden" id="loading-ema20">
+          <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading EMA 20"></div>
+          <span class="ms-2">Calculating…</span>
+        </div>
         <svg
           class="gauge-svg"
           viewBox="0 0 320 180"

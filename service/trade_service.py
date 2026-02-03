@@ -3,6 +3,8 @@ from service.market_data_service import get_full_market_data
 from database.order_dao import insert_order
 from database.holding_dao import add_holding, get_holdings_by_user, update_holding_on_sell
 from database.userdao import checkBalance, updateBalance
+from database.transaction_dao import insert_transaction
+from database.stockdao import get_stock_by_token
 
 def place_order(user_id, symbol_token, quantity, order_type, price, transaction_type):
 
@@ -81,6 +83,7 @@ def place_order(user_id, symbol_token, quantity, order_type, price, transaction_
         update_holding_on_sell(order_details)
 
     updateBalance(user_id, new_balance)
+    insert_transaction(user_id, quantity * price_to_deduct, transaction_type.upper(), get_stock_by_token(symbol_token)[1])
 
     return {
         "message": "Order placed successfully",
