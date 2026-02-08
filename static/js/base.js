@@ -10,7 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Profile dropdown
   window.toggleProfile = function () {
     const dropdown = document.getElementById("profileDropdown");
-    if (dropdown) dropdown.classList.toggle("show");
+    const wrapper = document.querySelector(".profile-wrapper");
+    if (dropdown) {
+      dropdown.classList.toggle("show");
+      if (wrapper) wrapper.classList.toggle("open", dropdown.classList.contains("show"));
+    }
   };
 
   document.addEventListener("click", (e) => {
@@ -22,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // If click is outside the profile wrapper, close the dropdown
     if (!profileWrapper.contains(e.target)) {
       dropdown.classList.remove("show");
+      profileWrapper.classList.remove("open");
     }
   });
 
@@ -55,7 +60,13 @@ document.addEventListener("DOMContentLoaded", () => {
       stocks.forEach(stock => {
         const div = document.createElement("div");
         div.className = "search-item";
-        div.textContent = stock.name;
+        div.innerHTML = `
+          <div class="search-item-info">
+            <span class="search-item-symbol">${stock.symbol || stock.name}</span>
+            <span class="search-item-name">${stock.name}</span>
+          </div>
+          ${stock.exchange ? `<span class="search-item-exchange">${stock.exchange}</span>` : ""}
+        `;
         div.onclick = () =>
           window.location.href = `/stocks/${stock.token}`;
         resultsBox.appendChild(div);
@@ -77,6 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // If click is outside search box
     if (!searchBox.contains(e.target)) {
       resultsBox.style.display = "none";
+    }
+  });
+
+  // Close search on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      const resultsBox = document.getElementById("searchResults");
+      if (resultsBox) resultsBox.style.display = "none";
     }
   });
 
@@ -117,6 +136,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Fallback: if index live ticks are delayed (common right after startup),
+  // fetch a one-time snapshot so SENSEX/NIFTY render without refresh.
+  setTimeout(async () => {
+    try {
+      const sensexEl = document.getElementById("SENSEX");
+      const priceEl = sensexEl?.querySelector?.(".price");
+      if (!priceEl) return;
+
+      const current = (priceEl.innerText || "").trim();
+      if (current && current !== "--") return;
+
+      const res = await fetch("/stocks/index/snapshot", { cache: "no-store" });
+      const snap = await res.json();
+      if (!snap || !snap.index) return;
+
+      for (const token in snap.index) {
+        const name = tokenToName[token];
+        if (name) updateTicker(name, snap.index[token]);
+      }
+    } catch (e) {
+      console.error("Index snapshot fallback failed", e);
+    }
+  }, 1500);
+
   /* ===============================
      TICKER UI UPDATE
   =============================== */
@@ -129,18 +172,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!priceEl || !changeEl) return;
 
-    // Price
-    priceEl.innerText = info.ltp.toFixed(2);
+    const ltp = Number(info?.ltp);
+    const change = Number(info?.change);
+    const percent = Number(info?.percent_change);
+    if (!Number.isFinite(ltp)) return;
 
-    // Change
-    const sign = info.change >= 0 ? "+" : "";
-    changeEl.innerText = `${sign}${info.change.toFixed(2)}`;
+    // Price
+    priceEl.innerText = ltp.toFixed(2);
+
+    // Change (+ percent)
+    const sign = Number.isFinite(change) && change >= 0 ? "+" : "";
+    if (Number.isFinite(change) && Number.isFinite(percent)) {
+      changeEl.innerText = `${sign}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
+    } else if (Number.isFinite(change)) {
+      changeEl.innerText = `${sign}${change.toFixed(2)}`;
+    } else {
+      changeEl.innerText = "--";
+    }
 
     // Remove old classes
     priceEl.classList.remove("up", "down");
     changeEl.classList.remove("up", "down");
 
-    const cls = info.change >= 0 ? "up" : "down";
+    const cls = Number.isFinite(change) && change >= 0 ? "up" : "down";
     priceEl.classList.add(cls);
     changeEl.classList.add(cls);
   }
@@ -182,3 +236,5 @@ function goToFunds() {
 function goToOrders() {
   window.location.href = "/login/orders";
 }
+
+

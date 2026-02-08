@@ -1,58 +1,61 @@
+/* watchlist.css — consumes tokens.css variables */
+
 .groww-card {
-     background: #fff;
-     border-radius: 16px;
-     border: 1px solid #eef0f4;
-     overflow: hidden;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 
 /* Header */
 .groww-header {
-     padding: 16px 20px;
-     border-bottom: 1px solid #eef0f4;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .active-tab {
-     font-weight: 600;
-     position: relative;
+  font-weight: var(--weight-semibold);
+  position: relative;
 }
 
 .active-tab::after {
-     content: "";
-     position: absolute;
-     left: 0;
-     bottom: -16px;
-     width: 100%;
-     height: 2px;
-     background: #111827;
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -16px;
+  width: 100%;
+  height: 2px;
+  background: var(--color-text-dark);
 }
 
 /* Table */
 .groww-table thead th {
-     background-color: #0f0f0f0f !important;
-     /* padding: 12px !important; */
-     font-size: 12px;
-     color: #6b7280;
-     font-weight: 500;
-     border-bottom: 1px solid #eef0f4;
-     padding: 14px 20px;
+  background-color: var(--color-bg-hover);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-medium);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: var(--space-3) var(--space-5);
 }
 
 .groww-table tbody td {
-     padding: 16px 20px;
-     font-size: 14px;
-     vertical-align: middle;
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--text-sm);
+  vertical-align: middle;
 }
 
 .groww-table tbody tr {
-     border-bottom: 1px solid #f1f3f6;
-     transition: background 0.2s ease;
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background var(--transition-fast);
+  cursor: pointer;
 }
 
 .groww-table tbody tr:hover {
-     background: #f9fafb;
+  background: var(--color-bg-hover);
 }
 
-/* Horizontal scroll like Groww */
+/* Horizontal scroll */
 .table-scroll {
   overflow-x: auto;
   overflow-y: hidden;
@@ -66,47 +69,47 @@
 
 /* Company */
 .company-cell {
-     display: flex;
-     align-items: center;
-     gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .logo {
-     width: 36px;
-     height: 36px;
-     border-radius: 8px;
-     background: #e5f0ff;
-     color: #2563eb;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-weight: 700;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--weight-bold);
 }
 
 .logo.dark {
-     background: #111827;
-     color: #fff;
+  background: var(--color-text-dark);
+  color: var(--color-bg-white);
 }
 
 .company-name {
-     font-weight: 500;
+  font-weight: var(--weight-medium);
 }
 
 /* Trend */
 .trend {
-     font-size: 18px;
+  font-size: var(--text-lg);
 }
 
 .trend.up {
-     color: #16a34a;
+  color: var(--color-up);
 }
 
 .trend.down {
-     color: #ef4444;
+  color: var(--color-down);
 }
 
 /* 52W perf */
 .perf {
-     font-size: 12px;
-     color: #6b7280;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
 }

@@ -1,20 +1,22 @@
+/* profile.css — consumes tokens.css variables */
+
 .profile-sidebar {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  background: var(--color-bg-white);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-card);
 }
 
 .profile-user {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 
 .avatar {
   width: 90px;
   height: 90px;
-  background:#f97316;
-  color: #fff;
+  background: var(--color-accent-orange);
+  color: var(--color-bg-white);
   font-size: 28px;
   border-radius: 50%;
   display: flex;
@@ -24,8 +26,8 @@
 }
 
 .profile-user .name {
-  margin-top: 10px;
-  font-weight: 600;
+  margin-top: var(--space-3);
+  font-weight: var(--weight-semibold);
 }
 
 .profile-menu {
@@ -35,61 +37,76 @@
 
 .profile-menu li {
   display: flex;
-  justify-content: space-between; /* 🔥 left text + right arrow */
+  justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
+  padding: var(--space-3) var(--space-4);
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
 }
 
 .profile-menu li i {
-  font-size: 16px;
-  color: #888;
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
 }
-
 
 .profile-menu li.active,
 .profile-menu li:hover {
-  background: #f5f5f5;
+  background: var(--color-bg-hover);
 }
 
 /* RIGHT CARD */
 .profile-card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 25px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  background: var(--color-bg-white);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-card);
 }
 
 .profile-card h5 {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
+  color: var(--color-text-heading);
 }
 
 .profile-row {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .profile-row:last-child {
   border-bottom: none;
 }
 
+.profile-row-clickable {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin: 0 calc(-1 * var(--space-3));
+}
+
+.profile-row-clickable:hover {
+  background: var(--color-bg-hover);
+}
+
 .label {
-  color: #777;
+  color: var(--color-text-secondary);
 }
 
 .value {
-  font-weight: 500;
+  font-weight: var(--weight-medium);
+  color: var(--color-text-dark);
 }
+
 .section {
   position: relative;
   animation: slideIn 0.4s ease;
   overflow: hidden;
 }
 
-.hidden {
+.section-hidden {
   display: none;
 }
 
@@ -114,7 +131,7 @@
 .bubble-1 {
   width: 160px;
   height: 160px;
-  background: #2dd4bf;
+  background: var(--color-primary);
   top: -40px;
   right: -40px;
 }
@@ -125,4 +142,20 @@
   background: #a5f3fc;
   bottom: -30px;
   right: 30px;
+}
+
+/* Profile action buttons */
+.btn-profile-action {
+  background-color: var(--color-primary);
+  color: var(--color-bg-white);
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-primary);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-profile-action:hover {
+  background-color: var(--color-primary-hover);
 }

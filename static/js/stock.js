@@ -191,7 +191,7 @@ function updateStockUI(stock) {
      // 🔹 Change line
      if (changeOk && percentOk) {
           changeEl.innerText = `${sign}${change.toFixed(2)} (${percentChange.toFixed(2)}%)`;
-          changeEl.className = "price-change " + (isUp ? "text-success" : "text-danger");
+          changeEl.className = "price-change " + (isUp ? "up" : "down");
      } else {
           changeEl.innerText = "--";
      }
@@ -200,7 +200,7 @@ function updateStockUI(stock) {
      exchangeId.innerHTML = `
                     <span class="fw-semibold">₹${ltp.toFixed(2)}</span>
                     ${percentOk ? `<span class="mx-1 text-muted">•</span>
-                    <span class="${isUp ? 'text-success' : 'text-danger'}">(${sign}${percentChange.toFixed(2)}%)</span>` : ""}
+                    <span class="${isUp ? 'up' : 'down'}">(${sign}${percentChange.toFixed(2)}%)</span>` : ""}
                 `;
      if (!priceInput.value) {
           priceInput.value = ltp.toFixed(2);
@@ -374,9 +374,9 @@ function updateApproxReq() {
      const currentBal = parseFloat(balanceText) || 0;
 
      if (transactionType === "buy" && required > currentBal) {
-          approxReqEl.style.color = "#e74c3c"; // Red
+          approxReqEl.classList.add("text-down");
      } else {
-          approxReqEl.style.color = ""; // Default
+          approxReqEl.classList.remove("text-down");
      }
 }
 
