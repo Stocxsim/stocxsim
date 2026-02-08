@@ -48,6 +48,7 @@
 
 .date-box {
   flex: 1;
+  cursor: pointer;
 }
 
 .date-box input {
