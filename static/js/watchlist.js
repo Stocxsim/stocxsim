@@ -105,8 +105,8 @@ function updateWatchlistRow(token, info) {
   changeEl.innerText =
     `${isUp ? "+" : ""}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
 
-  changeEl.classList.remove("text-success", "text-danger");
-  changeEl.classList.add(isUp ? "text-success" : "text-danger");
+  changeEl.classList.remove("up", "down");
+  changeEl.classList.add(isUp ? "up" : "down");
 
   // TREND UI 
   trendEl.innerText = isUp ? "↗" : "↘";
@@ -124,7 +124,6 @@ function buildTable(stocks) {
 
     const row = document.createElement("tr");
     row.id = "token-" + stock.token;
-    row.style.cursor = "pointer";
 
     // 🔥 CLICK EVENT
     row.addEventListener("click", () => {

@@ -1,22 +1,23 @@
-/* MAIN LAYOUT */
+/* holding.css — consumes tokens.css variables */
 
-.title{
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #44475b;
+.title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--space-5);
+  color: var(--color-text-heading);
 }
 
-/* LEFT CARD */
+/* Holdings Card */
 .holdings-card {
   flex: 2.5;
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 0 0 1px #eee;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
 }
 
-/* RIGHT CONTENT */
+/* Right Panel */
 .right-panel {
   display: flex;
   flex-direction: column;
@@ -29,63 +30,62 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: #999;
-  font-size: 14px;
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
 }
 
 .balance-box {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  font-size: 14px;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
 }
 
 .balance-box a {
-  color: #04b488;
+  color: var(--color-primary);
   text-decoration: none;
 }
 
 .holdings-header {
-  padding: 30px;
-  margin-left: 10px;
-  margin-top: 20px;
+  padding: var(--space-8) var(--space-8) var(--space-4);
 }
 
 .holdings-summary-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background: #fff;
-  padding: 18px 22px;
-  margin: 0 10px 22px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-white);
+  padding: var(--space-5) var(--space-6);
+  margin: 0 var(--space-3) var(--space-6) var(--space-3);
+  box-shadow: var(--shadow-card);
 }
 
 .summary-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 12px;
+  padding-bottom: var(--space-3);
 }
 
 .summary-label {
   margin: 0;
-  color: #888;
-  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
 }
 
 .summary-value {
-  margin: 8px 0 0 0;
+  margin: var(--space-2) 0 0 0;
   font-size: 34px;
-  font-weight: 700;
-  color: #222;
+  font-weight: var(--weight-bold);
+  color: var(--color-text-dark);
 }
 
 .summary-bottom {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px;
-  border-top: 1px dashed #eee;
-  padding-top: 14px;
+  gap: var(--space-4);
+  border-top: 1px dashed var(--color-border-light);
+  padding-top: var(--space-4);
 }
 
 .summary-item {
@@ -93,10 +93,10 @@
 }
 
 .summary-subvalue {
-  margin-top: 6px;
-  font-weight: 600;
-  font-size: 18px;
-  color: #222;
+  margin-top: var(--space-2);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-lg);
+  color: var(--color-text-dark);
 }
 
 @media (max-width: 768px) {
@@ -108,48 +108,49 @@
   }
 }
 
-
+/* Table */
 .table-header,
 .holding-row {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
-  padding: 12px 0;
+  padding: var(--space-3) 0;
 }
 
 .table-header {
-  color: #888;
-  font-size: 13px;
-  border-bottom: 1px solid #eee;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .holding-row p {
-  font-size: 12px;
-  color: #888;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
 }
 
 .holding-row {
-  border-bottom: 1px solid #f1f1f1;
+  border-bottom: 1px solid var(--color-border-light);
   cursor: pointer;
+  transition: background var(--transition-fast);
 }
 
 .holding-row:hover {
-  background: #fafafa;
+  background: var(--color-bg-hover);
 }
 
 .holding-row > div {
-  padding-right: 10px;
+  padding-right: var(--space-3);
 }
 
 .holding-mp-sub,
 .holding-pl-pct,
 .holding-invested {
-  margin: 4px 0 0 0;
-  font-size: 12px;
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-xs);
 }
 
 .holding-loading {
-  padding: 18px 0;
+  padding: var(--space-5) 0;
   text-align: center;
-  color: #999;
-  font-size: 14px;
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
 }

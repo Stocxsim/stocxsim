@@ -12,6 +12,8 @@ from database.watchlist_dao import get_stock_tokens_by_user
 from database.userdao import checkBalance, updateBalance
 from service.transaction_service import record_transaction
 
+from utils.tokens import INDEX_TOKENS
+
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -35,6 +37,7 @@ def _trigger_post_login_init(user_id: int) -> None:
     def _run():
         try:
             tokens = [str(t[0]) for t in get_stock_tokens_by_user(user_id)]
+            tokens = [t for t in tokens if t not in INDEX_TOKENS]
             for token in tokens:
                 register_equity_token(token)
 
@@ -85,6 +88,7 @@ def save_user():
     # 🔥 SUBSCRIBE USER WATCHLIST
     user_id = user.get_user_id()
     tokens = [str(t[0]) for t in get_stock_tokens_by_user(user_id)]   # e.g. 20 tokens
+    tokens = [t for t in tokens if t not in INDEX_TOKENS]
 
     # Keep login response fast: do live-data warmup in background.
     for token in tokens:

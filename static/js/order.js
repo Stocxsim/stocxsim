@@ -76,7 +76,7 @@ function buildOrdersList(orders) {
 
           item.innerHTML = `
       <div class="col order-info">
-        <strong style="color:#44475b">${order.symbol}</strong><br>
+        <strong class="text-heading">${order.symbol}</strong><br>
         <small>
           ${order.transaction_type} · ${order.order_type} 
         </small>
@@ -94,7 +94,7 @@ function buildOrdersList(orders) {
 
       <div class="col text-center ms-1">
           ${order.time}
-          <span class="order-arrow ${order.transaction_type === "BUY" ? "text-success" : "text-danger"
+          <span class="order-arrow ${order.transaction_type === "BUY" ? "up" : "down"
                }">
           &#8250;
           </span>

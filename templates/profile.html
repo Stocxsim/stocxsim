@@ -4,12 +4,11 @@
 
 {% block css %}
 <link rel="stylesheet" href="/static/css/profile.css">
-<script src="/static/js/base.js"></script>
-
 {% endblock %}
 
 {% block content %}
 <div class="container" style="margin-top: 50px; margin-bottom: 50px;">
+
   <div class="row">
 
     <!-- LEFT SIDEBAR -->
@@ -61,7 +60,7 @@
           <span class="value">****69100</span>
         </div>
 
-        <div class="profile-row" style="cursor: pointer;" onclick="goToFunds()">
+        <div class="profile-row profile-row-clickable" onclick="goToFunds()">
           <span class="label">Balance</span>
           <span class="value">{{ user.balance }}</span>
         </div>
@@ -72,7 +71,7 @@
       </div>
 
       <!-- CHANGE PASSWORD -->
-      <div class="profile-card section hidden" id="passwordSection">
+      <div class="profile-card section section-hidden" id="passwordSection">
         <h5>Change Password</h5>
 
         <form autocomplete="new-password">
@@ -86,7 +85,7 @@
             <input type="password" class="form-control" autocomplete="new-password" name="confirm_password">
           </div>
 
-          <button class="btn mt-3" style="background-color: #04b488; color: white;">Update Password</button>
+          <button class="btn btn-profile-action mt-3">Update Password</button>
 
 
           <!-- bubbles -->
@@ -96,7 +95,7 @@
       </div>
 
       <!-- CHANGE PIN -->
-      <div class="profile-card section hidden" id="pinSection">
+      <div class="profile-card section section-hidden" id="pinSection">
 
         <h5>Change PIN</h5>
         <form autocomplete="new-pin">
@@ -111,7 +110,7 @@
           </div>
         </form>
 
-        <button class="btn mt-3" style="color: white; background-color: #04b488;">Update PIN</button>
+        <button class="btn btn-profile-action mt-3">Update PIN</button>
 
         <div class="bubble bubble-1"></div>
         <div class="bubble bubble-2"></div>
@@ -126,7 +125,7 @@
 <script>
   function openSection(type) {
     document.querySelectorAll('.section').forEach(sec => {
-      sec.classList.add('hidden');
+      sec.classList.add('section-hidden');
     });
 
     document.querySelectorAll('.profile-menu li').forEach(li => {
@@ -134,13 +133,13 @@
     });
 
     if (type === 'details') {
-      document.getElementById('detailsSection').classList.remove('hidden');
+      document.getElementById('detailsSection').classList.remove('section-hidden');
     }
     else if (type === 'password') {
-      document.getElementById('passwordSection').classList.remove('hidden');
+      document.getElementById('passwordSection').classList.remove('section-hidden');
     }
     else if (type === 'pin') {
-      document.getElementById('pinSection').classList.remove('hidden');
+      document.getElementById('pinSection').classList.remove('section-hidden');
     }
 
     event.currentTarget?.classList.add('active');

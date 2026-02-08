@@ -68,8 +68,34 @@ let holdingsData = {};
 document.addEventListener("DOMContentLoaded", () => {
      setHoldingsLoading(true);
      loadUserHoldings();
+     setupHoldingRowNavigation();
      setupLiveSocket();
 });
+
+function setupHoldingRowNavigation() {
+     const container = document.getElementById("holding-body");
+     if (!container) return;
+
+     // Use event delegation so re-rendered rows keep working.
+     container.addEventListener("click", (e) => {
+          const row = e.target?.closest?.(".holding-row");
+          if (!row) return;
+
+          const stockToken = row.dataset.stockToken;
+          if (!stockToken) return;
+          window.location.href = `/stocks/${encodeURIComponent(stockToken)}`;
+     });
+
+     container.addEventListener("keydown", (e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          const row = e.target?.closest?.(".holding-row");
+          if (!row) return;
+          const stockToken = row.dataset.stockToken;
+          if (!stockToken) return;
+          e.preventDefault();
+          window.location.href = `/stocks/${encodeURIComponent(stockToken)}`;
+     });
+}
 
 function setHoldingsLoading(isLoading, message = "Loading holdings…") {
      const container = document.getElementById("holding-body");
@@ -109,17 +135,20 @@ function updateHoldingPrices(liveStocks) {
      let oneDayPnl = 0;
      let prevDayValue = 0;
      
-     Object.keys(holdingsData).forEach(token => {
-          const h = holdingsData[token];
+     // NOTE: holdingsData keys are holding IDs, not stock tokens.
+     // Always use h.symbol_token to map to liveStocks.
+     Object.keys(holdingsData).forEach(holdingId => {
+          const h = holdingsData[holdingId];
+          const stockToken = String(h?.symbol_token ?? "");
           
           // 🔥 CACHE USE: Direct element uthavo (No querySelector needed)
-          const cachedEls = holdingDOMCache[token]; 
+          const cachedEls = holdingDOMCache[holdingId]; 
 
           // 1. Jo Live Price aavi hoy to Data update karo
-          if (liveStocks[token] && liveStocks[token].ltp != null) {
-               const newPrice = Number(liveStocks[token].ltp);
-               const change = Number(liveStocks[token].change);
-               const pct = Number(liveStocks[token].percent_change ?? liveStocks[token].percent);
+          if (stockToken && liveStocks[stockToken] && liveStocks[stockToken].ltp != null) {
+               const newPrice = Number(liveStocks[stockToken].ltp);
+               const change = Number(liveStocks[stockToken].change);
+               const pct = Number(liveStocks[stockToken].percent_change ?? liveStocks[stockToken].percent);
 
                if (!Number.isNaN(newPrice)) h.market_price = newPrice;
                if (!Number.isNaN(change)) h.one_day_change = change;
@@ -132,8 +161,8 @@ function updateHoldingPrices(liveStocks) {
                     }
 
                     if (cachedEls.mpSubEl) {
-                         const mpColor = change >= 0 ? "#04b488" : "#ff4d4f";
-                         cachedEls.mpSubEl.style.color = mpColor;
+                         cachedEls.mpSubEl.classList.remove("up", "down");
+                         cachedEls.mpSubEl.classList.add(change >= 0 ? "up" : "down");
                          cachedEls.mpSubEl.textContent = `${change >= 0 ? "+" : ""}${change.toFixed(2)} (${Math.abs(pct).toFixed(2)}%)`;
                     }
                }
@@ -153,15 +182,17 @@ function updateHoldingPrices(liveStocks) {
 
           // 4. P&L Colors & Text Update using Cache
           if (cachedEls) {
-               const color = returnPercent >= 0 ? "#04b488" : "#ff4d4f";
+               const plClass = returnPercent >= 0 ? "up" : "down";
 
                if (cachedEls.plEl) {
-                    cachedEls.plEl.style.color = color;
+                    cachedEls.plEl.classList.remove("up", "down");
+                    cachedEls.plEl.classList.add(plClass);
                     cachedEls.plEl.textContent = `${profitLoss >= 0 ? "+" : ""}₹${profitLoss.toFixed(2)}`;
                }
 
                if (cachedEls.plPctEl) {
-                    cachedEls.plPctEl.style.color = color;
+                    cachedEls.plPctEl.classList.remove("up", "down");
+                    cachedEls.plPctEl.classList.add(plClass);
                     cachedEls.plPctEl.textContent = `${returnPercent >= 0 ? "+" : ""}${returnPercent.toFixed(2)}%`;
                }
 
@@ -202,13 +233,15 @@ function updateHoldingsSummary(totalInvested, totalCurrent, oneDayPnl = 0, prevD
      const returnsEl = document.getElementById("total-returns");
      if (returnsEl) {
           returnsEl.innerText = `${totalProfit >= 0 ? "+" : ""}₹${totalProfit.toFixed(2)} (${totalReturnPercent.toFixed(2)}%)`;
-          returnsEl.style.color = totalProfit >= 0 ? "#04b488" : "#ff4d4f";
+          returnsEl.classList.remove("up", "down");
+          returnsEl.classList.add(totalProfit >= 0 ? "up" : "down");
      }
 
      const oneDayEl = document.getElementById("one-day-returns");
      if (oneDayEl) {
           oneDayEl.innerText = `${oneDayPnl >= 0 ? "+" : ""}₹${oneDayPnl.toFixed(2)} (${oneDayPercent.toFixed(2)}%)`;
-          oneDayEl.style.color = oneDayPnl >= 0 ? "#04b488" : "#ff4d4f";
+          oneDayEl.classList.remove("up", "down");
+          oneDayEl.classList.add(oneDayPnl >= 0 ? "up" : "down");
      }
 
       // --- Dashboard sidebar elements ---
@@ -221,11 +254,13 @@ function updateHoldingsSummary(totalInvested, totalCurrent, oneDayPnl = 0, prevD
     if (dashboardCurrent) dashboardCurrent.innerText = `₹${Number(totalCurrent).toFixed(2)}`;
     if (dashboardTotal) {
         dashboardTotal.innerText = `${totalProfit >= 0 ? "+" : ""}₹${totalProfit.toFixed(2)} (${totalReturnPercent.toFixed(2)}%)`;
-        dashboardTotal.style.color = totalProfit >= 0 ? "#04b488" : "#ff4d4f";
+        dashboardTotal.classList.remove("up", "down");
+        dashboardTotal.classList.add(totalProfit >= 0 ? "up" : "down");
     }
     if (dashboard1D) {
         dashboard1D.innerText = `${oneDayPnl >= 0 ? "+" : ""}₹${oneDayPnl.toFixed(2)} (${oneDayPercent.toFixed(2)}%)`;
-        dashboard1D.style.color = oneDayPnl >= 0 ? "#04b488" : "#ff4d4f";
+        dashboard1D.classList.remove("up", "down");
+        dashboard1D.classList.add(oneDayPnl >= 0 ? "up" : "down");
     }
 }
 
@@ -300,9 +335,9 @@ function renderHoldings(holdings) {
      let totalOneDayPnl = 0;
      let totalPrevDayValue = 0;
 
-     const tokens = Object.keys(holdings);
+     const holdingIds = Object.keys(holdings);
 
-     if (tokens.length === 0) {
+     if (holdingIds.length === 0) {
           container.innerHTML = `<div class="holding-row">No holdings</div>`;
           console.log("No holdings to display");
           return;
@@ -312,8 +347,9 @@ function renderHoldings(holdings) {
 
      const rows = [];
 
-     tokens.forEach(token => {
-          const h = holdings[token];
+     holdingIds.forEach(holdingId => {
+          const h = holdings[holdingId];
+          const stockToken = String(h?.symbol_token ?? "");
 
           const buy_price = Number(h.avg_buy_price ?? 0);
           let market_price = Number(h.market_price ?? buy_price ?? 0);
@@ -338,21 +374,21 @@ function renderHoldings(holdings) {
                totalOneDayPnl += (market_price - prev_close) * qnt;
           }
 
-          const name = (h.stock_symbol || h.stock_name || token);
-          const color = return_percent >= 0 ? "#04b488" : "#ff4d4f";
-          const mpColor = oneDayChange >= 0 ? "#04b488" : "#ff4d4f";
+          const name = (h.stock_short_name || h.stock_name || stockToken || holdingId);
+          const plClass = return_percent >= 0 ? "up" : "down";
+          const mpClass = oneDayChange >= 0 ? "up" : "down";
 
           rows.push(
-               ` <div class="holding-row" data-token="${token}" role="button" tabindex="0" onclick="window.location.href='/stocks/${token}'">
+               ` <div class="holding-row" data-holding-id="${holdingId}" data-stock-token="${stockToken}" role="button" tabindex="0">
                <div>
                     <strong>${name}</strong>
                     <p>${qnt} shares · Avg. ₹${buy_price.toFixed(2)}</p>
                </div>
                <div>
                     <span class="holding-price">₹${market_price.toFixed(2)}</span>
-                    <p class="holding-mp-sub" style="color:${mpColor};">${oneDayChange >= 0 ? "+" : ""}${oneDayChange.toFixed(2)} (${Math.abs(oneDayPct).toFixed(2)}%)</p>
+                    <p class="holding-mp-sub ${mpClass}">${oneDayChange >= 0 ? "+" : ""}${oneDayChange.toFixed(2)} (${Math.abs(oneDayPct).toFixed(2)}%)</p>
                </div>
-               <div style="color:${color};">
+               <div class="${plClass}">
                     <span class="holding-pl">${profit_loss >= 0 ? '+' : ''}₹${profit_loss.toFixed(2)}</span>
                     <p class="holding-pl-pct">${return_percent >= 0 ? '+' : ''}${return_percent.toFixed(2)}%</p>
                </div>
@@ -370,9 +406,9 @@ function renderHoldings(holdings) {
      holdingDOMCache = {}; 
      const allRows = container.querySelectorAll(".holding-row");
      allRows.forEach(row => {
-          const token = row.dataset.token;
-          if (token) {
-               holdingDOMCache[token] = {
+          const holdingId = row.dataset.holdingId;
+          if (holdingId) {
+               holdingDOMCache[holdingId] = {
                     priceEl: row.querySelector(".holding-price"),      
                     mpSubEl: row.querySelector(".holding-mp-sub"),     
                     plEl: row.querySelector(".holding-pl"),            

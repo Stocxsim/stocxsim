@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, session
 from service.watchlist_service import toggle_watchlist, is_in_watchlist
 from service.stockservice import get_stock_detail_service
-from database.watchlist_dao import get_stock_tokens_by_user
+from database.watchlist_dao import get_stock_tokens_by_user, remove_from_watchlist
+
+from utils.tokens import INDEX_TOKENS
 
 watchlist_bp = Blueprint("watchlist", __name__)
 
@@ -20,9 +22,19 @@ def api_watchlist():
     result = []
 
     for token, category in tokens:
+        # Indices (NIFTY/SENSEX/...) are shown in the top ticker, not in Watchlist.
+        token_str = str(token)
+        if token_str in INDEX_TOKENS:
+            # Best-effort cleanup so they don't come back.
+            try:
+                remove_from_watchlist(user_id, token_str)
+            except Exception:
+                pass
+            continue
+
         stock = get_stock_detail_service(token)
         result.append({
-            "token": str(token),
+            "token": token_str,
             "name": stock.stock_name if stock else token,
             "category": category
         })

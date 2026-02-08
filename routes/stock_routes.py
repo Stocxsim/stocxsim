@@ -5,7 +5,8 @@ from websockets import angle_ws
 from database.watchlist_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data
 from service.stockservice import search_stocks_service, get_stock_detail_service
-from data.live_data import register_equity_token, ensure_baseline_data
+from data.live_data import register_equity_token, ensure_baseline_data, LIVE_INDEX, INDEX_TOKENS, BASELINE_DATA
+from data.live_data import load_baseline_data
 from database.holding_dao import get_holding_by_user_and_token
 from service.indicator_cache import get_cached_indicators, compute_and_cache_indicators
 from modal.Stock import Stock
@@ -13,6 +14,61 @@ from modal.Stock import Stock
 import threading
 
 stock_bp = Blueprint("stock_bp", __name__)
+
+
+@stock_bp.route("/index/snapshot")
+def index_snapshot():
+    """Fallback snapshot for index ticker (NIFTY/SENSEX/...)."""
+    try:
+        ensure_baseline_data(INDEX_TOKENS)
+        if not LIVE_INDEX:
+            load_baseline_data()
+
+        # Ensure all index tokens have an entry
+        for t in INDEX_TOKENS:
+            t = str(t)
+            if t not in LIVE_INDEX:
+                base = BASELINE_DATA.get(t) or {}
+                prev_close = base.get("prev_close")
+                ltp = base.get("ltp")
+                seed = ltp if ltp is not None else (prev_close if prev_close is not None else 0)
+
+                change = base.get("change")
+                percent = base.get("percent")
+                try:
+                    change_val = float(change) if change is not None else None
+                except Exception:
+                    change_val = None
+                try:
+                    pct_val = float(percent) if percent is not None else None
+                except Exception:
+                    pct_val = None
+
+                # Compute from seed+prev_close if needed.
+                try:
+                    prev_close_f = float(prev_close) if prev_close is not None else None
+                except Exception:
+                    prev_close_f = None
+                try:
+                    ltp_f = float(seed) if seed is not None else None
+                except Exception:
+                    ltp_f = None
+
+                if change_val is None and ltp_f is not None and prev_close_f is not None:
+                    change_val = round(ltp_f - prev_close_f, 2)
+                if pct_val is None and ltp_f is not None and prev_close_f not in (None, 0):
+                    pct_val = round(((ltp_f - prev_close_f) / prev_close_f) * 100, 2)
+
+                if change_val is None:
+                    change_val = 0.0
+                if pct_val is None:
+                    pct_val = 0.0
+
+                LIVE_INDEX[t] = {"ltp": seed, "change": change_val, "percent_change": pct_val}
+
+        return jsonify({"index": LIVE_INDEX})
+    except Exception as e:
+        return jsonify({"error": str(e), "index": LIVE_INDEX}), 200
 
 
 # for subscribing and unsubscribing stocks for live data (Specially for search)

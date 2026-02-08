@@ -109,10 +109,9 @@ function buildDashboardWatchlist(stocks) {
 
     const wrapper = document.createElement("div");
     wrapper.className = "watchlist-item";
-    row.style.cursor = "pointer";
 
     wrapper.innerHTML = `
-          <div class="stock_card p-3" id="${String(stock.token)}" style="cursor: pointer;">
+          <div class="stock_card p-3" id="${String(stock.token)}">
                <div class="stock_name mb-2">${stock.name}</div>
                <div class="stock_price price">${cached ? cached.ltp.toFixed(2) : "--"}</div>
                <div class="stock_change change ${cached ? (cached.change >= 0 ? "up" : "down") : ""}">

@@ -3,7 +3,7 @@ from time import time
 import threading
 from SmartApi.smartWebSocketV2 import SmartWebSocketV2
 import json
-from data.live_data import BASELINE_DATA, LIVE_STOCKS, LIVE_INDEX, INDEX_TOKENS
+from data.live_data import BASELINE_DATA, LIVE_STOCKS, LIVE_INDEX, INDEX_TOKENS, BSE_INDEX_TOKENS
 from app import socketio
 from config import API_KEY, CLIENT_ID
 from utils.market_time import is_market_open
@@ -79,7 +79,12 @@ def subscribe_user_watchlist(user_id, tokens):
     print(f"🔔 Subscribing user {user_id} watchlist:", tokens)
 
     for token in tokens:
-        subscribe(ws, 1, token)
+        if token is None:
+            continue
+        token_str = str(token)
+        if token_str in INDEX_TOKENS:
+            continue
+        subscribe(ws, 1, token_str)
 
 
 def subscribe_equity_tokens(tokens):
@@ -95,32 +100,63 @@ def subscribe_equity_tokens(tokens):
         subscribe(ws, 1, str(token))
 
 
-def on_open(ws):
+def on_open(_ws_app):
     global ws_connected
     ws_connected = True
     print("🔗 WebSocket Connected")
 
+    # Subscribe index tokens AFTER WS connection.
+    # Sensex requires BSE_CM (exchangeType=3) and must be subscribed separately.
+    try:
+        global ws
+        if ws is None:
+            return
 
-def subscribe(ws, exchange, token):
+        nse_tokens = [t for t in INDEX_TOKENS if t not in BSE_INDEX_TOKENS]
+        bse_tokens = [t for t in INDEX_TOKENS if t in BSE_INDEX_TOKENS]
+
+        # Mode=1 -> LTP, exchangeType differs per exchange.
+        if nse_tokens:
+            subscribe_many(ws, mode=1, exchange_type=1, tokens=nse_tokens)
+        if bse_tokens:
+            subscribe_many(ws, mode=1, exchange_type=3, tokens=bse_tokens)
+    except Exception as e:
+        print("⚠️ Index subscribe on_open failed:", e)
+
+
+def subscribe_many(ws, mode: int, exchange_type: int, tokens):
+    """Subscribe a list of tokens with a given exchangeType and mode."""
+    if not tokens:
+        return
+    token_list = [{"exchangeType": int(exchange_type), "tokens": [str(t) for t in tokens]}]
+    print("👉 Sending subscribe:", token_list)
+    ws.subscribe("stockxsim", int(mode), token_list)
+
+    for t in tokens:
+        subscribed_tokens.add(str(t))
+
+
+def subscribe(ws, exchange_type, token, mode: int = 1):
     if token in subscribed_tokens:
         print(f"⚠️ Already subscribed {token}")
         return
 
     token_list = [
         {
-            "exchangeType": exchange,
+            "exchangeType": int(exchange_type),
             "tokens": [token]
         }
     ]
 
     print("👉 Sending subscribe:", token_list)
-    ws.subscribe("stockxsim", exchange, token_list)
+    # SmartWebSocketV2 signature: subscribe(correlation_id, mode, token_list)
+    ws.subscribe("stockxsim", int(mode), token_list)
 
     subscribed_tokens.add(token)
     print(f"✅ Subscribed to {token}")
 
 
-def unsubscribe(ws, exchange, token):
+def unsubscribe(ws, exchange_type, token, mode: int = 1):
     global subscribed_tokens
 
     if token not in subscribed_tokens:
@@ -129,13 +165,13 @@ def unsubscribe(ws, exchange, token):
 
     token_list = [
         {
-            "exchangeType": exchange,
+            "exchangeType": int(exchange_type),
             "tokens": [token]
         }
     ]
 
     print("👈 Sending unsubscribe:", token_list)
-    ws.unsubscribe("stockxsim", exchange, token_list)
+    ws.unsubscribe("stockxsim", int(mode), token_list)
 
     subscribed_tokens.remove(token)
     print(f"❌ Unsubscribed from {token}")
@@ -144,15 +180,34 @@ def unsubscribe(ws, exchange, token):
 def on_data(ws, message):
     try:
         global last_emit_time
-        token = message["token"]
+        token = str(message.get("token"))
         ltp = message["last_traded_price"] / 100
+
+        # Ensure dict entries exist so index tokens don't crash on first tick.
+        if token in INDEX_TOKENS:
+            LIVE_INDEX.setdefault(token, {})
+        else:
+            LIVE_STOCKS.setdefault(token, {})
 
         base = BASELINE_DATA.get(token)
         if base and 'prev_close' in base:
+            prev_close = base.get('prev_close')
+            try:
+                prev_close_num = float(prev_close) if prev_close is not None else None
+            except Exception:
+                prev_close_num = None
+
+            if prev_close_num is None:
+                change_val = 0
+                pct_val = 0
+            else:
+                change_val = round(ltp - prev_close_num, 2)
+                pct_val = round(((ltp - prev_close_num) / prev_close_num) * 100, 2) if prev_close_num != 0 else 0
+
             data = {
                 "ltp": ltp,
-                "change": round(ltp - base['prev_close'], 2),
-                "percent_change": round(((ltp - base['prev_close']) / base['prev_close']) * 100, 2)
+                "change": change_val,
+                "percent_change": pct_val,
             }
             
             if token in INDEX_TOKENS:
@@ -160,11 +215,15 @@ def on_data(ws, message):
             else:
                 LIVE_STOCKS[token].update(data)
         else:
-            # If no base, just update the LTP so the UI at least shows the price
+            # If no base, still keep numeric fields so UI doesn't show '--'.
             if token in INDEX_TOKENS:
-                LIVE_INDEX[token]['ltp'] = ltp
+                entry = LIVE_INDEX.setdefault(token, {})
             else:
-                LIVE_STOCKS[token]['ltp'] = ltp
+                entry = LIVE_STOCKS.setdefault(token, {})
+
+            entry["ltp"] = ltp
+            entry.setdefault("change", 0.0)
+            entry.setdefault("percent_change", 0.0)
 
         # Throttle emissions to reduce network overhead
         current_time = time() * 1000
