@@ -1,25 +1,90 @@
-from datetime import datetime,timedelta 
+from datetime import datetime, timedelta
+import threading
+import time
+
 from SmartApi import SmartConnect
+from SmartApi.smartExceptions import DataException
 import numpy as np
 import pyotp
+
 from config import API_KEY, CLIENT_ID, CLIENT_PASSWORD, TOTP_SECRET
 
 
+# =========================
+# SmartAPI session reuse
+# =========================
+
+_smart = SmartConnect(api_key=API_KEY)
+_session_lock = threading.Lock()
+_session_initialized = False
+_session_set_at = 0.0
+_blocked_until = 0.0
+
+
+def _login_if_needed(force: bool = False) -> bool:
+    """Ensure SmartConnect has a valid session.
+
+    We intentionally reuse a single session to avoid hitting SmartAPI rate limits.
+    """
+    global _session_initialized, _session_set_at, _blocked_until
+
+    now = time.time()
+    if now < _blocked_until:
+        return False
+
+    with _session_lock:
+        now = time.time()
+        if now < _blocked_until:
+            return False
+
+        if _session_initialized and not force and (now - _session_set_at) < (30 * 60):
+            return True
+
+        totp = pyotp.TOTP(TOTP_SECRET).now()
+        session = _smart.generateSession(CLIENT_ID, CLIENT_PASSWORD, totp)
+
+        if not session or not session.get("status"):
+            _session_initialized = False
+            return False
+
+        _session_initialized = True
+        _session_set_at = now
+        return True
+
+
 def get_full_market_data(tokens):
-    
+    tokens = [str(t) for t in (tokens or []) if t]
+    if not tokens:
+        return {}
 
-    obj = SmartConnect(api_key=API_KEY)
+    if not _login_if_needed():
+        return {}
 
-    totp = pyotp.TOTP(TOTP_SECRET).now()
-    session = obj.generateSession(CLIENT_ID, CLIENT_PASSWORD, totp)
-
-    if not session or not session.get("status"):
-        raise Exception("Angel One login failed")
-
-    response = obj.getMarketData(mode="FULL", exchangeTokens={
-    "NSE": tokens,"BSE": tokens
-})
-    return clean_market_data(response)
+    try:
+        response = _smart.getMarketData(
+            mode="FULL",
+            exchangeTokens={"NSE": tokens},
+        )
+        return clean_market_data(response)
+    except DataException as ex:
+        msg = str(ex).lower()
+        if "exceeding access rate" in msg or "access denied" in msg:
+            with _session_lock:
+                _blocked_until = time.time() + 60
+            print("⚠️ SmartAPI rate limited; backing off for 60s")
+            return {}
+        raise
+    except Exception as ex:
+        if _login_if_needed(force=True):
+            try:
+                response = _smart.getMarketData(
+                    mode="FULL",
+                    exchangeTokens={"NSE": tokens},
+                )
+                return clean_market_data(response)
+            except Exception:
+                pass
+        raise ex
 
 def clean_market_data(response):
     """

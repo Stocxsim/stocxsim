@@ -18,13 +18,38 @@ const buyTab = document.getElementById("buy-tab");
 const sellTab = document.getElementById("sell-tab");
 const submitBtn = document.getElementById("submitOrderBtn");
 
+// Holding UI
+function getHoldingQty() {
+     const raw = stockPageEl?.dataset.holdingQty;
+     const parsed = Number.parseInt(raw ?? "0", 10);
+     return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function syncHoldingUI() {
+     const holdingQtyEl = document.getElementById("holdingQty");
+     if (!holdingQtyEl) return;
+
+     const holdingQty = getHoldingQty();
+     holdingQtyEl.innerText = String(holdingQty);
+
+     // UX: prevent selling more than holding
+     if (qtyInput) {
+          if (transactionType === "sell") {
+               qtyInput.max = String(holdingQty);
+               const currentQty = Number.parseInt(qtyInput.value || "0", 10) || 0;
+               if (holdingQty > 0 && currentQty > holdingQty) {
+                    qtyInput.value = String(holdingQty);
+               }
+          } else {
+               qtyInput.removeAttribute("max");
+          }
+     }
+}
+
 // listeners to update the "Approx req" as type
 qtyInput.addEventListener("input", updateApproxReq);
 priceInput.addEventListener("input", updateApproxReq);
 
-
-// Example usage
-const stockToken = document.body.dataset.stockToken;
 
 
 // =========================
@@ -38,19 +63,102 @@ socket.on("disconnect", () => {
      console.log("❌ Socket disconnected");
 });
 
-const EMA_20 = parseFloat(stockPageEl?.dataset.ema20 || "0");
+let EMA_20 = Number.parseFloat(stockPageEl?.dataset.ema20);
+if (!Number.isFinite(EMA_20)) EMA_20 = null;
+
+let STOCK_RSI = Number.parseFloat(stockPageEl?.dataset.rsi);
+if (!Number.isFinite(STOCK_RSI)) STOCK_RSI = null;
+
+const rsiGaugeEl = document.getElementById("rsiGauge");
+const ema20GaugeEl = document.getElementById("ema20Gauge");
+const rsiLoadingEl = document.getElementById("loading-rsi");
+const ema20LoadingEl = document.getElementById("loading-ema20");
+
+function setIndicatorLoading(kind, isLoading) {
+     const gaugeEl = kind === "rsi" ? rsiGaugeEl : ema20GaugeEl;
+     const loadingEl = kind === "rsi" ? rsiLoadingEl : ema20LoadingEl;
+
+     if (!gaugeEl || !loadingEl) return;
+
+     if (isLoading) {
+          loadingEl.classList.remove("hidden");
+          gaugeEl.classList.add("indicator-dim");
+     } else {
+          loadingEl.classList.add("hidden");
+          gaugeEl.classList.remove("indicator-dim");
+     }
+}
+
+function applyIndicators(indicators) {
+     const rsi = Number(indicators?.rsi);
+     const ema20 = Number(indicators?.ema_20);
+
+     if (Number.isFinite(rsi)) {
+          STOCK_RSI = rsi;
+          const gaugeValue = (rsi - 50) * 2;
+          setGauge(gaugeValue);
+          setIndicatorLoading("rsi", false);
+     }
+
+     if (Number.isFinite(ema20) && ema20 > 0) {
+          EMA_20 = ema20;
+          // If we already have an LTP, update EMA gauge immediately.
+          if (window.lastLTP) {
+               setEmaGauge(window.lastLTP, EMA_20);
+          } else {
+               updateEmaLabel(0);
+          }
+          setIndicatorLoading("ema20", false);
+     }
+}
+
+async function pollIndicatorsUntilReady() {
+     if (!STOCK_TOKEN) return;
+
+     // Show spinner if any indicator is missing.
+     setIndicatorLoading("rsi", STOCK_RSI === null);
+     setIndicatorLoading("ema20", EMA_20 === null);
+
+     if (STOCK_RSI !== null && EMA_20 !== null) return;
+
+     const start = Date.now();
+     const timeoutMs = 60_000;
+
+     const timer = setInterval(async () => {
+          try {
+               if ((Date.now() - start) > timeoutMs) {
+                    clearInterval(timer);
+                    return;
+               }
+
+               const res = await fetch(`/stocks/${STOCK_TOKEN}/indicators`, { cache: "no-store" });
+               if (!res.ok) return;
+               const data = await res.json();
+
+               if (data?.status === "ok") {
+                    applyIndicators(data);
+                    if (STOCK_RSI !== null && EMA_20 !== null) {
+                         clearInterval(timer);
+                    }
+               }
+          } catch (_) {
+               // ignore
+          }
+     }, 1000);
+}
 
 socket.on("live_prices", (data) => {
 
      if (!data.stocks || !data.stocks[STOCK_TOKEN]) {
-          console.warn("Stock not in feed yet:", STOCK_TOKEN);
           return;
      }
 
      const stock = data.stocks[STOCK_TOKEN];
      if (stock && stock.ltp) {
           updateStockUI(stock);
-          setEmaGauge(stock.ltp, EMA_20);
+          if (EMA_20 !== null) {
+               setEmaGauge(stock.ltp, EMA_20);
+          }
      }
 });
 
@@ -65,30 +173,37 @@ function updateStockUI(stock) {
 
      if (!priceEl || !changeEl || !exchangeId) return;
 
-     const isUp = stock.change >= 0;
+     const ltp = Number(stock?.ltp);
+     if (!Number.isFinite(ltp)) return;
+     window.lastLTP = ltp;
+
+     const change = Number(stock?.change);
+     const percentChange = Number(stock?.percent_change ?? stock?.percentChange ?? stock?.percent);
+     const changeOk = Number.isFinite(change);
+     const percentOk = Number.isFinite(percentChange);
+
+     const isUp = changeOk ? change >= 0 : true;
      const sign = isUp ? "+" : "";
-     window.lastLTP = stock.ltp;
 
      // 🔹 Price
-     priceEl.innerText = "₹" + stock.ltp.toFixed(2);
+     priceEl.innerText = "₹" + ltp.toFixed(2);
 
      // 🔹 Change line
-     changeEl.innerText = `${sign}${stock.change.toFixed(2)} (${stock.percent_change.toFixed(2)}%)`;
-     changeEl.className =
-          "price-change " + (isUp ? "text-success" : "text-danger");
+     if (changeOk && percentOk) {
+          changeEl.innerText = `${sign}${change.toFixed(2)} (${percentChange.toFixed(2)}%)`;
+          changeEl.className = "price-change " + (isUp ? "text-success" : "text-danger");
+     } else {
+          changeEl.innerText = "--";
+     }
 
      // 🔹 Exchange row
      exchangeId.innerHTML = `
-                    <span class="fw-semibold">
-                    ₹${stock.ltp.toFixed(2)}
-                    </span>
-                    <span class="mx-1 text-muted">•</span>
-                    <span class="${isUp ? 'text-success' : 'text-danger'}">
-                    (${sign}${stock.percent_change.toFixed(2)}%)
-                    </span>
+                    <span class="fw-semibold">₹${ltp.toFixed(2)}</span>
+                    ${percentOk ? `<span class="mx-1 text-muted">•</span>
+                    <span class="${isUp ? 'text-success' : 'text-danger'}">(${sign}${percentChange.toFixed(2)}%)</span>` : ""}
                 `;
      if (!priceInput.value) {
-          priceInput.value = stock.ltp.toFixed(2);
+          priceInput.value = ltp.toFixed(2);
      }
      updateApproxReq();
 }
@@ -146,6 +261,8 @@ buyTab.addEventListener("click", () => {
      submitBtn.classList.remove("sell-btn");
      submitBtn.classList.add("buy-btn");
 
+     syncHoldingUI();
+
      updateApproxReq();
 });
 
@@ -161,6 +278,8 @@ sellTab.addEventListener("click", () => {
      submitBtn.innerText = "Sell";
      submitBtn.classList.remove("buy-btn");
      submitBtn.classList.add("sell-btn");
+
+     syncHoldingUI();
 
      updateApproxReq();
 });
@@ -198,25 +317,8 @@ submitBtn.addEventListener("click", async function () {
           price: currentOrderType === "market" ? "" : priceValue,
           transaction_type: currentTransactionType
      };
-     // Calculate Total Value
-     // const totalOrderValue = Number(qtyValue) * Number(priceValue);
 
      try {
-          // const response = await fetch("/login/get-balance");
-          // const balanceData = await response.json();
-          // const currentBalance = balanceData.balance;
-
-
-          // // Balance check for BUY orders
-          // if (currentTransactionType === "buy") {
-          //      if (totalOrderValue > currentBalance) {
-          //           alert(`❌ Insufficient Balance!\nRequired: ₹${totalOrderValue.toFixed(2)}\nAvailable: ₹${currentBalance.toFixed(2)}`);
-          //           return; // Stop the process
-          //      }
-          // }
-
-          // place order
-
           const orderRes = await fetch("/trade/order", {
                method: "POST",
                headers: {
@@ -243,26 +345,6 @@ submitBtn.addEventListener("click", async function () {
           console.error("Order error:", err);
           alert("⚠️ Connection error!");
      }
-
-     // =========================
-     // .then(res => res.json())
-     // .then(data => {
-     //      console.log("ORDER RESPONSE:", data);
-
-     //      if (data.error) {
-     //           alert("❌ " + data.error);
-     //      } else {
-     //           alert("✅ " + data.message);
-
-     //           // optional reset
-     //           document.getElementById("qty").value = "";
-
-     //      }
-     // })
-     // .catch(err => {
-     //      console.error("Order error:", err);
-     //      alert("⚠️ Something went wrong!");
-     // });
 });
 
 
@@ -298,37 +380,7 @@ function updateApproxReq() {
      }
 }
 
-
-// const orderTypeText = document.getElementById("orderTypeText");
-// const priceToggle = document.getElementById("priceTypeToggle");
-
-// // =========================
-// // PRICE TYPE TOGGLE
-// // =========================
-// priceToggle.addEventListener("click", () => {
-//      if (orderType === "limit") {
-//           // 👉 LIMIT → MARKET
-//           orderType = "market";
-//           orderTypeText.innerText = "Market";
-
-//           priceInput.value = window.lastLTP.toFixed(2);
-//           priceInput.disabled = true;
-//      } else {
-//           // 👉 MARKET → LIMIT
-//           orderType = "limit";
-//           orderTypeText.innerText = "Limit";
-
-//           priceInput.disabled = false;
-
-//           // current price muki do
-//           priceInput.value = window.lastLTP.toFixed(2);
-//      }
-
-//      updateApproxReq();
-// });
-
-
-const STOCK_RSI = parseFloat(stockPageEl?.dataset.rsi || "50");
+// NOTE: STOCK_RSI is now a mutable variable set from dataset / polling.
 /**
  * Sets the gauge to a specific value with smooth animation.
  * @param {number} value - Range from -100 to +100
@@ -383,20 +435,20 @@ function updateLabel(value) {
 
 // Initialize gauge with RSI data (RSI: 0-100, convert to -100 to +100 scale)
 // RSI < 30 = Oversold (Sell), RSI > 70 = Overbought (Buy), RSI 30-70 = Neutral
-const rsiValue = parseFloat(STOCK_RSI);
-const gaugeValue = (rsiValue - 50) * 2; // Convert 0-100 to -100 to +100
-setGauge(gaugeValue);
-
-
-// console.log("EMA 20:", EMA_20, "Price:", PRICE);
-
+// Initialize RSI gauge if RSI is already available; otherwise show spinner.
+if (STOCK_RSI !== null) {
+     const gaugeValue = (STOCK_RSI - 50) * 2; // Convert 0-100 to -100 to +100
+     setGauge(gaugeValue);
+     setIndicatorLoading("rsi", false);
+} else {
+     setGauge(0);
+     setIndicatorLoading("rsi", true);
+}
 
 // =========================
 // EMA GAUGE
 // =========================
 function setEmaGauge(price, ema20) {
-     console.log("EMA DEBUG → price:", price, "ema20:", ema20);
-
      if (!ema20 || ema20 <= 0) {
           updateEmaLabel(0);
           return;
@@ -463,6 +515,9 @@ function emaToGaugeValue(price, ema20) {
 
 document.addEventListener("DOMContentLoaded", () => {
 
+     // Sync holding qty immediately from server-rendered dataset
+     syncHoldingUI();
+
      fetch("/login/get-balance")
           .then(res => res.json())
           .then(data => {
@@ -474,6 +529,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
      if (!STOCK_TOKEN) return;
+
+     // Indicators are computed asynchronously on server; keep UI responsive.
+     pollIndicatorsUntilReady();
 
      fetch(`/stocks/subscribe/${STOCK_TOKEN}`, {
           method: "POST"

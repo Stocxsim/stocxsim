@@ -24,7 +24,6 @@ def generate_weekly_orders_chart():
     user_id = session.get("user_id")
     if not user_id:
         return jsonify({"error": "User not logged in"}), 401
-    print(f"🔍 Generating Weekly Orders chart for user_id: {user_id}")
     graph_url = weekly_orders_chart(user_id)
     return jsonify({
         "chart": graph_url
@@ -35,7 +34,6 @@ def generate_win_rate_chart():
     user_id = session.get("user_id")
     if not user_id:
         return jsonify({"error": "User not logged in"}), 401
-    print(f"🔍 Generating Win Rate chart for user_id: {user_id}")
     graph_url = win_rate_chart(user_id)
     return jsonify({
         "chart": graph_url

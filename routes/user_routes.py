@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, render_template
 from decimal import Decimal, InvalidOperation
 import threading
+import time
 from modal.User import User
 from service.userservice import login_service, signup_service, verify_otp, send_otp, getUserDetails
 from database.watchlist_dao import get_stock_tokens_by_user
@@ -9,9 +10,53 @@ from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlis
 from data.live_data import register_equity_token, ensure_baseline_data, BASELINE_DATA
 from database.watchlist_dao import get_stock_tokens_by_user
 from database.userdao import checkBalance, updateBalance
+from service.transaction_service import record_transaction
 
 
 user_bp = Blueprint('user_bp', __name__)
+
+_post_login_init_lock = threading.Lock()
+_post_login_init_inflight = set()
+
+
+def _trigger_post_login_init(user_id: int) -> None:
+    """Idempotent, restart-safe post-login initialization.
+
+    Runs in background to avoid hanging requests. Safe to call on every page load.
+    """
+    if not user_id:
+        return
+
+    with _post_login_init_lock:
+        if user_id in _post_login_init_inflight:
+            return
+        _post_login_init_inflight.add(user_id)
+
+    def _run():
+        try:
+            tokens = [str(t[0]) for t in get_stock_tokens_by_user(user_id)]
+            for token in tokens:
+                register_equity_token(token)
+
+            # Baseline can be fetched even if WS isn't ready yet.
+            try:
+                ensure_baseline_data(tokens)
+            except Exception:
+                pass
+
+            # WS may still be connecting after an app restart; retry briefly.
+            for _ in range(20):  # ~10s total
+                try:
+                    subscribe_equity_tokens(tokens)
+                    subscribe_user_watchlist(user_id, tokens)
+                except Exception:
+                    pass
+                time.sleep(0.5)
+        finally:
+            with _post_login_init_lock:
+                _post_login_init_inflight.discard(user_id)
+
+    threading.Thread(target=_run, daemon=True).start()
 
 
 @user_bp.route("/submit", methods=["POST"])
@@ -34,6 +79,9 @@ def save_user():
     session['username'] = user.get_username()
     session['user_id'] = user.get_user_id()
 
+    # Persist auth across browser restarts (within permanent_session_lifetime)
+    session.permanent = True
+
     # 🔥 SUBSCRIBE USER WATCHLIST
     user_id = user.get_user_id()
     tokens = [str(t[0]) for t in get_stock_tokens_by_user(user_id)]   # e.g. 20 tokens
@@ -51,6 +99,9 @@ def save_user():
             return
 
     threading.Thread(target=_warm_watchlist, daemon=True).start()
+
+    # Kick off init that is safe on restarts/reloads.
+    _trigger_post_login_init(user_id)
 
     return jsonify({"success": True})
 
@@ -77,7 +128,10 @@ def verify_otp():
 @user_bp.route("/dashboard")
 def dashboard():
     if not session.get("logged_in"):
-        return redirect("/login")
+        return redirect("/")
+
+    # Resume-safe init: on app restart, this makes WS/subscriptions catch up.
+    _trigger_post_login_init(session.get("user_id"))
     user = {
         "username": session.get("username"),
         "email": session.get("email"),
@@ -87,10 +141,16 @@ def dashboard():
     return render_template("dashboard.html", user=user, active_tab="explore")
 
 
+@user_bp.route("/status")
+def auth_status():
+    is_authed = bool(session.get("logged_in") and session.get("user_id"))
+    return jsonify({"authenticated": is_authed})
+
+
 @user_bp.route("/holding")
 def holdings():
     if not session.get("logged_in"):
-        return redirect("/login")
+        return redirect("/")
 
     user = {
         "username": session.get("username"),
@@ -106,7 +166,7 @@ def holdings():
 @user_bp.route("/watchlist")
 def watchlist():
     if not session.get("logged_in"):
-        return redirect("/login")
+        return redirect("/")
 
     user = {
         "username": session.get("username"),
@@ -123,7 +183,7 @@ def watchlist():
 @user_bp.route("/orders")
 def orders():
     if not session.get("logged_in"):
-        return redirect("/login")
+        return redirect("/")
 
     user = {
         "username": session.get("username"),
@@ -155,7 +215,7 @@ def get_balance():
 @user_bp.route("/add_funds")
 def add_funds():
     if not session.get("logged_in") or "user_id" not in session:
-        return redirect("/login")
+        return redirect("/")
 
     amount_raw = request.args.get("amount", "0")
     try:
@@ -171,13 +231,14 @@ def add_funds():
     new_balance = current_balance + amount
 
     updateBalance(user_id, new_balance)
+    record_transaction(user_id, amount, "ADD")
     return redirect("/profile/funds?success=added")
 
 
 @user_bp.route("/withdraw_funds")
 def withdraw_funds():
     if not session.get("logged_in") or "user_id" not in session:
-        return redirect("/login")
+        return redirect("/")
 
     amount_raw = request.args.get("amount", "0")
     try:
@@ -196,4 +257,5 @@ def withdraw_funds():
 
     new_balance = current_balance - amount
     updateBalance(user_id, new_balance)
+    record_transaction(user_id, amount, "WITHDRAW")
     return redirect("/profile/funds?success=withdrawn")

@@ -9,31 +9,30 @@ def add_holding(order_details):
 
         # Check if the holding already exists
         query_check = """
-        SELECT quantity , avg_buy_price FROM holdings WHERE user_id = %s AND symbol_token = %s
+        SELECT quantity , avg_buy_price FROM holdings WHERE user_id = %s AND symbol_token = %s AND order_type = %s
         """
         cursor.execute(
-            query_check, (order_details["user_id"], order_details["symbol_token"]))
+            query_check, (order_details["user_id"], order_details["symbol_token"], order_details["order_type"]))
         result = cursor.fetchone()
 
         if result:
             # Update existing holding
             new_quantity = result[0] + order_details["quantity"]
             query_update = """
-            UPDATE holdings SET quantity = %s , avg_buy_price = %s WHERE user_id = %s AND symbol_token = %s
+            UPDATE holdings SET quantity = %s , avg_buy_price = %s WHERE user_id = %s AND symbol_token = %s AND order_type = %s
             """
             new_avg_price = ((result[1] * result[0]) + (order_details["price"]
                              * order_details["quantity"])) / new_quantity
             cursor.execute(query_update, (new_quantity, new_avg_price,
-                           order_details["user_id"], order_details["symbol_token"]))
+                           order_details["user_id"], order_details["symbol_token"], order_details["order_type"]))
         else:
             # Insert new holding
             query_insert = """
-            INSERT INTO holdings (user_id, symbol_token, quantity, avg_buy_price)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO holdings (user_id, symbol_token, quantity, avg_buy_price,order_type)
+            VALUES (%s, %s, %s, %s, %s)
             """
             cursor.execute(
-                query_insert, (order_details["user_id"], order_details["symbol_token"], order_details["quantity"], order_details["price"]))
-
+                query_insert, (order_details["user_id"], order_details["symbol_token"], order_details["quantity"], order_details["price"], order_details["order_type"]))
         conn.commit()
     finally:
         cursor.close()
@@ -47,10 +46,10 @@ def update_holding_on_sell(order_details):
 
         # Fetch current holding
         query_check = """
-        SELECT quantity FROM holdings WHERE user_id = %s AND symbol_token = %s
+        SELECT quantity FROM holdings WHERE user_id = %s AND symbol_token = %s AND order_type = %s
         """
         cursor.execute(
-            query_check, (order_details["user_id"], order_details["symbol_token"]))
+            query_check, (order_details["user_id"], order_details["symbol_token"], order_details["order_type"]))
         result = cursor.fetchone()
 
         if result:
@@ -65,18 +64,18 @@ def update_holding_on_sell(order_details):
             if new_quantity > 0:
                 # Update holding with reduced quantity
                 query_update = """
-                UPDATE holdings SET quantity = %s WHERE user_id = %s AND symbol_token = %s
+                UPDATE holdings SET quantity = %s WHERE user_id = %s AND symbol_token = %s AND order_type = %s
                 """
                 cursor.execute(query_update, (new_quantity,
-                               order_details["user_id"], order_details["symbol_token"]))
+                               order_details["user_id"], order_details["symbol_token"], order_details["order_type"]))
                 conn.commit()
             else:
                 # Remove holding if quantity is zero or less
                 query_delete = """
-                DELETE FROM holdings WHERE user_id = %s AND symbol_token = %s
+                DELETE FROM holdings WHERE user_id = %s AND symbol_token = %s AND order_type = %s
                 """
                 cursor.execute(
-                    query_delete, (order_details["user_id"], order_details["symbol_token"]))
+                    query_delete, (order_details["user_id"], order_details["symbol_token"], order_details["order_type"]))
                 conn.commit()
             return True
         else:
@@ -92,7 +91,7 @@ def get_holdings_by_user(user_id):
         cursor = conn.cursor()
 
         query = """
-        SELECT h.symbol_token, h.quantity, h.avg_buy_price,
+        SELECT h.holding_id, h.symbol_token, h.quantity, h.avg_buy_price,h.order_type,
                s.stock_name, s.stock_short_name
         FROM holdings h
         LEFT JOIN stocks s ON s.stock_token = h.symbol_token
@@ -100,12 +99,11 @@ def get_holdings_by_user(user_id):
         """
         cursor.execute(query, (user_id,))
         holdings = cursor.fetchall()
-
         holdings_dict = {}
 
         for holding in holdings:
-            symbol_token = holding[0]
-            token_str = str(symbol_token)
+            holding_id = holding[0]
+            token_str = str(holding[1])
 
             live = LIVE_STOCKS.get(token_str) or {}
             base = BASELINE_DATA.get(token_str) or {}
@@ -117,14 +115,15 @@ def get_holdings_by_user(user_id):
             if market_price is None:
                 market_price = 0
 
-            holdings_dict[token_str] = {
-                "symbol_token": symbol_token,
-                "quantity": holding[1],
-                "avg_buy_price": holding[2],
+            holdings_dict[holding_id] = {
+                "symbol_token": holding[1],
+                "quantity": holding[2],
+                "avg_buy_price": holding[3],
                 "market_price": market_price,
                 "prev_close": (base.get("prev_close") if base else None),
-                "stock_name": holding[3],
-                "stock_symbol": holding[4],
+                "stock_name": holding[5],
+                "stock_short_name": holding[6],
+                "order_type": holding[4],
             }
         return holdings_dict
     finally:

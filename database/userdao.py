@@ -32,11 +32,9 @@ def saveUser(user):
 
         cur.execute(query, (user.user_id, user.username, user.email, user.password))
         conn.commit()
-        print(user.username, user.email, user.password)
         return {"message": True}
 
     except Exception as e:
-        print("DB Error:", e)
         return {"message": False}
 
     finally:

@@ -13,7 +13,6 @@ def get_stock_tokens_by_user(user_id):
         cursor.close()
         return [(row[0], row[1]) for row in rows]
     except Exception as e:
-        print(f"❌ Error fetching tokens: {e}")
         return []
     finally:
         # Matches your return_connection function
@@ -35,7 +34,6 @@ def check_watchlist(user_id, stock_token):
         cur.close()
         return result is not None
     except Exception as e:
-        print(f"❌ Error checking watchlist: {e}")
         return False
     finally:
         return_connection(conn)
@@ -55,7 +53,6 @@ def add_to_watchlist(user_id, stock_token):
         cur.close()
     except Exception as e:
         conn.rollback()
-        print(f"❌ Error adding to watchlist: {e}")
     finally:
         return_connection(conn)
 
@@ -73,6 +70,5 @@ def remove_from_watchlist(user_id, stock_token):
         cur.close()
     except Exception as e:
         conn.rollback()
-        print(f"❌ Error removing from watchlist: {e}")
     finally:
         return_connection(conn)

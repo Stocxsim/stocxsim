@@ -13,9 +13,8 @@ watchlist_bp = Blueprint("watchlist", __name__)
 @watchlist_bp.route("/api")
 def api_watchlist():
     user_id = session.get("user_id")
-    # print("User ID in session:", user_id)
     if not user_id:
-        return jsonify([])   # or return 401
+        return jsonify([])
 
     tokens = get_stock_tokens_by_user(user_id)
     result = []
@@ -28,7 +27,6 @@ def api_watchlist():
             "category": category
         })
 
-        print(result)
 
     return jsonify(result)
 
@@ -36,18 +34,12 @@ def api_watchlist():
 # Toggle watchlist status for a stock
 @watchlist_bp.route("/toggle/<int:stock_token>", methods=["POST"])
 def toggle(stock_token):
-    #     print("🧪 TOGGLE HIT:", stock_token)
-    #     print("🧪 SESSION:", dict(session))
 
     user_id = session.get("user_id")
-#     print("🧪 USER ID:", user_id)
 
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 401
-
-    print("🧪 TOGGLE:")
     status = toggle_watchlist(user_id, stock_token)
-    print("🧪 STATUS:", status)
     return jsonify({"watchlisted": status})
 
 

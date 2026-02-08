@@ -127,7 +127,7 @@ def win_rate_chart(user_id):
         fig.patch.set_facecolor("white")
         ax.set_facecolor("white")
 
-        ax.set_title("Win Rate", fontsize=12, fontweight="bold", pad=10)
+        ax.set_title("Win Rate", fontsize=24, fontweight=900, pad=20)
         ax.text(
             0.5, 0.5,
             "No closed trades yet",
@@ -145,7 +145,7 @@ def win_rate_chart(user_id):
     sizes = [wins, losses]
     colors = ["#22c55e", "#ef4444"]  # green & red
 
-    fig, ax = plt.subplots(figsize=(5, 5))
+    fig, ax = plt.subplots(figsize=(4, 4))
 
     # White background
     fig.patch.set_facecolor("white")
@@ -154,12 +154,12 @@ def win_rate_chart(user_id):
     # Pie chart (donut style → more attractive)
     wedges, texts, autotexts = ax.pie(
         sizes,
-        labels=labels,
         colors=colors,
         autopct="%1.1f%%",
         startangle=140,
-        radius=0.7,
-        wedgeprops=dict(width=0.45, edgecolor="white")
+        radius=1.05,
+        pctdistance=0.80,
+        wedgeprops=dict(width=0.40, edgecolor="white")
     )
 
     # Text styling
@@ -175,13 +175,26 @@ def win_rate_chart(user_id):
         f"{wins + losses}\nTrades",
         ha="center",
         va="center",
-        fontsize=10,
+        fontsize=16,
         fontweight="bold",
         color="#374151"
     )
 
-    ax.set_title("Win Rate", fontsize=12, fontweight="bold", pad=12)
+    ax.legend(
+        wedges, 
+        labels,
+        title="Status",
+        loc="upper left", # Positioned at the bottom
+        bbox_to_anchor=(-0.35, 1.1), # Fine-tune position below the pie
+        ncol=1, # Side-by-side labels
+        fontsize=12,
+        title_fontsize=13,
+        frameon=False # Removes the box border for a cleaner look
+    )
 
+    plt.subplots_adjust(left=0, right=1, top=0.7, bottom=0)
+
+    ax.set_title("Win Rate", fontsize=24, fontweight=900, pad=20)
     # fig.savefig(
     #     f"win_rate_user_{user_id}.png",
     #     dpi=150,
@@ -280,13 +293,6 @@ def profit_loss_chart(user_id):
     ax.tick_params(axis="x", labelsize=9)
     ax.tick_params(axis="y", labelsize=9)
 
-    # fig.savefig(
-    #     "total_profit_loss.png",
-    #     dpi=150,
-    #     bbox_inches="tight",
-    #     facecolor="white"
-    # )
-
     return _fig_to_base64(fig)
 
 
@@ -367,12 +373,5 @@ def top_traded_chart(user_id, limit=5):
             fontsize=8,
             color="#111827"
         )
-
-    # fig.savefig(
-    #     "top_traded.png",
-    #     dpi=150,
-    #     bbox_inches="tight",
-    #     facecolor="white"
-    # )
 
     return _fig_to_base64(fig)

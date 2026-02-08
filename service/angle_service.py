@@ -43,5 +43,6 @@ def start_angel_one():
     feed_token = obj.getfeedToken()
     jwt_token = session["data"]["jwtToken"]
 
-    start_websocket(jwt_token, feed_token)
+    # Force a clean WS boot on every app start (restart-safe).
+    start_websocket(jwt_token, feed_token, force=True)
     print("🚀 Angel One WebSocket started")

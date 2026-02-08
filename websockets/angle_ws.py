@@ -1,5 +1,6 @@
 
 from time import time
+import threading
 from SmartApi.smartWebSocketV2 import SmartWebSocketV2
 import json
 from data.live_data import BASELINE_DATA, LIVE_STOCKS, LIVE_INDEX, INDEX_TOKENS
@@ -9,13 +10,43 @@ from utils.market_time import is_market_open
 
 
 ws = None
+ws_connected = False
 subscribed_tokens = set()
+_last_credentials = {"jwt": None, "feed": None}
+_reconnect_timer = None
 last_emit_time = 0
 EMIT_THROTTLE_MS = 100  # Emit max every 100ms to reduce network overhead
 
 
-def start_websocket(jwt_token, feed_token):
-    global ws
+def is_ws_connected() -> bool:
+    return bool(ws is not None and ws_connected)
+
+
+def reset_ws_state() -> None:
+    """Best-effort close existing WS and clear in-memory flags.
+
+    This prevents old/stale WS state from affecting a new login/app restart.
+    """
+    global ws, ws_connected, subscribed_tokens
+
+    try:
+        if ws is not None:
+            ws.close()
+    except Exception:
+        pass
+
+    ws = None
+    ws_connected = False
+    subscribed_tokens.clear()
+
+
+def start_websocket(jwt_token, feed_token, force: bool = False):
+    global ws, _last_credentials
+
+    _last_credentials = {"jwt": jwt_token, "feed": feed_token}
+
+    if force:
+        reset_ws_state()
 
     ws = SmartWebSocketV2(
         jwt_token,
@@ -30,7 +61,11 @@ def start_websocket(jwt_token, feed_token):
     ws.on_close = on_close
 
     print("🚀 Connecting WebSocket...")
-    ws.connect()
+    try:
+        ws.connect()
+    except Exception as e:
+        print("❌ WebSocket connect failed:", e)
+        _schedule_reconnect()
 
     return ws
 
@@ -61,6 +96,8 @@ def subscribe_equity_tokens(tokens):
 
 
 def on_open(ws):
+    global ws_connected
+    ws_connected = True
     print("🔗 WebSocket Connected")
 
 
@@ -143,8 +180,36 @@ def on_data(ws, message):
 
 
 def on_error(ws, error):
+    global ws_connected
+    ws_connected = False
     print("❌ WebSocket Error:", error)
+    _schedule_reconnect()
 
 
 def on_close(ws):
+    global ws_connected
+    ws_connected = False
     print("🔴 WebSocket Closed")
+    _schedule_reconnect()
+
+
+def _schedule_reconnect() -> None:
+    """Reconnect with a small delay; never block login or request threads."""
+    global _reconnect_timer
+
+    if _reconnect_timer is not None and _reconnect_timer.is_alive():
+        return
+
+    jwt_token = _last_credentials.get("jwt")
+    feed_token = _last_credentials.get("feed")
+    if not jwt_token or not feed_token:
+        return
+
+    def _do():
+        global _reconnect_timer
+        _reconnect_timer = None
+        start_websocket(jwt_token, feed_token, force=True)
+
+    _reconnect_timer = threading.Timer(2.0, _do)
+    _reconnect_timer.daemon = True
+    _reconnect_timer.start()

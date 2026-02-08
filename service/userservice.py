@@ -9,7 +9,6 @@ def login_service(email):
     return user
 
 def signup_service(user):
-    # Logic to save the user to the database
     saved_user = saveUser(user)
     return saved_user
 
@@ -54,7 +53,7 @@ def verify_otp(email, user_otp):
         return False
 
     if OTP_STORE[email] == user_otp:
-        del OTP_STORE[email]  # ek vaar j valid
+        del OTP_STORE[email] 
         return True
     return False
 

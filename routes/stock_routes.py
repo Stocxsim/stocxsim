@@ -27,7 +27,7 @@ def subscribe_stock(token):
         try:
             ensure_baseline_data([token])
         except Exception as e:
-            print(f"⚠️ Baseline fetch failed for {token}: {e}")
+            print("⚠️ BASELINE DATA ERROR:", e)
 
         if angle_ws.ws is None:
             return jsonify({"error": "WS not connected"}), 500
@@ -44,8 +44,6 @@ def unsubscribe_stock(token):
     try:
         if angle_ws.ws is None:
             return jsonify({"error": "WS not connected"}), 500
-
-        print("📡 UNSUBSCRIBE REQUEST:", token)
 
         unsubscribe(angle_ws.ws, 1, str(token))
 
@@ -85,7 +83,6 @@ def stock_detail(stock_token):
     if user_id:
         holding = get_holding_by_user_and_token(user_id, stock_token)
 
-    # Indicators are expensive (candle fetch). Use cache + background compute.
     cached = get_cached_indicators(token)
     if cached:
         stock.set_rsi(cached.get("rsi"))
@@ -104,12 +101,10 @@ def stock_indicators(stock_token):
     if cached:
         return jsonify({"status": "ok", "token": token, **cached})
 
-    # Trigger background compute and let client retry.
     threading.Thread(target=compute_and_cache_indicators,
                      args=(token,), daemon=True).start()
     return jsonify({"status": "pending", "token": token})
 
-    # Fetch user watchlist tokens
     user_id = session.get("user_id")
     watchlist_tokens = [str(t) for t in get_stock_tokens_by_user(
         user_id)] if user_id else []

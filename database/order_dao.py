@@ -112,8 +112,6 @@ def get_weekly_orders(user_id):
         orders = cursor.fetchall()
         week_start=[order[0].strftime("%Y-%m-%d") for order in orders]
         total_orders=[order[1] for order in orders]
-        print(f"week_start: {week_start}")
-        print(f"total_orders: {total_orders}")
         return {
             "week_start": week_start,
             "total_orders": total_orders

@@ -1,8 +1,6 @@
 from flask import Blueprint, jsonify, session
 import threading
-# from service.holding_service import get_holdings_by_user
 from database.holding_dao import get_holdings_by_user
-# for live data registration
 from data.live_data import register_equity_token, ensure_baseline_data
 from websockets.angle_ws import subscribe_equity_tokens
 
@@ -14,7 +12,6 @@ holding_bp = Blueprint('holding_bp', __name__)
 def get_user_holdings():
     try:
         user_id = session.get("user_id")
-        print("User ID in session:", user_id)
 
         if not user_id:
             return jsonify({"error": "User not logged in"}), 401

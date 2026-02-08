@@ -1,14 +1,42 @@
 function f1() {
     const passwordSection = document.getElementById("passwordbox");
-    if(passwordSection.classList.contains("d-none")){    
+    const emailInput = document.getElementById("Email");
+    const email = (emailInput?.value || "").trim();
+    const loginError = document.getElementById("login-error");
+
+    const showLoginError = (message) => {
+        if (!loginError) return;
+        loginError.textContent = message;
+        loginError.classList.remove("d-none");
+    };
+
+    const clearLoginError = () => {
+        if (!loginError) return;
+        loginError.textContent = "";
+        loginError.classList.add("d-none");
+    };
+
+    if (!email) {
+        // Validation failure: stay on login, keep button visible, no redirect
+        clearLoginError();
+        showLoginError("Please enter your email to continue.");
+        document.getElementById("div-1")?.classList.remove("d-none");
+        document.getElementById("div-2")?.classList.add("d-none");
+        passwordSection?.classList.add("d-none");
+        emailInput?.focus();
+        return;
+    }
+
+    clearLoginError();
+
+    if (passwordSection.classList.contains("d-none")) {
         const form = new FormData();
-        const email = document.getElementById("Email").value;
         form.append("Email", email);
         fetch("/login/submit", {
             method: "POST",
             body: form
         }).then(response => response.json()).then(data => {
-            if (data.message === true) {              
+            if (data.message === true) {
                 passwordSection.classList.remove("d-none");
                 alert("Email found. Please enter your password to login.");
             } else {
@@ -20,36 +48,43 @@ function f1() {
             }
         });
     }
-    else{
+    else {
         const form = new FormData();
-        const email = document.getElementById("Email").value;
         const passwordInput = document.getElementById("password").value;
         form.append("Email", email);
         form.append("Password", passwordInput);
-        
+
         fetch("/login/save-user", {
             method: "POST",
             body: form
         }).then(response => response.json()).then(data => {
             if (data.success === true) {
-            // Hide modal backdrop & freeze UI
-    document.getElementById("loginModal").classList.remove("show");
-    document.querySelector(".modal-backdrop")?.remove();
+                // Hide modal backdrop & freeze UI
+                document.getElementById("loginModal").classList.remove("show");
+                document.querySelector(".modal-backdrop")?.remove();
 
-    // Show spinner
-    document.getElementById("login-spinner").classList.remove("d-none");
+                // Show spinner
+                document.getElementById("login-spinner").classList.remove("d-none");
 
-    // Redirect after short delay
-    setTimeout(() => {
-        window.location.href = "/login/dashboard";
-    }, 1500);
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = "/login/dashboard";
+                }, 1500);
 
-        } else {
-            alert("Wrong password");
-        }
+            } else {
+                alert("Wrong password");
+            }
         });
     }
 }
+
+// Clear validation error as user types
+document.getElementById("Email")?.addEventListener("input", () => {
+    const loginError = document.getElementById("login-error");
+    if (!loginError) return;
+    loginError.textContent = "";
+    loginError.classList.add("d-none");
+});
 
 
 
@@ -185,3 +220,39 @@ function isValidUsername(username) {
 
     return true;
 }
+
+// ---------- AUTH STATE / HISTORY HANDLING ----------
+function hideLoginSpinner() {
+    const spinner = document.getElementById("login-spinner");
+    if (spinner) spinner.classList.add("d-none");
+}
+
+async function checkAuthAndRedirect() {
+    try {
+        const res = await fetch("/login/status", { method: "GET" });
+        if (!res.ok) {
+            hideLoginSpinner();
+            return;
+        }
+        const data = await res.json();
+        if (data && data.authenticated === true) {
+            window.location.replace("/login/dashboard");
+            return;
+        }
+        hideLoginSpinner();
+    } catch (e) {
+        hideLoginSpinner();
+    }
+}
+
+// Ensure spinner never sticks on back/forward cache restores
+window.addEventListener("pageshow", () => {
+    hideLoginSpinner();
+    checkAuthAndRedirect();
+});
+
+// Handle browser back/forward navigation
+window.addEventListener("popstate", () => {
+    hideLoginSpinner();
+    checkAuthAndRedirect();
+});
