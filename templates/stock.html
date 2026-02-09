@@ -12,6 +12,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/static/css/tokens.css" />
     <link rel="stylesheet" href="/static/css/stock.css" />
   </head>
 
@@ -24,7 +25,7 @@
       data-rsi="{{ stock.rsi if stock.rsi is not none else '' }}"
       data-holding-qty="{{ holding.quantity if holding else 0 }}"
       data-holding-avg="{{ holding.avg_buy_price if holding else 0 }}"
-      style="display: none"
+      hidden
     ></div>
 
     <div class="container">
@@ -53,7 +54,7 @@
 
         <div class="time-filters">
           <button>NSE</button>
-          <button style="background: #eee">1D</button>
+          <button class="active-filter">1D</button>
           <button>1W</button>
           <button>1M</button>
           <button>3M</button>
@@ -66,7 +67,7 @@
         <div class="order-header">
           <h2 id="orderStockName">{{ stock.stock_name }}</h2>
           <p class="exchange-info" id="exchange-id"></p>
-          <p class="exchange-info" style="margin-top: 6px">
+          <p class="exchange-info">
             Holding: <span id="holdingQty">0</span> shares
           </p>
         </div>
@@ -88,7 +89,7 @@
         </div>
 
         <div class="input-group">
-          <label id="priceTypeToggle" style="cursor: pointer"
+          <label id="priceTypeToggle" class="cursor-pointer"
             >Price <b id="orderTypeText">Market</b></label
           >
           <input id="price" disabled type="text" />
@@ -106,7 +107,7 @@
         <button
           id="closeStockBtn"
           class="close-btn position-absolute"
-          style="top: 20px; right: 40px"
+          style="top: 20px; right: 40px;"
         >
           <i class="bi bi-x-lg"></i>
         </button>

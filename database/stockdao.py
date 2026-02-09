@@ -8,7 +8,7 @@ def search_stocks(query):
         cur = conn.cursor()
 
         cur.execute("""
-            SELECT stock_token, stock_name
+            SELECT stock_token, stock_name, stock_short_name, exchange
             FROM stocks
             WHERE stock_short_name ILIKE %s
                OR stock_name ILIKE %s

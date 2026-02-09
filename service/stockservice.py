@@ -11,7 +11,9 @@ def search_stocks_service(query):
      return [
           {
                "token": row[0],
-               "name": row[1]
+               "name": row[1],
+               "symbol": row[2],
+               "exchange": row[3]
           }
           for row in rows
      ]

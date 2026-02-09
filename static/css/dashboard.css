@@ -1,161 +1,146 @@
-/* body{
-     background:#57c17e27;
-} */
-
-/* Main Content */
-.main_content {
-     background: pink;
-     height: 100px;
-}
-
+/* dashboard.css — consumes tokens.css variables */
 
 /* Stock Card */
 .stock_card {
-     border: 1px solid #e5e7eb;
-     border-radius: 20px;
-     background: white;
-     height: 100%;
-     transition: box-shadow .2s ease;
-     box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-white);
+  height: 100%;
+  transition: box-shadow var(--transition-base), background var(--transition-base);
+  box-shadow: var(--shadow-card);
 }
 
 .stock_card:hover {
-     background-color: #0f0f0f0f;
+  background-color: var(--color-bg-hover);
+  box-shadow: var(--shadow-md);
 }
 
 .stock_name {
-     color: #44475b;
+  color: var(--color-text-heading);
 }
 
 .stock_change.up {
-     color: #16a34a;
+  color: var(--color-up);
 }
 
 .stock_change.down {
-     color: #dc2626;
+  color: var(--color-down);
 }
-
 
 /* Mover table's navbar */
 .btn.rounded-pill {
-     padding: 6px 16px;
-     font-weight: 500;
+  padding: var(--space-2) var(--space-4);
+  font-weight: var(--weight-medium);
 }
 
 .btn-outline-secondary {
-     border-color: #d1d5db;
-     color: #44475b;
-     background: white;
+  border-color: var(--color-border);
+  color: var(--color-text-heading);
+  background: var(--color-bg-white);
 }
 
 .btn-outline-secondary.active,
 .btn-outline-secondary:hover {
-     background: #f5f5f7;
-     color: #111827;
+  background: var(--color-bg-active);
+  color: var(--color-text-dark);
 }
 
-
-/* Movers Table (Main Content) */
+/* Movers Table */
 .movers-table th {
-     background-color: #0f0f0f0f !important;
-     padding: 12px !important;
+  background-color: var(--color-bg-hover);
+  padding: var(--space-3);
 }
 
-.movers-table td{
-     color: #44475b !important;
+.movers-table td {
+  color: var(--color-text-heading);
 }
 
 .movers-table {
-     border: 1px solid #dee2e6 !important;
-     border-radius: 10px !important;
-     border-collapse: separate;
-     border-spacing: 0;
-     overflow: hidden;
-}
-
-/* Aside Content */
-.aside_content {
-     /* background: lightblue; */
-     height: 100px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
-     .parent_grid {
-          order: -1;
-     }
+  .parent_grid {
+    order: -1;
+  }
 }
 
-/* ===== Dashboard Watchlist Horizontal Scroll ===== */
-
+/* Dashboard Watchlist Horizontal Scroll */
 .dashboard-watchlist-scroll {
-     overflow-x: auto;
-     overflow-y: hidden;
-     padding-bottom: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: var(--space-2);
 }
 
-/* keep cards in one row */
 #stocksRow {
-     flex-wrap: nowrap !important;
+  flex-wrap: nowrap;
 }
 
-/* prevent bootstrap column shrinking */
 #stocksRow > div {
-     flex: 0 0 auto;
+  flex: 0 0 auto;
 }
 
-/* fixed card width for smooth scrolling
-.stock_card {
-     min-width: 220px;
-     max-width: 220px;
-} */
-
-/* optional: clean scrollbar */
 .dashboard-watchlist-scroll::-webkit-scrollbar {
-     height: 6px;
+  height: 6px;
 }
 
 .dashboard-watchlist-scroll::-webkit-scrollbar-thumb {
-     background: #d1d5db;
-     border-radius: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
 }
 
 .watchlist-item {
   flex: 0 0 auto;
   width: 240px;
-  margin-right: 16px;
+  margin-right: var(--space-4);
+  cursor: pointer;
 }
 
 .watchlist-item .stock_card {
   width: 100%;
 }
+
 .watchlist-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 15px;
+  gap: var(--space-2);
+  margin: var(--space-4);
 }
 
 .mini-btn {
-  font-size: 14px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #fff;
+  font-size: var(--text-base);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-primary);
+  background: var(--color-bg-white);
   cursor: pointer;
-  flex: 1 1 calc(50% - 6px); /* 2 buttons per row */
+  flex: 1 1 calc(50% - 6px);
   text-align: center;
   white-space: nowrap;
-  border-color: #04b488; 
-  color: #04b488;
+  color: var(--color-primary);
+  font-family: var(--font-primary);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
+
 .mini-btn:hover {
-  background-color: #04b488;
-  border-color: #04b488;
+  background-color: var(--color-primary);
   color: white;
 }
-/* Desktop ma auto width */
+
 @media (min-width: 768px) {
   .mini-btn {
     flex: 0 0 auto;
   }
+}
+
+/* Investments card */
+.investments-card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
