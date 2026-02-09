@@ -48,13 +48,17 @@ def send_otp(email):
     return True
 
 
-def verify_otp(email, user_otp):
+def verify_otp_service(email, user_otp):
     if email not in OTP_STORE:
+        print("No OTP found for email:", email)
         return False
 
     if OTP_STORE[email] == user_otp:
+        print("OTP verified successfully for email:", email)
         del OTP_STORE[email] 
         return True
+    
+    print("None of the above")
     return False
 
 def getUserDetails(email):
