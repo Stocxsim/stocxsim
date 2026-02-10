@@ -26,11 +26,11 @@ def saveUser(user):
         cur = conn.cursor()
 
         query = """
-        INSERT INTO users (user_id,user_name, email, password)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO users (user_name, email, password)
+        VALUES (%s, %s, %s)
         """
 
-        cur.execute(query, (user.user_id, user.username, user.email, user.password))
+        cur.execute(query, (user.username, user.email, user.password))
         conn.commit()
         return {"message": True}
 
