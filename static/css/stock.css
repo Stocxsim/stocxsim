@@ -356,7 +356,7 @@ body {
 .indicators-wrapper {
     display: flex;
     gap: var(--space-10);
-    margin: 0 var(--space-10) var(--space-10) var(--space-10);
+    margin:  var(--space-10) var(--space-10) var(--space-10) var(--space-10);
     justify-content: center;
     align-items: flex-start;
 }
