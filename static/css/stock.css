@@ -764,3 +764,107 @@ body.indicator-modal-open {
     font-size: var(--text-base);
     flex-shrink: 0;
 }
+
+/* ============================================
+   Order Banner Notifications
+   ============================================ */
+.order-banner {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translate(-50%, -120%);
+    opacity: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: calc(100% - 32px);
+    max-width: 520px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12), 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.order-banner.show {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.order-banner.success {
+    border-left: 3px solid var(--color-up);
+}
+
+.order-banner.error {
+    border-left: 3px solid var(--color-down);
+}
+
+.order-banner-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.order-banner.success .order-banner-icon {
+    background: var(--color-up-bg, #f0fdf4);
+    color: var(--color-up);
+}
+
+.order-banner.error .order-banner-icon {
+    background: var(--color-down-bg, #fef2f2);
+    color: var(--color-down);
+}
+
+.order-banner-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.order-banner-title {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-heading);
+    line-height: 1.4;
+}
+
+.order-banner-detail {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    margin-top: 3px;
+    line-height: 1.4;
+}
+
+.order-banner-close {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: color var(--transition-fast);
+}
+
+.order-banner-close:hover {
+    color: var(--color-text-primary);
+}
+
+@media (max-width: 480px) {
+    .order-banner {
+        top: 12px;
+        width: calc(100% - 24px);
+    }
+}
+

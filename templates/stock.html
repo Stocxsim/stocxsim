@@ -12,6 +12,7 @@
 </head>
 
 <body data-stock-token="{{ stock.stock_token }}">
+  <div id="orderBanner" class="order-banner" role="status" aria-live="polite" aria-atomic="true"></div>
   <div id="stockPage" data-stock-token="{{ stock.stock_token }}" data-stock-name="{{ stock.stock_name }}"
     data-ema20="{{ stock.ema_20 if stock.ema_20 is not none else '' }}"
     data-rsi="{{ stock.rsi if stock.rsi is not none else '' }}" data-holding-qty="{{ holdings['market']['quantity'] }}"
@@ -69,15 +70,10 @@
       <div class="order-type-chips">
         <div class="chip active" data-type="market">Delivery</div>
         <div class="chip" data-type="mtf">MTF 4x</div>
+        <button class="info-btn" data-indicator="mtf" aria-label="MTF information">
+          <i class="bi bi-info-circle"></i>
+        </button>
       </div>
-         <div class="order-type-chips">
-          <div class="chip active" data-type="market">Delivery</div>
-          <div class="chip" data-type="mtf">MTF 4x</div>
-          <button class="info-btn" data-indicator="mtf" aria-label="MTF information">
-            <i class="bi bi-info-circle"></i>
-          </button>
-        </div>
-
 
       <div class="input-group">
         <label>Qty <b>NSE</b></label>
@@ -106,15 +102,19 @@
 
   <div class="indicators-wrapper">
     <div class="gauge-container" id="rsiGauge">
-      <div class="gauge-title">Technical Indicator (RSI)</div>
+      <div class="gauge-title">
+        Technical Indicator (RSI)
+        <button class="info-btn" data-indicator="rsi" aria-label="RSI information">
+          <i class="bi bi-info-circle"></i>
+        </button>
+      </div>
       <div class="indicator-loading hidden" id="loading-rsi">
         <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading RSI"></div>
         <span class="ms-2">Calculating…</span>
       </div>
       <svg class="gauge-svg" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid meet">
-        <!-- Gradient definitions for smooth color zones -->
         <defs>
-          <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="arcGradientRsi" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style="stop-color: #c0392b; stop-opacity: 1" />
             <stop offset="20%" style="stop-color: #e74c3c; stop-opacity: 1" />
             <stop offset="40%" style="stop-color: #f39c12; stop-opacity: 1" />
@@ -124,69 +124,33 @@
             <stop offset="100%" style="stop-color: #16a085; stop-opacity: 1" />
           </linearGradient>
         </defs>
-    <div class="indicators-wrapper">
-      <div class="gauge-container" id="rsiGauge">
-        <div class="gauge-title">
-          Technical Indicator (RSI)
-          <button class="info-btn" data-indicator="rsi" aria-label="RSI information">
-            <i class="bi bi-info-circle"></i>
-          </button>
-        </div>
-        <div class="indicator-loading hidden" id="loading-rsi">
-          <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading RSI"></div>
-          <span class="ms-2">Calculating…</span>
-        </div>
-        <svg
-          class="gauge-svg"
-          viewBox="0 0 320 180"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <!-- Gradient definitions for smooth color zones -->
-          <defs>
-            <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color: #c0392b; stop-opacity: 1" />
-              <stop offset="20%" style="stop-color: #e74c3c; stop-opacity: 1" />
-              <stop offset="40%" style="stop-color: #f39c12; stop-opacity: 1" />
-              <stop offset="50%" style="stop-color: #7f8c8d; stop-opacity: 1" />
-              <stop offset="60%" style="stop-color: #27ae60; stop-opacity: 1" />
-              <stop offset="80%" style="stop-color: #2ecc71; stop-opacity: 1" />
-              <stop
-                offset="100%"
-                style="stop-color: #16a085; stop-opacity: 1"
-              />
-            </linearGradient>
-          </defs>
-
-        <!-- Semi-circular arc (180° from 180° to 0°) -->
-        <path class="gauge-arc" d="M 20 160 A 140 140 0 0 1 300 160" fill="none" stroke="url(#arcGradient)"
+        <path class="gauge-arc" d="M 20 160 A 140 140 0 0 1 300 160" fill="none" stroke="url(#arcGradientRsi)"
           stroke-width="3" stroke-linecap="round" />
-
-        <!-- Needle group (rotates around center) -->
         <g class="needle-group-rsi">
-          <!-- Needle line -->
           <line class="needle-line" x1="160" y1="160" x2="160" y2="40" stroke="black" stroke-width="2"
             stroke-linecap="round" />
-
-          <!-- Center dot -->
           <circle class="center-dot" cx="160" cy="160" r="5" fill="black" />
         </g>
       </svg>
-
       <div class="label-container">
         <div class="label-text" id="label-rsi">Neutral</div>
       </div>
     </div>
 
     <div class="gauge-container" id="ema20Gauge">
-      <div class="gauge-title">Technical Indicator (EMA 20)</div>
+      <div class="gauge-title">
+        Technical Indicator (EMA 20)
+        <button class="info-btn" data-indicator="ema20" aria-label="EMA 20 information">
+          <i class="bi bi-info-circle"></i>
+        </button>
+      </div>
       <div class="indicator-loading hidden" id="loading-ema20">
         <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading EMA 20"></div>
         <span class="ms-2">Calculating…</span>
       </div>
       <svg class="gauge-svg" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid meet">
-        <!-- Gradient definitions for smooth color zones -->
         <defs>
-          <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="arcGradientEma" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style="stop-color: #c0392b; stop-opacity: 1" />
             <stop offset="20%" style="stop-color: #e74c3c; stop-opacity: 1" />
             <stop offset="40%" style="stop-color: #f39c12; stop-opacity: 1" />
@@ -196,76 +160,32 @@
             <stop offset="100%" style="stop-color: #16a085; stop-opacity: 1" />
           </linearGradient>
         </defs>
-      <div class="gauge-container" id="ema20Gauge">
-        <div class="gauge-title">
-          Technical Indicator (EMA 20)
-          <button class="info-btn" data-indicator="ema20" aria-label="EMA 20 information">
-            <i class="bi bi-info-circle"></i>
-          </button>
-        </div>
-        <div class="indicator-loading hidden" id="loading-ema20">
-          <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading EMA 20"></div>
-          <span class="ms-2">Calculating…</span>
-        </div>
-        <svg
-          class="gauge-svg"
-          viewBox="0 0 320 180"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <!-- Gradient definitions for smooth color zones -->
-          <defs>
-            <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color: #c0392b; stop-opacity: 1" />
-              <stop offset="20%" style="stop-color: #e74c3c; stop-opacity: 1" />
-              <stop offset="40%" style="stop-color: #f39c12; stop-opacity: 1" />
-              <stop offset="50%" style="stop-color: #7f8c8d; stop-opacity: 1" />
-              <stop offset="60%" style="stop-color: #27ae60; stop-opacity: 1" />
-              <stop offset="80%" style="stop-color: #2ecc71; stop-opacity: 1" />
-              <stop
-                offset="100%"
-                style="stop-color: #16a085; stop-opacity: 1"
-              />
-            </linearGradient>
-          </defs>
-
-        <!-- Semi-circular arc (180° from 180° to 0°) -->
-        <path class="gauge-arc" d="M 20 160 A 140 140 0 0 1 300 160" fill="none" stroke="url(#arcGradient)"
+        <path class="gauge-arc" d="M 20 160 A 140 140 0 0 1 300 160" fill="none" stroke="url(#arcGradientEma)"
           stroke-width="3" stroke-linecap="round" />
-
-        <!-- Needle group (rotates around center) -->
         <g class="needle-group-ema20">
-          <!-- Needle line -->
           <line class="needle-line" x1="160" y1="160" x2="160" y2="40" stroke="black" stroke-width="2"
             stroke-linecap="round" />
-
-          <!-- Center dot -->
           <circle class="center-dot" cx="160" cy="160" r="5" fill="black" />
         </g>
       </svg>
-
       <div class="label-container">
         <div class="label-text" id="label-ema20">Neutral</div>
       </div>
     </div>
   </div>
-        <div class="label-container">
-          <div class="label-text" id="label-ema20">Neutral</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Indicator Info Modal -->
-    <div class="indicator-modal-overlay" id="indicatorModal">
-      <div class="indicator-modal">
-        <div class="indicator-modal-header">
-          <h3 class="indicator-modal-title" id="modalTitle"></h3>
-          <button class="indicator-modal-close" id="modalCloseBtn" aria-label="Close">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
-        <div class="indicator-modal-body" id="modalBody"></div>
+  <!-- Indicator Info Modal -->
+  <div class="indicator-modal-overlay" id="indicatorModal">
+    <div class="indicator-modal">
+      <div class="indicator-modal-header">
+        <h3 class="indicator-modal-title" id="modalTitle"></h3>
+        <button class="indicator-modal-close" id="modalCloseBtn" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
+      <div class="indicator-modal-body" id="modalBody"></div>
     </div>
+  </div>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/static/js/stock.js"></script>

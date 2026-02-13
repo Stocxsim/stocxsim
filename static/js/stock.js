@@ -9,6 +9,41 @@ let transactionType = "buy";
 let isWatchlisted = false;
 window.lastLTP = 0;
 
+// =========================
+// ORDER BANNER NOTIFICATION
+// =========================
+function showOrderBanner(type, message, detail) {
+     const banner = document.getElementById("orderBanner");
+     if (!banner) return;
+
+     const icon = type === "success"
+          ? '<i class="bi bi-check-lg"></i>'
+          : '<i class="bi bi-x-lg"></i>';
+
+     banner.className = "order-banner " + type;
+     banner.innerHTML =
+          '<div class="order-banner-icon">' + icon + '</div>' +
+          '<div class="order-banner-content">' +
+               '<div class="order-banner-title">' + message + '</div>' +
+               (detail ? '<div class="order-banner-detail">' + detail + '</div>' : '') +
+          '</div>' +
+          '<button class="order-banner-close" aria-label="Close"><i class="bi bi-x"></i></button>';
+
+     banner.classList.add("show");
+
+     const closeBtn = banner.querySelector(".order-banner-close");
+     if (closeBtn) {
+          closeBtn.addEventListener("click", function () {
+               banner.classList.remove("show");
+          }, { once: true });
+     }
+
+     clearTimeout(banner._dismissTimer);
+     banner._dismissTimer = setTimeout(function () {
+          banner.classList.remove("show");
+     }, 3500);
+}
+
 // UI Elements
 const qtyInput = document.getElementById("qty");
 const priceInput = document.getElementById("price");
@@ -218,7 +253,7 @@ function updateStockUI(stock) {
                     ${percentOk ? `<span class="mx-1 text-muted">•</span>
                     <span class="${isUp ? 'up' : 'down'}">(${sign}${percentChange.toFixed(2)}%)</span>` : ""}
                 `;
-     if (!priceInput.value) {
+     if (orderType !== "mtf" && !priceInput.value) {
           priceInput.value = ltp.toFixed(2);
      }
      updateApproxReq();
@@ -237,8 +272,8 @@ function syncPriceUIForOrderType() {
 
      if (orderType === "mtf") {
           if (orderTypeText) orderTypeText.innerText = "MTF";
-          priceInput.disabled = false;
-          if (!priceInput.value && window.lastLTP) {
+          priceInput.disabled = true;
+          if (window.lastLTP) {
                priceInput.value = window.lastLTP.toFixed(2);
           }
      } else {
@@ -317,13 +352,13 @@ submitBtn.addEventListener("click", async function () {
      // VALIDATION
      // =========================
      if (!qtyValue || isNaN(qtyValue) || Number(qtyValue) <= 0) {
-          alert("❌ Give valid quantity");
+          showOrderBanner("error", "Order failed", "Enter a valid quantity greater than 0.");
           return;
      }
 
      if (currentOrderType === "mtf") {
           if (!priceValue || isNaN(priceValue) || Number(priceValue) <= 0) {
-               alert("❌ Give valid price for MTF");
+               showOrderBanner("error", "Order failed", "Enter a valid price for MTF order.");
                return;
           }
      }
@@ -348,9 +383,12 @@ submitBtn.addEventListener("click", async function () {
           const orderData = await orderRes.json();
 
           if (orderData.error) {
-               alert("❌ " + orderData.error);
+               showOrderBanner("error", "Order failed", orderData.error);
           } else {
-               alert("✅ " + orderData.message);
+               const side = currentTransactionType === "buy" ? "Bought" : "Sold";
+               const orderDetail = side + " " + qtyValue + " share" + (Number(qtyValue) > 1 ? "s" : "") +
+                    (priceInput.value ? " at ₹" + Number(priceInput.value).toLocaleString(undefined, { minimumFractionDigits: 2 }) : "");
+               showOrderBanner("success", orderData.message || "Order placed successfully", orderDetail);
                if (orderData.new_balance !== undefined) {
                     balanceEl.innerText = `Balance: ₹${orderData.new_balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
                }
@@ -361,7 +399,7 @@ submitBtn.addEventListener("click", async function () {
           }
      } catch (err) {
           console.error("Order error:", err);
-          alert("⚠️ Connection error!");
+          showOrderBanner("error", "Order failed", "Unable to reach server. Please try again.");
      }
 });
 
