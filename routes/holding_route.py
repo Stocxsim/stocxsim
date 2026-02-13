@@ -17,7 +17,7 @@ def get_user_holdings():
             return jsonify({"error": "User not logged in"}), 401
 
         holdings = get_holdings_by_user(user_id)
-
+        print(holdings)
         tokens = []
 
         # Register tokens for live data
@@ -25,13 +25,13 @@ def get_user_holdings():
             token = str(h["symbol_token"])
             tokens.append(token)
             register_equity_token(token)
-
+        print("Registered tokens for live data:", tokens)
         # Subscribe holdings tokens to Angel WS (non-blocking) so Socket.IO emits updates.
         subscribe_equity_tokens(tokens)
 
         # Ensure we have baseline data for holdings; run in background to keep API fast.
         threading.Thread(target=ensure_baseline_data, args=(tokens,), daemon=True).start()
-
+        print("check before return")
         return jsonify({
             "holdings": holdings
         })
