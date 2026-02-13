@@ -85,6 +85,7 @@ def update_holding_on_sell(order_details):
         return_connection(conn)
 
 
+# This is for holding page, that give data of all holding for perticulat account
 def get_holdings_by_user(user_id):
     conn = get_connection()
     try:
@@ -131,6 +132,7 @@ def get_holdings_by_user(user_id):
         return_connection(conn)
 
 
+# This is for stock page, that give data of single holding for perticulat stock token and user
 def get_holding_by_user_and_token(user_id, symbol_token):
     """Return a single holding row (quantity, avg_buy_price) for a user/token."""
     conn = get_connection()
@@ -138,16 +140,29 @@ def get_holding_by_user_and_token(user_id, symbol_token):
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT quantity, avg_buy_price
+            SELECT quantity, avg_buy_price, order_type
             FROM holdings
             WHERE user_id = %s AND symbol_token = %s
             """,
             (user_id, symbol_token),
         )
-        row = cursor.fetchone()
-        if not row:
-            return {"quantity": 0, "avg_buy_price": 0}
-        return {"quantity": row[0], "avg_buy_price": row[1]}
+        rows = cursor.fetchall()
+
+        # There is chance of 2 types of holding for same stock token (1 for market and 1 for mtf), so we will return default 0 holding if no row found, and stock page will decide which one to show based on order type.
+        holdings_data = {
+            "market": {"quantity": 0, "avg_buy_price": 0},
+            "mtf": {"quantity": 0, "avg_buy_price": 0}
+        }
+
+        for row in rows:
+            qty, avg_price, o_type = row
+            if o_type in holdings_data:
+                holdings_data[o_type] = {
+                    "quantity": qty,
+                    "avg_buy_price": float(avg_price)
+                }
+
+        return holdings_data
     finally:
         cursor.close()
         return_connection(conn)

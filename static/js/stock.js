@@ -20,29 +20,45 @@ const submitBtn = document.getElementById("submitOrderBtn");
 
 // Holding UI
 function getHoldingQty() {
-     const raw = stockPageEl?.dataset.holdingQty;
-     const parsed = Number.parseInt(raw ?? "0", 10);
-     return Number.isFinite(parsed) ? parsed : 0;
+     const mkt = parseInt(stockPageEl?.dataset.holdingQty || "0", 10);
+     const mtf = parseInt(stockPageEl?.dataset.holdingMtf || "0", 10);
+     return {
+          market: isNaN(mkt) ? 0 : mkt,
+          mtf: isNaN(mtf) ? 0 : mtf
+     };
 }
 
 function syncHoldingUI() {
      const holdingQtyEl = document.getElementById("holdingQty");
      if (!holdingQtyEl) return;
 
-     const holdingQty = getHoldingQty();
-     holdingQtyEl.innerText = String(holdingQty);
+     const holdings = getHoldingQty();
 
-     // UX: prevent selling more than holding
-     if (qtyInput) {
-          if (transactionType === "sell") {
-               qtyInput.max = String(holdingQty);
-               const currentQty = Number.parseInt(qtyInput.value || "0", 10) || 0;
-               if (holdingQty > 0 && currentQty > holdingQty) {
-                    qtyInput.value = String(holdingQty);
-               }
-          } else {
-               qtyInput.removeAttribute("max");
+     if (holdings.market > 0 && holdings.mtf > 0) {
+          holdingQtyEl.innerText = "Market: " + holdings.market + " | MTF: " + holdings.mtf;
+     } else if (holdings.mtf > 0) {
+          holdingQtyEl.innerText = "MTF: " + holdings.mtf;
+     } else {
+          holdingQtyEl.innerText = holdings.market;
+     }
+
+     // Sell validation 
+     if (qtyInput && transactionType === "sell") {
+          // Use holdings.mtf if orderType is mtf, else use holdings.market
+          let maxSellable = holdings.market;
+          if (orderType === "mtf") {
+               maxSellable = holdings.mtf;
           }
+
+          // For ui, to not allow user to enter more than they can sell. Backend will also validate and reject if they try to bypass this.
+          qtyInput.max = maxSellable;
+
+          let currentQty = parseInt(qtyInput.value || "0", 10);
+          if (currentQty > maxSellable) {
+               qtyInput.value = maxSellable;
+          }
+     } else if (qtyInput) {
+          qtyInput.removeAttribute("max");
      }
 }
 
@@ -234,6 +250,7 @@ function syncPriceUIForOrderType() {
      }
 }
 
+// the chips for order type selection
 document.querySelectorAll(".order-type-chips .chip").forEach((chip) => {
      chip.addEventListener("click", () => {
           document
@@ -243,7 +260,9 @@ document.querySelectorAll(".order-type-chips .chip").forEach((chip) => {
           chip.classList.add("active");
 
           orderType = chip.dataset.type || "market";
+
           syncPriceUIForOrderType();
+          syncHoldingUI();
           updateApproxReq();
      });
 });
@@ -262,7 +281,6 @@ buyTab.addEventListener("click", () => {
      submitBtn.classList.add("buy-btn");
 
      syncHoldingUI();
-
      updateApproxReq();
 });
 
