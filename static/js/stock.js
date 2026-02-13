@@ -624,9 +624,152 @@ document.addEventListener("DOMContentLoaded", () => {
           if (document.referrer && document.referrer.includes(window.location.hostname)) {
                window.location.href = document.referrer;
           } else {
-               // If they landed here from Google or a direct link, 
+               // If they landed here from Google or a direct link,
                // send them to a safe default.
                window.location.href = "/login/watchlist";
           }
      });
 });
+
+// =========================
+// INDICATOR INFO MODAL
+// =========================
+(function () {
+     const INDICATOR_INFO = {
+          rsi: {
+               title: "RSI Information",
+               body: `
+                    <h4>What is RSI?</h4>
+                    <p>The <strong>Relative Strength Index (RSI)</strong> is a momentum oscillator that measures the speed and magnitude of recent price changes on a scale of 0 to 100. It helps traders identify whether a stock is potentially overbought or oversold.</p>
+
+                    <h4>How to Read RSI</h4>
+                    <p><span class="signal-tag overbought">Overbought (70+)</span> &mdash; When RSI crosses above 70, the stock may be overvalued. This suggests buying pressure has pushed the price too high and a pullback or reversal could follow.</p>
+                    <p><span class="signal-tag oversold">Oversold (30&minus;)</span> &mdash; When RSI drops below 30, the stock may be undervalued. This indicates heavy selling pressure and a potential bounce or recovery ahead.</p>
+                    <p><span class="signal-tag strong">STRONG</span> &mdash; A "Strong" reading means RSI is between 55&ndash;65, indicating healthy upward momentum without being overbought. The stock has consistent buying interest and the trend is favourable.</p>
+
+                    <h4>Key Takeaway</h4>
+                    <p>RSI works best when combined with other indicators. A single overbought or oversold reading does not guarantee a reversal &mdash; always consider the broader market context.</p>
+               `
+          },
+          ema20: {
+               title: "EMA 20 Information",
+               body: `
+                    <h4>What is EMA 20?</h4>
+                    <p>The <strong>Exponential Moving Average (EMA 20)</strong> is a trend-following indicator that calculates the average closing price of the last 20 periods, giving more weight to recent prices. This makes it more responsive to new price data compared to a simple moving average.</p>
+
+                    <h4>Short-Term Trend Usage</h4>
+                    <p>EMA 20 is widely used to gauge the <strong>short-term trend direction</strong>. When the current price is above EMA 20, the short-term trend is considered bullish. When below, it signals bearish momentum.</p>
+
+                    <h4>How to Read Signals</h4>
+                    <p><span class="signal-tag buy">BUY Signal</span> &mdash; A "Buy" signal appears when the stock price crosses above the EMA 20 line, suggesting the start of an upward trend. The further the price is above EMA 20, the stronger the bullish momentum.</p>
+                    <p>Conversely, when price falls below EMA 20, it may indicate weakening momentum and a potential sell opportunity.</p>
+
+                    <h4>Key Takeaway</h4>
+                    <p>EMA 20 is most effective in trending markets. In sideways or choppy markets, it can generate frequent false signals. Combine it with other indicators like RSI for confirmation.</p>
+               `
+          },
+          mtf: {
+               title: "What is MTF (Margin Trading Facility)?",
+               body: `
+                    <h4>How MTF Works</h4>
+                    <p>MTF allows you to buy stocks with <strong>leverage</strong>. With 4x MTF, you can purchase shares worth <strong>4 times</strong> your available capital.</p>
+                    <ul class="modal-list">
+                         <li>You pay only <strong>25%</strong> of the total order value upfront</li>
+                         <li>The remaining <strong>75%</strong> is funded by the broker</li>
+                         <li>Interest charges may apply on the borrowed amount</li>
+                         <li>Higher risk due to amplified exposure</li>
+                    </ul>
+
+                    <h4>Example</h4>
+                    <div class="example-box">
+                         <p class="example-header">If you have <strong>&#8377;10,000</strong> capital</p>
+                         <div class="example-row">
+                              <span>You can buy shares worth</span>
+                              <strong>&#8377;40,000</strong>
+                         </div>
+                         <div class="example-divider"></div>
+                         <div class="example-row">
+                              <span>You pay (25%)</span>
+                              <strong>&#8377;10,000</strong>
+                         </div>
+                         <div class="example-row">
+                              <span>Broker funds (75%)</span>
+                              <strong>&#8377;30,000</strong>
+                         </div>
+
+                         <div class="example-divider"></div>
+                         <p class="example-subheader up">If stock rises 10%</p>
+                         <div class="example-row">
+                              <span>Total value becomes</span>
+                              <strong>&#8377;44,000</strong>
+                         </div>
+                         <div class="example-row">
+                              <span>Profit</span>
+                              <strong class="up">+&#8377;4,000</strong>
+                         </div>
+                         <div class="example-row">
+                              <span>Your return on &#8377;10,000</span>
+                              <strong class="up">+40%</strong>
+                         </div>
+
+                         <div class="example-divider"></div>
+                         <p class="example-subheader down">If stock falls 10%</p>
+                         <div class="example-row">
+                              <span>Total value becomes</span>
+                              <strong>&#8377;36,000</strong>
+                         </div>
+                         <div class="example-row">
+                              <span>Loss</span>
+                              <strong class="down">&minus;&#8377;4,000</strong>
+                         </div>
+                         <div class="example-row">
+                              <span>Your loss on &#8377;10,000</span>
+                              <strong class="down">&minus;40%</strong>
+                         </div>
+                    </div>
+
+                    <div class="warning-badge">
+                         <i class="bi bi-exclamation-triangle-fill"></i>
+                         Leverage increases both profit and loss.
+                    </div>
+               `
+          }
+     };
+
+     const overlay = document.getElementById("indicatorModal");
+     const titleEl = document.getElementById("modalTitle");
+     const bodyEl = document.getElementById("modalBody");
+     const closeBtn = document.getElementById("modalCloseBtn");
+
+     if (!overlay) return;
+
+     function openModal(indicator) {
+          const info = INDICATOR_INFO[indicator];
+          if (!info) return;
+          titleEl.textContent = info.title;
+          bodyEl.innerHTML = info.body;
+          overlay.classList.add("active");
+          document.body.classList.add("indicator-modal-open");
+     }
+
+     function closeModal() {
+          overlay.classList.remove("active");
+          document.body.classList.remove("indicator-modal-open");
+     }
+
+     document.querySelectorAll(".info-btn[data-indicator]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+               openModal(this.dataset.indicator);
+          });
+     });
+
+     closeBtn.addEventListener("click", closeModal);
+
+     overlay.addEventListener("click", function (e) {
+          if (e.target === overlay) closeModal();
+     });
+
+     document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") closeModal();
+     });
+})();

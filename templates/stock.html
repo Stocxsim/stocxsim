@@ -80,6 +80,9 @@
          <div class="order-type-chips">
           <div class="chip active" data-type="market">Delivery</div>
           <div class="chip" data-type="mtf">MTF 4x</div>
+          <button class="info-btn" data-indicator="mtf" aria-label="MTF information">
+            <i class="bi bi-info-circle"></i>
+          </button>
         </div>
 
 
@@ -116,7 +119,12 @@
 
     <div class="indicators-wrapper">
       <div class="gauge-container" id="rsiGauge">
-        <div class="gauge-title">Technical Indicator (RSI)</div>
+        <div class="gauge-title">
+          Technical Indicator (RSI)
+          <button class="info-btn" data-indicator="rsi" aria-label="RSI information">
+            <i class="bi bi-info-circle"></i>
+          </button>
+        </div>
         <div class="indicator-loading hidden" id="loading-rsi">
           <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading RSI"></div>
           <span class="ms-2">Calculating…</span>
@@ -177,7 +185,12 @@
       </div>
 
       <div class="gauge-container" id="ema20Gauge">
-        <div class="gauge-title">Technical Indicator (EMA 20)</div>
+        <div class="gauge-title">
+          Technical Indicator (EMA 20)
+          <button class="info-btn" data-indicator="ema20" aria-label="EMA 20 information">
+            <i class="bi bi-info-circle"></i>
+          </button>
+        </div>
         <div class="indicator-loading hidden" id="loading-ema20">
           <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading EMA 20"></div>
           <span class="ms-2">Calculating…</span>
@@ -235,6 +248,19 @@
         <div class="label-container">
           <div class="label-text" id="label-ema20">Neutral</div>
         </div>
+      </div>
+    </div>
+
+    <!-- Indicator Info Modal -->
+    <div class="indicator-modal-overlay" id="indicatorModal">
+      <div class="indicator-modal">
+        <div class="indicator-modal-header">
+          <h3 class="indicator-modal-title" id="modalTitle"></h3>
+          <button class="indicator-modal-close" id="modalCloseBtn" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="indicator-modal-body" id="modalBody"></div>
       </div>
     </div>
 
