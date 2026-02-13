@@ -288,7 +288,7 @@ function loadUserHoldings(retry = 0) {
                if (document.getElementById("holding-body")) {
                     renderHoldings(data.holdings);
                } 
-               // ✅ Dashboard page only (Aa part fix karyo che)
+               // ✅ Dashboard page only
                else {
                     let totalInvested = 0;
                     let totalCurrent = 0;
@@ -306,14 +306,12 @@ function loadUserHoldings(retry = 0) {
                          totalInvested += buy * qty;
                          totalCurrent += price * qty;
 
-                         // 🔥 3. 1D Calculation Logic add karyu
                          if (prevClose > 0) {
                               totalPrevDayValue += prevClose * qty;
                               totalOneDayPnl += (price - prevClose) * qty;
                          }
                     });
 
-                    // 🔥 4. Have summary ma chare (4) values pass kari
                     updateHoldingsSummary(totalInvested, totalCurrent, totalOneDayPnl, totalPrevDayValue);
                }
           })
@@ -331,7 +329,6 @@ function renderHoldings(holdings) {
      let totalInvested = 0;
      let totalCurrent = 0;
      
-     // 🔥 Aa 2 nava variables add karya initial calculation mate
      let totalOneDayPnl = 0;
      let totalPrevDayValue = 0;
 
@@ -365,10 +362,12 @@ function renderHoldings(holdings) {
           const profit_loss = current_value - invested_value;
           const return_percent = invested_value === 0 ? 0 : (profit_loss / invested_value) * 100;
 
+          // order type lable in holdings row.
+          const order_type = h.order_type;
+
           totalInvested += invested_value;
           totalCurrent += current_value;
 
-          // 🔥 AA LOGIC MISSING HATU - Total 1D P&L Calculation
           if (prev_close > 0) {
                totalPrevDayValue += prev_close * qnt;
                totalOneDayPnl += (market_price - prev_close) * qnt;
@@ -382,7 +381,7 @@ function renderHoldings(holdings) {
                ` <div class="holding-row" data-holding-id="${holdingId}" data-stock-token="${stockToken}" role="button" tabindex="0">
                <div>
                     <strong>${name}</strong>
-                    <p>${qnt} shares · Avg. ₹${buy_price.toFixed(2)}</p>
+                    <p>${qnt} shares · Avg. ₹${buy_price.toFixed(2)} · ${order_type}</p>
                </div>
                <div>
                     <span class="holding-price">₹${market_price.toFixed(2)}</span>
@@ -418,7 +417,6 @@ function renderHoldings(holdings) {
           }
      });
 
-     // 🔥 HAVE AAPNE 4 ARGUMENTS PASS KARISHU
-     // Pehla tame fakt (totalInvested, totalCurrent) pass karta hata, etle 1D 0 aavtu hatu.
+     // first we do just  (totalInvested, totalCurrent) to the summary, so oneDayPnl and prevDayValue were always 0 in the dashboard. Now we pass all 4 values, so the dashboard can show accurate 1D P&L as well.
      updateHoldingsSummary(totalInvested, totalCurrent, totalOneDayPnl, totalPrevDayValue);
 }
