@@ -38,14 +38,30 @@ document.getElementById("actionBtn").addEventListener("click", function() {
   let amount = parseInt(amountInput.value || 0);
 
   if (amount <= 0) {
-    alert("Please enter a valid amount greater than 0.");
+    showOrderBanner(
+  "error",
+  "Invalid amount",
+  "Please enter a valid amount greater than 0."
+);
     return;
   }
 
   if (currentTab === "add") {
-    window.location.href = `/login/add_funds?amount=${amount}`;
-  } else {
-    window.location.href = `/login/withdraw_funds?amount=${amount}`;
+    showOrderBanner(
+      "success",
+      "Money Added",
+      "Amount added to your wallet successfully."
+    );
+    document.getElementById("amountInput").value = 0;
+  }
+
+  if (currentTab === "withdraw") {
+    showOrderBanner(
+      "success",
+      "Withdrawal Successful",
+      "Amount withdrawn from your wallet successfully."
+    );
+    document.getElementById("amountInput").value = 0;
   }
 });
 
@@ -125,4 +141,35 @@ async function showTransaction() {
   } finally {
     loading.classList.add('d-none');
   }
+}
+
+function showOrderBanner(type, message, detail = "") {
+  const banner = document.getElementById("orderBanner");
+  if (!banner) return;
+
+  const icon =
+    type === "success"
+      ? '<i class="bi bi-check-lg"></i>'
+      : '<i class="bi bi-x-lg"></i>';
+
+  banner.className = `order-banner ${type}`;
+  banner.innerHTML = `
+    <div class="order-banner-icon">${icon}</div>
+    <div>
+      <div class="order-banner-title">${message}</div>
+      ${detail ? `<div class="order-banner-detail">${detail}</div>` : ""}
+    </div>
+    <button class="order-banner-close">&times;</button>
+  `;
+
+  banner.classList.add("show");
+
+  banner.querySelector(".order-banner-close").onclick = () => {
+    banner.classList.remove("show");
+  };
+
+  clearTimeout(banner._timer);
+  banner._timer = setTimeout(() => {
+    banner.classList.remove("show");
+  }, 3500);
 }
