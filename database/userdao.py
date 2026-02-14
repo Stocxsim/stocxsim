@@ -85,3 +85,26 @@ def updateBalance(user_id, new_balance):
     finally:
         cur.close()
         return_connection(conn)
+
+def updateUsername(user_id, new_name):
+    query = "UPDATE users SET user_name = %s WHERE user_id = %s"
+    conn = gc()
+    try:
+        cur = conn.cursor()
+        cur.execute(query, (new_name, user_id))
+        conn.commit()
+    finally:
+        cur.close()
+        return_connection(conn)
+
+def updatePassword(user_id, new_password):
+    query = "UPDATE users SET password = %s WHERE user_id = %s"
+    conn = gc()
+    try:
+        cur = conn.cursor()
+        cur.execute(query, (new_password, user_id))
+        conn.commit()
+    finally:
+        cur.close()
+        return_connection(conn)
+

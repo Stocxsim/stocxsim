@@ -7,6 +7,9 @@
 {% endblock %}
 
 {% block content %}
+<!-- TOP ALERT BANNER -->
+<div id="orderBanner" class="order-banner"></div>
+
 <div class="container" style="margin-top: 50px; margin-bottom: 50px;">
 
   <div class="row">
@@ -28,10 +31,6 @@
             <span>Change Password</span>
             <i class="bi bi-chevron-right"></i>
           </li>
-          <li onclick="openSection('pin')">
-            <span>Change PIN</span>
-            <i class="bi bi-chevron-right"></i>
-          </li>
           <li>
             <button class="ms-auto btn" id="logout">Log out</button>
           </li>
@@ -45,7 +44,7 @@
       <div class="profile-card section" id="detailsSection">
         <h5>Personal Details</h5>
 
-        <div class="profile-row">
+        <div class="profile-row profile-row-clickable" data-bs-toggle="modal" data-bs-target="#changeNameModal" style="cursor: pointer;">
           <span class="label">Full Name</span>
           <span class="value">{{ user.username }}</span>
         </div>
@@ -53,11 +52,6 @@
         <div class="profile-row">
           <span class="label">Email Address</span>
           <span class="value">{{ user.email }}</span>
-        </div>
-
-        <div class="profile-row">
-          <span class="label">Mobile Number</span>
-          <span class="value">****69100</span>
         </div>
 
         <div class="profile-row profile-row-clickable" onclick="goToFunds()">
@@ -74,15 +68,15 @@
       <div class="profile-card section section-hidden" id="passwordSection">
         <h5>Change Password</h5>
 
-        <form autocomplete="new-password">
+        <form id="changePasswordForm">
           <div class="form-group">
             <label>New Password</label>
-            <input type="password" class="form-control" autocomplete="new-password" name="new_password">
+            <input type="password" class="form-control" id="newPassword" autocomplete="off" name="new_password">
           </div>
 
           <div class="form-group">
             <label>Confirm New Password</label>
-            <input type="password" class="form-control" autocomplete="new-password" name="confirm_password">
+            <input type="password" class="form-control" id="confirmPassword" autocomplete="off" name="confirm_password">
           </div>
 
           <button class="btn btn-profile-action mt-3">Update Password</button>
@@ -93,33 +87,42 @@
           <div class="bubble bubble-2"></div>
         </form>
       </div>
+    </div>
+  </div>
+</div>
 
-      <!-- CHANGE PIN -->
-      <div class="profile-card section section-hidden" id="pinSection">
+<!-- Change Name Modal -->
+<div class="modal fade" id="changeNameModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
 
-        <h5>Change PIN</h5>
-        <form autocomplete="new-pin">
-          <div class="form-group">
-            <label>New PIN</label>
-            <input type="password" maxlength="4" class="form-control" autocomplete="new-pin">
+      <div class="modal-header">
+        <h5 class="modal-title">Change Full Name</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="changeNameForm">
+          <div class="mb-3">
+            <label class="form-label">New Full Name</label>
+            <input type="text"
+                   class="form-control"
+                   id="newName"
+                   value="{{ user.username }}"
+                   required>
           </div>
 
-          <div class="form-group">
-            <label>Confirm PIN</label>
-            <input type="password" maxlength="4" class="form-control" autocomplete="new-pin">
-          </div>
+          <button type="submit" class="btn w-100" style="background-color: #04b488; color: white;">
+            Update Name
+          </button>
         </form>
-
-        <button class="btn btn-profile-action mt-3">Update PIN</button>
-
-        <div class="bubble bubble-1"></div>
-        <div class="bubble bubble-2"></div>
       </div>
 
     </div>
-
   </div>
 </div>
+<div id="toast-container"></div>
+
 {% endblock %}
 {% block js %}
 <script>
@@ -137,9 +140,6 @@
     }
     else if (type === 'password') {
       document.getElementById('passwordSection').classList.remove('section-hidden');
-    }
-    else if (type === 'pin') {
-      document.getElementById('pinSection').classList.remove('section-hidden');
     }
 
     event.currentTarget?.classList.add('active');
@@ -166,5 +166,136 @@
       }
     });
   } 
+
+  document.getElementById("changeNameForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const newName = document.getElementById("newName").value.trim();
+    if (!newName) return;
+
+    try {
+      const res = await fetch("/profile/update-name", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName })
+      });
+
+      if (res.ok) {
+  showOrderBanner("success", "Name updated", "Your name was updated successfully");
+  setTimeout(() => location.reload(), 800);
+} else {
+  showOrderBanner("error", "Update failed", "Could not update name");
+}
+
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  document.getElementById("changePasswordForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const newPass = document.getElementById("newPassword").value.trim();
+    const confirmPass = document.getElementById("confirmPassword").value.trim();
+
+    if (!newPass || !confirmPass) {
+      showOrderBanner("error", "Invalid input", "Please fill all fields");
+      return;
+    }
+
+    // ✅ VALIDATION WITH SPECIFIC ALERT
+const passwordError = validatePassword(newPass);
+if (passwordError) {
+  showOrderBanner("error", "Weak password", passwordError);
+  // clear both fields
+        document.getElementById("newPassword").value = "";
+        document.getElementById("confirmPassword").value = "";
+
+        // focus first password field again
+        document.getElementById("newPassword").focus();
+return;
+
+}
+
+  // ✅ MATCH CHECK
+  if (newPass !== confirmPass) {
+    showOrderBanner("error", "Password mismatch", "Passwords do not match");
+    document.getElementById("confirmPassword").focus();
+    return;
+  }
+
+    try {
+      const res = await fetch("/profile/update-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          new_password: newPass,
+          confirm_password: confirmPass
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showOrderBanner("success", "Password updated", "Your password was updated successfully");
+        e.target.reset();
+      } else {
+        showOrderBanner("error", "Update failed", data.error || "Could not update password");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  function validatePassword(password) {
+  if (password.length < 8) {
+    return "Password must be at least 8 characters long";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Password must contain at least one uppercase letter";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "Password must contain at least one lowercase letter";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Password must contain at least one digit";
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    return "Password must contain at least one special character";
+  }
+  return null; // ✅ valid password
+}
+
+function showOrderBanner(type, message, detail = "") {
+  const banner = document.getElementById("orderBanner");
+  if (!banner) return;
+
+  const icon =
+    type === "success"
+      ? '<i class="bi bi-check-lg"></i>'
+      : '<i class="bi bi-x-lg"></i>';
+
+  banner.className = `order-banner ${type}`;
+  banner.innerHTML = `
+    <div class="order-banner-icon">${icon}</div>
+    <div>
+      <div class="order-banner-title">${message}</div>
+      ${detail ? `<div class="order-banner-detail">${detail}</div>` : ""}
+    </div>
+    <button class="order-banner-close">&times;</button>
+  `;
+
+  banner.classList.add("show");
+
+  banner.querySelector(".order-banner-close").onclick = () => {
+    banner.classList.remove("show");
+  };
+
+  clearTimeout(banner._timer);
+  banner._timer = setTimeout(() => {
+    banner.classList.remove("show");
+  }, 3500);
+}
 </script>
+
 {% endblock %}

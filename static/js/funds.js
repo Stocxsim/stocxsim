@@ -21,7 +21,7 @@ function switchTab(type) {
 
     actionBtn.innerText = "Withdraw";
 
-    infoBox.innerText = "No balance available to withdraw";
+    infoBox.innerText = "Enter amount to withdraw";
     amountInput.value = 0;
     currentTab = "withdraw";
   }
