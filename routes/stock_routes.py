@@ -31,7 +31,8 @@ def index_snapshot():
                 base = BASELINE_DATA.get(t) or {}
                 prev_close = base.get("prev_close")
                 ltp = base.get("ltp")
-                seed = ltp if ltp is not None else (prev_close if prev_close is not None else 0)
+                seed = ltp if ltp is not None else (
+                    prev_close if prev_close is not None else 0)
 
                 change = base.get("change")
                 percent = base.get("percent")
@@ -46,7 +47,8 @@ def index_snapshot():
 
                 # Compute from seed+prev_close if needed.
                 try:
-                    prev_close_f = float(prev_close) if prev_close is not None else None
+                    prev_close_f = float(
+                        prev_close) if prev_close is not None else None
                 except Exception:
                     prev_close_f = None
                 try:
@@ -57,14 +59,16 @@ def index_snapshot():
                 if change_val is None and ltp_f is not None and prev_close_f is not None:
                     change_val = round(ltp_f - prev_close_f, 2)
                 if pct_val is None and ltp_f is not None and prev_close_f not in (None, 0):
-                    pct_val = round(((ltp_f - prev_close_f) / prev_close_f) * 100, 2)
+                    pct_val = round(
+                        ((ltp_f - prev_close_f) / prev_close_f) * 100, 2)
 
                 if change_val is None:
                     change_val = 0.0
                 if pct_val is None:
                     pct_val = 0.0
 
-                LIVE_INDEX[t] = {"ltp": seed, "change": change_val, "percent_change": pct_val}
+                LIVE_INDEX[t] = {
+                    "ltp": seed, "change": change_val, "percent_change": pct_val}
 
         return jsonify({"index": LIVE_INDEX})
     except Exception as e:
@@ -87,7 +91,7 @@ def subscribe_stock(token):
 
         if angle_ws.ws is None:
             return jsonify({"error": "WS not connected"}), 500
-        
+
         subscribe(angle_ws.ws, 1, str(token))
         return jsonify({"status": "subscribed", "token": token})
     except Exception as e:
@@ -135,7 +139,8 @@ def stock_detail(stock_token):
                      args=([token],), daemon=True).start()
 
     user_id = session.get("user_id")
-    holding = {"quantity": 0, "avg_buy_price": 0}
+    holding_data = {"market": {"quantity": 0, "avg_buy_price": 0},
+                    "mtf": {"quantity": 0, "avg_buy_price": 0}}
     if user_id:
         holding = get_holding_by_user_and_token(user_id, stock_token)
 
@@ -147,7 +152,7 @@ def stock_detail(stock_token):
     else:
         threading.Thread(target=compute_and_cache_indicators,
                          args=(token,), daemon=True).start()
-    return render_template("stock.html", stock=stock, holding=holding)
+    return render_template("stock.html", stock=stock, holdings=holding)
 
 
 @stock_bp.route("/<stock_token>/indicators")

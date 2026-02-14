@@ -3,7 +3,7 @@ from decimal import Decimal, InvalidOperation
 import threading
 import time
 from modal.User import User
-from service.userservice import login_service, signup_service, verify_otp, send_otp, getUserDetails
+from service.userservice import login_service, signup_service, verify_otp_service, send_otp, getUserDetails
 from database.watchlist_dao import get_stock_tokens_by_user
 from service.market_data_service import get_full_market_data, load_baseline_data
 from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlist
@@ -125,7 +125,8 @@ def signup():
 def verify_otp():
     email = request.form.get('email')
     otp = request.form.get('otp')
-    result = verify_otp(email, otp)
+    result = verify_otp_service(email, otp)
+    print(result)
     return jsonify({"message": result})
 
 

@@ -165,8 +165,10 @@ function step2() {
 function step3() {
 
     const otp = document.getElementById("otp").value;
+    const email = document.getElementById("Email").value;
     const form = new FormData();
     form.append("otp", otp);
+    form.append("email", email); 
 
     fetch("/login/verify-otp", {
         method: "POST",
@@ -174,9 +176,10 @@ function step3() {
     })
         .then(res => res.json())
         .then(data => {
-
-            if (data.verified === true) {
+            console.log(data);
+            if (data.message === true) {
                 alert("Account Created Successfully 🎉");
+                window.location.href = "/login/dashboard";
             } else {
                 alert("Invalid OTP");
             }
