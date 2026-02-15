@@ -1,0 +1,17 @@
+# Ignore the virtual environment folder
+.env/
+
+# Ignore the secrets file
+secrets.env
+
+# Ignore python cache
+__pycache__/
+
+# Ignore specific HTML trial files
+try.html
+
+# Ignore specific text notes
+DoItLater.txt
+
+# Log folder
+logs/
