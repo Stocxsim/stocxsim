@@ -333,7 +333,6 @@ sellTab.addEventListener("click", () => {
      submitBtn.classList.add("sell-btn");
 
      syncHoldingUI();
-
      updateApproxReq();
 });
 
@@ -365,7 +364,7 @@ submitBtn.addEventListener("click", async function () {
 
      const payload = {
           symbol_token: STOCK_TOKEN,
-          quantity: Number(qtyValue),                 // number j jaay
+          quantity: Number(qtyValue),
           order_type: currentOrderType,
           price: currentOrderType === "market" ? "" : priceValue,
           transaction_type: currentTransactionType
