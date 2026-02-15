@@ -1,12 +1,17 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv("secrets.env")
+
 POSTGRES = {
     "HOST": "localhost",
-    "PORT": 5432,
+    "PORT": 5433,
     "DB_NAME": "stocxsim",
     "USER": "postgres",
-    "PASSWORD": "Ap1420@810"
+    "PASSWORD": os.getenv("DB_PASSWORD")
 }
 
-API_KEY = "21E7rjit"
-CLIENT_ID = "AACB894292"
-CLIENT_PASSWORD  = "1408"
-TOTP_SECRET = "WIEQHKYWVZYIQY3UKKHH7EGQPI"
+API_KEY = os.getenv("API_KEY")
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_PASSWORD  = os.getenv("CLIENT_PASSWORD")
+TOTP_SECRET = os.getenv("TOTP_SECRET")

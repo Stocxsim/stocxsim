@@ -56,7 +56,7 @@ def update_holding_on_sell(order_details):
             current_quantity = result[0]
             sell_quantity = order_details["quantity"]
 
-            # 🔴 MAIN VALIDATION (THIS WAS MISSING)
+            # 🔴 MAIN VALIDATION
             if sell_quantity > current_quantity:
                 return False, "Insufficient quantity to sell"
             new_quantity = current_quantity - sell_quantity
