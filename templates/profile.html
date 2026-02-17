@@ -71,12 +71,22 @@
         <form id="changePasswordForm">
           <div class="form-group">
             <label>New Password</label>
-            <input type="password" class="form-control" id="newPassword" autocomplete="off" name="new_password">
+            <div class="input-group password-input-group">
+              <input type="password" class="form-control" id="newPassword" autocomplete="new-password" name="new_password">
+              <button type="button" class="btn password-toggle-btn" data-toggle-password="newPassword" aria-label="Show password">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
           </div>
 
           <div class="form-group">
             <label>Confirm New Password</label>
-            <input type="password" class="form-control" id="confirmPassword" autocomplete="off" name="confirm_password">
+            <div class="input-group password-input-group">
+              <input type="password" class="form-control" id="confirmPassword" autocomplete="new-password" name="confirm_password">
+              <button type="button" class="btn password-toggle-btn" data-toggle-password="confirmPassword" aria-label="Show password">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
           </div>
 
           <button class="btn btn-profile-action mt-3">Update Password</button>
@@ -296,6 +306,27 @@ function showOrderBanner(type, message, detail = "") {
     banner.classList.remove("show");
   }, 3500);
 }
+
+  // Show/hide password (eye button)
+  document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const inputId = btn.getAttribute('data-toggle-password');
+      const input = inputId ? document.getElementById(inputId) : null;
+      if (!input) return;
+
+      const willShow = input.type === 'password';
+      input.type = willShow ? 'text' : 'password';
+
+      // User preference: keep a constant eye icon (no eye-slash swapping)
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.classList.add('bi-eye');
+        icon.classList.remove('bi-eye-slash');
+      }
+
+      btn.setAttribute('aria-label', willShow ? 'Hide password' : 'Show password');
+    });
+  });
 </script>
 
 {% endblock %}
