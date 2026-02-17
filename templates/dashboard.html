@@ -20,15 +20,15 @@
             <!-- for js -->
           </div>
         </div>
-        <!-- STOCK STATS MINI BUTTONS -->
-        <div class="watchlist-actions">
-          <button class="mini-btn" onclick="loadChart('weekly')">📊 Weekly Orders</button>
-          <button class="mini-btn" onclick="loadChart('win')">🥧 Win Rate</button>
-          <button class="mini-btn" onclick="loadChart('pl')">💹 Profit / Loss</button>
-          <button class="mini-btn" onclick="loadChart('top')">📈 Top Traded</button>
-        </div>
-        <div class="card">
-            <img id="chartImage" />
+        <!-- CHART SECTION -->
+        <div class="chart-section">
+          <h5 class="text-heading chart-section-title">Performance Overview</h5>
+          <div class="chart-header">
+            <span class="chart-title" id="chartTitle">Weekly Orders</span>
+          </div>
+          <div class="chart-card">
+              <img id="chartImage" alt="Chart" />
+          </div>
         </div>
 
       </main>
@@ -36,21 +36,52 @@
       <!-- RIGHT SIDEBAR -->
       <aside class="col-lg-4 col-12 order-1 order-lg-2">
         <!-- Your investments -->
-        <h5 class="mb-3">Your investments</h5>
-        <div class="card investments-card p-3">
-          <div class="mb-2 text-muted">Current</div>
-          <div id="dashboard-current" class="fs-3 mb-3 text-heading">--</div>
-          <div class="d-flex justify-content-between mb-1">
-            <span class="text-muted">1D returns</span>
-            <span id="dashboard-1d" class="text-down">--</span>
+        <div class="sidebar-card investments-card" id="investmentsCard" onclick="window.location.href='/login/holding'" style="cursor: pointer;">
+          <div class="sidebar-card-header">
+            <h6 class="sidebar-card-title">Your Investments</h6>
           </div>
-          <div class="d-flex justify-content-between mb-1">
-            <span class="text-muted">Total returns</span>
-            <span id="dashboard-total" class="text-up">--</span>
+          <div class="sidebar-card-body">
+            <div class="investment-current">
+              <span class="investment-label">Current Value</span>
+              <span id="dashboard-current" class="investment-value">--</span>
+            </div>
+            <div class="investment-row">
+              <span class="investment-label">1D Returns</span>
+              <span id="dashboard-1d" class="investment-metric text-down">--</span>
+            </div>
+            <div class="investment-row">
+              <span class="investment-label">Total Returns</span>
+              <span id="dashboard-total" class="investment-metric text-up">--</span>
+            </div>
+            <div class="investment-row">
+              <span class="investment-label">Invested</span>
+              <span id="dashboard-invested" class="investment-metric">--</span>
+            </div>
           </div>
-          <div class="d-flex justify-content-between mt-2">
-            <span class="text-muted">Invested</span>
-            <span id="dashboard-invested" class="">--</span>
+        </div>
+
+        <!-- Analytics buttons -->
+        <div class="sidebar-card analytics-card">
+          <div class="sidebar-card-header">
+            <h6 class="sidebar-card-title">Analytics</h6>
+          </div>
+          <div class="sidebar-card-body analytics-body">
+            <button class="analytics-btn active" type="button" data-chart="weekly" onclick="loadChart('weekly')">
+              <i class="bi bi-bar-chart-fill analytics-icon"></i>
+              <span>Weekly Orders</span>
+            </button>
+            <button class="analytics-btn" type="button" data-chart="win" onclick="loadChart('win')">
+              <i class="bi bi-pie-chart-fill analytics-icon"></i>
+              <span>Win Rate</span>
+            </button>
+            <button class="analytics-btn" type="button" data-chart="pl" onclick="loadChart('pl')">
+              <i class="bi bi-graph-up-arrow analytics-icon"></i>
+              <span>Profit / Loss</span>
+            </button>
+            <button class="analytics-btn" type="button" data-chart="top" onclick="loadChart('top')">
+              <i class="bi bi-trophy-fill analytics-icon"></i>
+              <span>Top Traded</span>
+            </button>
           </div>
         </div>
       </aside>

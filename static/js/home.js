@@ -4,6 +4,19 @@ function f1() {
     const email = (emailInput?.value || "").trim();
     const loginError = document.getElementById("login-error");
 
+    if (!isValidEmail(email)) {
+        showOrderBanner(
+  "error",
+  "Invalid Email",
+  "Please enter a valid email address."
+);
+        emailInput.value = "";
+        emailInput.focus();
+        return;
+    }        
+
+
+
     const showLoginError = (message) => {
         if (!loginError) return;
         loginError.textContent = message;
@@ -44,11 +57,7 @@ function f1() {
                 email_in_otp.value = email;
                 document.getElementById("div-1").classList.add("d-none");
                 document.getElementById("div-2").classList.remove("d-none");
-                    showOrderBanner(
-  "error",
-  "Subscription Failed",
-  "Please try again."
-);
+                showOrderBanner("warning","No Account Detected","Looks like you're new here! Please create an account to proceed.");
             }
         });
     }
@@ -233,6 +242,10 @@ function isValidPassword(password) {
   return null; // ✅ valid password
 }
 
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
 
 function isValidUsername(username) {
 
@@ -287,10 +300,15 @@ function showOrderBanner(type, message, detail = "") {
   const banner = document.getElementById("orderBanner");
   if (!banner) return;
 
-  const icon =
-    type === "success"
-      ? '<i class="bi bi-check-lg"></i>'
-      : '<i class="bi bi-x-lg"></i>';
+  let icon = "";
+
+  if (type === "success") {
+    icon = '<i class="bi bi-check-lg"></i>';
+  } else if (type === "warning") {
+    icon = '<i class="bi bi-exclamation-triangle-fill"></i>';
+  } else {
+    icon = '<i class="bi bi-x-lg"></i>'; // error default
+  }
 
   banner.className = `order-banner ${type}`;
   banner.innerHTML = `
