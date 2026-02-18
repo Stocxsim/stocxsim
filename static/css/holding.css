@@ -1,156 +1,517 @@
-/* holding.css — consumes tokens.css variables */
+/* holding.css — Premium Holdings UI */
+
+/* ─── Page Header ─── */
+.holdings-header {
+  padding: var(--space-8) var(--space-8) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
 
 .title {
   font-size: var(--text-2xl);
   font-weight: var(--weight-bold);
-  margin-bottom: var(--space-5);
   color: var(--color-text-heading);
 }
 
-/* Holdings Card */
-.holdings-card {
-  flex: 2.5;
-  background: var(--color-bg-white);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
-}
-
-/* Right Panel */
-.right-panel {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.select-box {
-  flex: 1;
-  display: flex;
+.holdings-count-badge {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: var(--text-base);
-}
-
-.balance-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--text-base);
-}
-
-.balance-box a {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-light);
   color: var(--color-primary);
-  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
 }
 
-.holdings-header {
-  padding: var(--space-8) var(--space-8) var(--space-4);
-}
-
+/* ─── Summary Card ─── */
 .holdings-summary-card {
+  position: relative;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-white);
-  padding: var(--space-5) var(--space-6);
+  padding: 0;
   margin: 0 var(--space-3) var(--space-6) var(--space-3);
   box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: box-shadow var(--transition-base);
 }
 
-.summary-top {
+.holdings-summary-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.summary-accent-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, #38bdf8 50%, var(--color-primary) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+
+  50% {
+    background-position: 100% 0%;
+  }
+}
+
+/* Hero section */
+.summary-hero {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: var(--space-3);
+  padding: var(--space-5) var(--space-6) var(--space-4);
+}
+
+.summary-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .summary-label {
   margin: 0;
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.3px;
 }
 
 .summary-value {
-  margin: var(--space-2) 0 0 0;
-  font-size: 34px;
+  margin: 0;
+  font-size: 36px;
   font-weight: var(--weight-bold);
   color: var(--color-text-dark);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
-.summary-bottom {
+.summary-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  background: var(--color-up-bg);
+  color: var(--color-up);
+  transition: all var(--transition-fast);
+}
+
+.summary-hero-pill.down {
+  background: var(--color-down-bg);
+  color: var(--color-down);
+}
+
+.summary-hero-pill.down i::before {
+  content: "\F127";
+}
+
+/* ─── Metric Cards ─── */
+.summary-metrics {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--space-4);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) var(--space-5);
   border-top: 1px dashed var(--color-border-light);
-  padding-top: var(--space-4);
 }
 
-.summary-item {
+.summary-metric-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-page);
+  border: 1px solid var(--color-border-light);
+  transition: all var(--transition-fast);
+}
+
+.summary-metric-card:hover {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-metric-card.tint-up {
+  background: var(--color-up-bg);
+  border-color: rgba(4, 180, 136, 0.15);
+}
+
+.summary-metric-card.tint-down {
+  background: var(--color-down-bg);
+  border-color: rgba(237, 85, 51, 0.15);
+}
+
+.metric-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-white);
+  color: var(--color-primary);
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.metric-content {
   min-width: 0;
 }
 
-.summary-subvalue {
-  margin-top: var(--space-2);
+.summary-metric-value {
+  margin-top: var(--space-1);
   font-weight: var(--weight-semibold);
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   color: var(--color-text-dark);
 }
 
-@media (max-width: 768px) {
-  .summary-bottom {
-    grid-template-columns: 1fr;
-  }
-  .summary-value {
-    font-size: 28px;
-  }
+/* ─── Holdings Card ─── */
+.holdings-card {
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  margin: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
 }
 
-/* Table */
-.table-header,
+/* ─── Table Header ─── */
+.table-header {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1fr 1fr;
+  padding: var(--space-3) var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background: var(--color-bg-white);
+  z-index: 1;
+}
+
+/* ─── Holding Rows ─── */
 .holding-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  padding: var(--space-3) 0;
-}
-
-.table-header {
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.holding-row p {
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-}
-
-.holding-row {
+  grid-template-columns: 2.5fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: var(--space-3);
   border-bottom: 1px solid var(--color-border-light);
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-md);
+  position: relative;
+  border-left: 3px solid transparent;
+}
+
+.holding-row:last-child {
+  border-bottom: none;
 }
 
 .holding-row:hover {
   background: var(--color-bg-hover);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-sm);
 }
 
-.holding-row > div {
-  padding-right: var(--space-3);
+.holding-row.accent-up {
+  border-left-color: var(--color-up);
 }
 
-.holding-mp-sub,
-.holding-pl-pct,
-.holding-invested {
-  margin: var(--space-1) 0 0 0;
+.holding-row.accent-down {
+  border-left-color: var(--color-down);
+}
+
+/* Stock info cell */
+.holding-stock-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.stock-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-circle);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: #fff;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(4, 180, 136, 0.25);
+}
+
+.stock-details {
+  min-width: 0;
+}
+
+.stock-name {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--color-text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stock-meta {
+  margin: var(--space-1) 0 0;
   font-size: var(--text-xs);
+  color: var(--color-text-muted);
 }
 
+/* Market price cell */
+.holding-price {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--color-text-dark);
+}
+
+.holding-mp-sub {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+/* P&L Pill badges */
+.holding-pl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.holding-pl-pill.up {
+  background: var(--color-up-bg);
+  color: var(--color-up);
+}
+
+.holding-pl-pill.down {
+  background: var(--color-down-bg);
+  color: var(--color-down);
+}
+
+.holding-pl-pct {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+/* Current / invested cell */
+.holding-current {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--color-text-dark);
+}
+
+.holding-invested {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ─── Loading & Empty States ─── */
 .holding-loading {
-  padding: var(--space-5) 0;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-12) 0;
   color: var(--color-text-muted);
   font-size: var(--text-base);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-light);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-circle);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.holding-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-4);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  color: var(--color-border);
+  margin-bottom: var(--space-4);
+}
+
+.empty-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-2);
+}
+
+.empty-subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: 280px;
+}
+
+/* ─── Row Entrance Animation ─── */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.holding-row {
+  animation: fadeSlideIn 0.35s ease forwards;
+  opacity: 0;
+}
+
+.holding-row:nth-child(1) {
+  animation-delay: 0.03s;
+}
+
+.holding-row:nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+.holding-row:nth-child(3) {
+  animation-delay: 0.09s;
+}
+
+.holding-row:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+.holding-row:nth-child(5) {
+  animation-delay: 0.15s;
+}
+
+.holding-row:nth-child(6) {
+  animation-delay: 0.18s;
+}
+
+.holding-row:nth-child(7) {
+  animation-delay: 0.21s;
+}
+
+.holding-row:nth-child(8) {
+  animation-delay: 0.24s;
+}
+
+.holding-row:nth-child(9) {
+  animation-delay: 0.27s;
+}
+
+.holding-row:nth-child(10) {
+  animation-delay: 0.30s;
+}
+
+/* Rows beyond 10 — instant */
+.holding-row:nth-child(n+11) {
+  animation-delay: 0.32s;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .holdings-header {
+    padding: var(--space-5) var(--space-4) var(--space-3);
+  }
+
+  .summary-value {
+    font-size: 28px;
+  }
+
+  .summary-metrics {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .summary-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .holdings-card {
+    margin: 0 var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .holding-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-3);
+    border-left-width: 3px;
+  }
+
+  .holding-stock-info {
+    grid-column: 1 / -1;
+  }
+
+  .stock-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: var(--text-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-hero-pill {
+    align-self: flex-start;
+  }
+
+  .summary-metric-card {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .metric-icon {
+    width: 30px;
+    height: 30px;
+    font-size: var(--text-base);
+  }
 }

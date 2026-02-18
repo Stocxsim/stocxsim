@@ -67,8 +67,8 @@
               <i class="bi bi-chevron-right balance-arrow"></i>
             </div>
 
-            <div class="profile-item all-orders" onclick="goToOrders()">
-              <i class="bi bi-list-check"></i> All Orders
+            <div class="profile-item all-orders" id="transactions" onclick="showTransaction()">
+              <i class="bi bi-list-check"></i> All transactions
             </div>
 
             <div class="profile-footer">
@@ -122,6 +122,105 @@
       </div>
     </div>
   </div>
+
+  <!-- Transactions Modal -->
+<div class="modal fade" id="transactionsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-0">Transactions</h5>
+                    <div class="text-muted small">Recent activity for your account</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="transactionsError" class="alert alert-danger d-none" role="alert"></div>
+                <div id="transactionsLoading" class="d-flex align-items-center gap-2 text-muted">
+                    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+                    <span>Loading transactions…</span>
+                </div>
+
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover align-middle txn-table mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 160px;">Date</th>
+                                <th style="width: 140px;">Type</th>
+                                <th>Asset</th>
+                                <th class="text-end" style="width: 180px;">Amount</th>
+                                <th class="text-center" style="width: 120px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="breakdownModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold text-muted" style="font-size: 0.9rem;">Charges</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-3" style="font-size: 0.85rem;">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Exchange Transaction Charges</span>
+                    <span id="brk_exchange">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Ipft Charges</span>
+                    <span id="brk_ipft">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">GST</span>
+                    <span id="brk_gst">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">SEBI Turnover Charges</span>
+                    <span id="brk_sebi">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Securities Transaction Tax (STT)</span>
+                    <span id="brk_stt">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">DP Charges</span>
+                    <span id="brk_dp">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Stamp Duty</span>
+                    <span id="brk_stamp">₹0.00</span>
+                </div>
+                
+                <hr class="my-3">
+                
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Gross Price</span> <span id="brk_gross_summary"></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Total Charges</span> <span id="brk_total_charges" class="text-danger"></span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Net Price</span>
+                        <span id="breakdownNet" class="fw-bold fs-6 text-dark"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
   <!-- PAGE CONTENT -->
   {% block content %}{% endblock %}

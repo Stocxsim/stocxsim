@@ -12,19 +12,25 @@
   <div class="container my-4">
     <div class="row">
       <!-- LEFT MAIN CONTENT -->
-      <main class="col-lg-8 col-12 order-2 order-lg-1 mb-3 p-4">
-        <!-- cards -->
-        <h5 class="text-heading">My Watchlist</h5>
-        <div class="dashboard-watchlist-scroll">
-          <div id="stocksRow" class="row g-3 flex-nowrap">
-            <!-- for js -->
+      <main class="col-lg-8 col-12 order-2 order-lg-1 mb-3">
+
+        <!-- Watchlist Section -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <h5 class="section-title"><i class="bi bi-star"></i> My Watchlist</h5>
+          </div>
+          <div class="dashboard-watchlist-scroll">
+            <div id="stocksRow" class="watchlist-row-wrap">
+              <!-- for js -->
+            </div>
           </div>
         </div>
+
         <!-- CHART SECTION -->
-        <div class="chart-section">
-          <h5 class="text-heading chart-section-title">Performance Overview</h5>
-          <div class="chart-header">
-            <span class="chart-title" id="chartTitle">Weekly Orders</span>
+        <div class="dashboard-section chart-section">
+          <div class="section-header">
+            <h5 class="section-title"><i class="bi bi-graph-up"></i> Performance Overview</h5>
+            <span class="chart-active-label" id="chartTitle">Weekly Orders</span>
           </div>
           <div class="chart-card">
               <div id="chartContainer"></div>
@@ -35,9 +41,12 @@
 
       <!-- RIGHT SIDEBAR -->
       <aside class="col-lg-4 col-12 order-1 order-lg-2">
-        <!-- Your investments -->
+
+        <!-- Your Investments -->
         <div class="sidebar-card investments-card" id="investmentsCard" onclick="window.location.href='/login/holding'" style="cursor: pointer;">
+          <div class="sidebar-accent-bar"></div>
           <div class="sidebar-card-header">
+            <div class="sidebar-header-icon"><i class="bi bi-wallet2"></i></div>
             <h6 class="sidebar-card-title">Your Investments</h6>
           </div>
           <div class="sidebar-card-body">
@@ -47,11 +56,11 @@
             </div>
             <div class="investment-row">
               <span class="investment-label">1D Returns</span>
-              <span id="dashboard-1d" class="investment-metric text-down">--</span>
+              <span id="dashboard-1d" class="investment-metric">--</span>
             </div>
             <div class="investment-row">
               <span class="investment-label">Total Returns</span>
-              <span id="dashboard-total" class="investment-metric text-up">--</span>
+              <span id="dashboard-total" class="investment-metric">--</span>
             </div>
             <div class="investment-row">
               <span class="investment-label">Invested</span>
@@ -63,6 +72,7 @@
         <!-- Analytics buttons -->
         <div class="sidebar-card analytics-card">
           <div class="sidebar-card-header">
+            <div class="sidebar-header-icon"><i class="bi bi-bar-chart-line"></i></div>
             <h6 class="sidebar-card-title">Analytics</h6>
           </div>
           <div class="sidebar-card-body analytics-body">

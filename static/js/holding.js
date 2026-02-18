@@ -102,7 +102,10 @@ function setHoldingsLoading(isLoading, message = "Loading holdings…") {
      if (!container) return;
 
      if (isLoading) {
-          container.innerHTML = `<div class="holding-loading">${message}</div>`;
+          container.innerHTML = `<div class="holding-loading">
+               <div class="loading-spinner"></div>
+               <span>${message}</span>
+          </div>`;
      }
 }
 
@@ -134,17 +137,13 @@ function updateHoldingPrices(liveStocks) {
      let totalCurrent = 0;
      let oneDayPnl = 0;
      let prevDayValue = 0;
-     
-     // NOTE: holdingsData keys are holding IDs, not stock tokens.
-     // Always use h.symbol_token to map to liveStocks.
+
      Object.keys(holdingsData).forEach(holdingId => {
           const h = holdingsData[holdingId];
           const stockToken = String(h?.symbol_token ?? "");
-          
-          // 🔥 CACHE USE: Direct element uthavo (No querySelector needed)
-          const cachedEls = holdingDOMCache[holdingId]; 
 
-          // 1. Jo Live Price aavi hoy to Data update karo
+          const cachedEls = holdingDOMCache[holdingId];
+
           if (stockToken && liveStocks[stockToken] && liveStocks[stockToken].ltp != null) {
                const newPrice = Number(liveStocks[stockToken].ltp);
                const change = Number(liveStocks[stockToken].change);
@@ -154,7 +153,6 @@ function updateHoldingPrices(liveStocks) {
                if (!Number.isNaN(change)) h.one_day_change = change;
                if (!Number.isNaN(pct)) h.one_day_percent = pct;
 
-               // 2. UI UPDATE (FAST): Cache mathi direct text badlo
                if (cachedEls) {
                     if (cachedEls.priceEl) {
                          cachedEls.priceEl.textContent = formatCurrency(newPrice);
@@ -168,19 +166,17 @@ function updateHoldingPrices(liveStocks) {
                }
           }
 
-          // 3. Calculation Logic (Junu logic same che)
           const buyPrice = Number(h.avg_buy_price ?? 0);
           const quantity = Number(h.quantity ?? 0);
-          
+
           let marketPrice = Number(h.market_price ?? buyPrice);
-          if (marketPrice <= 0) marketPrice = buyPrice; // Fallback
+          if (marketPrice <= 0) marketPrice = buyPrice;
 
           const investedValue = buyPrice * quantity;
           const currentValue = marketPrice * quantity;
           const profitLoss = currentValue - investedValue;
           const returnPercent = investedValue === 0 ? 0 : (profitLoss / investedValue) * 100;
 
-          // 4. P&L Colors & Text Update using Cache
           if (cachedEls) {
                const plClass = returnPercent >= 0 ? "up" : "down";
 
@@ -199,9 +195,14 @@ function updateHoldingPrices(liveStocks) {
                if (cachedEls.currentEl) {
                     cachedEls.currentEl.textContent = `₹${currentValue.toFixed(2)}`;
                }
+
+               // Update row accent border
+               if (cachedEls.rowEl) {
+                    cachedEls.rowEl.classList.remove("accent-up", "accent-down");
+                    cachedEls.rowEl.classList.add(returnPercent >= 0 ? "accent-up" : "accent-down");
+               }
           }
 
-          // 5. Totals Calculation
           totalInvested += investedValue;
           totalCurrent += currentValue;
 
@@ -214,7 +215,6 @@ function updateHoldingPrices(liveStocks) {
           }
      });
 
-     // Update summary totals
      updateHoldingsSummary(totalInvested, totalCurrent, oneDayPnl, prevDayValue);
 }
 
@@ -244,24 +244,49 @@ function updateHoldingsSummary(totalInvested, totalCurrent, oneDayPnl = 0, prevD
           oneDayEl.classList.add(oneDayPnl >= 0 ? "up" : "down");
      }
 
-      // --- Dashboard sidebar elements ---
-    const dashboardInvested = document.getElementById("dashboard-invested");
-    const dashboardCurrent = document.getElementById("dashboard-current");
-    const dashboardTotal = document.getElementById("dashboard-total");
-    const dashboard1D = document.getElementById("dashboard-1d");
+     // Hero pill
+     const heroPill = document.getElementById("total-returns-pill");
+     const heroPillText = document.getElementById("total-returns-pill-text");
+     if (heroPill && heroPillText) {
+          heroPill.classList.remove("up", "down");
+          heroPill.classList.add(totalProfit >= 0 ? "up" : "down");
+          heroPillText.textContent = `${totalReturnPercent >= 0 ? "+" : ""}${totalReturnPercent.toFixed(2)}%`;
+          const icon = heroPill.querySelector("i");
+          if (icon) {
+               icon.className = totalProfit >= 0 ? "bi bi-arrow-up-right" : "bi bi-arrow-down-right";
+          }
+     }
 
-    if (dashboardInvested) dashboardInvested.innerText = `₹${Number(totalInvested).toFixed(2)}`;
-    if (dashboardCurrent) dashboardCurrent.innerText = `₹${Number(totalCurrent).toFixed(2)}`;
-    if (dashboardTotal) {
-        dashboardTotal.innerText = `${totalProfit >= 0 ? "+" : ""}₹${totalProfit.toFixed(2)} (${totalReturnPercent.toFixed(2)}%)`;
-        dashboardTotal.classList.remove("up", "down");
-        dashboardTotal.classList.add(totalProfit >= 0 ? "up" : "down");
-    }
-    if (dashboard1D) {
-        dashboard1D.innerText = `${oneDayPnl >= 0 ? "+" : ""}₹${oneDayPnl.toFixed(2)} (${oneDayPercent.toFixed(2)}%)`;
-        dashboard1D.classList.remove("up", "down");
-        dashboard1D.classList.add(oneDayPnl >= 0 ? "up" : "down");
-    }
+     // Metric card tints
+     const metric1d = document.getElementById("metric-1d");
+     if (metric1d) {
+          metric1d.classList.remove("tint-up", "tint-down");
+          metric1d.classList.add(oneDayPnl >= 0 ? "tint-up" : "tint-down");
+     }
+     const metricTotal = document.getElementById("metric-total");
+     if (metricTotal) {
+          metricTotal.classList.remove("tint-up", "tint-down");
+          metricTotal.classList.add(totalProfit >= 0 ? "tint-up" : "tint-down");
+     }
+
+     // --- Dashboard sidebar elements ---
+     const dashboardInvested = document.getElementById("dashboard-invested");
+     const dashboardCurrent = document.getElementById("dashboard-current");
+     const dashboardTotal = document.getElementById("dashboard-total");
+     const dashboard1D = document.getElementById("dashboard-1d");
+
+     if (dashboardInvested) dashboardInvested.innerText = `₹${Number(totalInvested).toFixed(2)}`;
+     if (dashboardCurrent) dashboardCurrent.innerText = `₹${Number(totalCurrent).toFixed(2)}`;
+     if (dashboardTotal) {
+          dashboardTotal.innerText = `${totalProfit >= 0 ? "+" : ""}₹${totalProfit.toFixed(2)} (${totalReturnPercent.toFixed(2)}%)`;
+          dashboardTotal.classList.remove("up", "down", "text-up", "text-down");
+          dashboardTotal.classList.add(totalProfit >= 0 ? "text-up" : "text-down");
+     }
+     if (dashboard1D) {
+          dashboard1D.innerText = `${oneDayPnl >= 0 ? "+" : ""}₹${oneDayPnl.toFixed(2)} (${oneDayPercent.toFixed(2)}%)`;
+          dashboard1D.classList.remove("up", "down", "text-up", "text-down");
+          dashboard1D.classList.add(oneDayPnl >= 0 ? "text-up" : "text-down");
+     }
 }
 
 function loadUserHoldings(retry = 0) {
@@ -283,16 +308,15 @@ function loadUserHoldings(retry = 0) {
                }
 
                holdingsData = data.holdings;
-               
+
                // ✅ Holdings page
                if (document.getElementById("holding-body")) {
                     renderHoldings(data.holdings);
-               } 
+               }
                // ✅ Dashboard page only
                else {
                     let totalInvested = 0;
                     let totalCurrent = 0;
-                    // 🔥 1. Aa be nava variables add karya
                     let totalOneDayPnl = 0;
                     let totalPrevDayValue = 0;
 
@@ -300,7 +324,6 @@ function loadUserHoldings(retry = 0) {
                          const buy = Number(h.avg_buy_price ?? 0);
                          const qty = Number(h.quantity ?? 0);
                          const price = Number(h.market_price ?? buy ?? 0);
-                         // 🔥 2. Prev Close value lavya calculation mate
                          const prevClose = Number(h.prev_close ?? 0);
 
                          totalInvested += buy * qty;
@@ -320,27 +343,34 @@ function loadUserHoldings(retry = 0) {
                setHoldingsLoading(true, "Unable to load holdings");
           });
 }
-let holdingDOMCache = {}; 
+
+let holdingDOMCache = {};
 
 function renderHoldings(holdings) {
      const container = document.getElementById("holding-body");
      container.innerHTML = "";
-     
+
      let totalInvested = 0;
      let totalCurrent = 0;
-     
+
      let totalOneDayPnl = 0;
      let totalPrevDayValue = 0;
 
      const holdingIds = Object.keys(holdings);
 
+     // Update count badge
+     const countBadge = document.getElementById("holdings-count");
+     if (countBadge) countBadge.textContent = holdingIds.length;
+
      if (holdingIds.length === 0) {
-          container.innerHTML = `<div class="holding-row">No holdings</div>`;
-          console.log("No holdings to display");
+          container.innerHTML = `
+               <div class="holding-empty">
+                    <div class="empty-icon"><i class="bi bi-briefcase"></i></div>
+                    <div class="empty-title">No holdings yet</div>
+                    <div class="empty-subtitle">Start investing to see your portfolio here. Explore stocks and place your first order!</div>
+               </div>`;
           return;
      }
-
-     console.log("holdings to display");
 
      const rows = [];
 
@@ -362,7 +392,6 @@ function renderHoldings(holdings) {
           const profit_loss = current_value - invested_value;
           const return_percent = invested_value === 0 ? 0 : (profit_loss / invested_value) * 100;
 
-          // order type lable in holdings row.
           const order_type = h.order_type;
 
           totalInvested += invested_value;
@@ -376,47 +405,52 @@ function renderHoldings(holdings) {
           const name = (h.stock_short_name || h.stock_name || stockToken || holdingId);
           const plClass = return_percent >= 0 ? "up" : "down";
           const mpClass = oneDayChange >= 0 ? "up" : "down";
+          const accentClass = return_percent >= 0 ? "accent-up" : "accent-down";
+          const avatarInitial = name.charAt(0).toUpperCase();
 
           rows.push(
-               ` <div class="holding-row" data-holding-id="${holdingId}" data-stock-token="${stockToken}" role="button" tabindex="0">
-               <div>
-                    <strong>${name}</strong>
-                    <p>${qnt} shares · Avg. ₹${buy_price.toFixed(2)} · ${order_type}</p>
+               `<div class="holding-row ${accentClass}" data-holding-id="${holdingId}" data-stock-token="${stockToken}" role="button" tabindex="0">
+               <div class="holding-stock-info">
+                    <div class="stock-avatar">${avatarInitial}</div>
+                    <div class="stock-details">
+                         <div class="stock-name">${name}</div>
+                         <p class="stock-meta">${qnt} shares · Avg. ₹${buy_price.toFixed(2)} · ${order_type}</p>
+                    </div>
                </div>
                <div>
                     <span class="holding-price">₹${market_price.toFixed(2)}</span>
                     <p class="holding-mp-sub ${mpClass}">${oneDayChange >= 0 ? "+" : ""}${oneDayChange.toFixed(2)} (${Math.abs(oneDayPct).toFixed(2)}%)</p>
                </div>
-               <div class="${plClass}">
-                    <span class="holding-pl">${profit_loss >= 0 ? '+' : ''}₹${profit_loss.toFixed(2)}</span>
-                    <p class="holding-pl-pct">${return_percent >= 0 ? '+' : ''}${return_percent.toFixed(2)}%</p>
+               <div>
+                    <span class="holding-pl-pill ${plClass}">${profit_loss >= 0 ? "+" : ""}₹${profit_loss.toFixed(2)}</span>
+                    <p class="holding-pl-pct ${plClass}">${return_percent >= 0 ? "+" : ""}${return_percent.toFixed(2)}%</p>
                </div>
                <div>
                     <span class="holding-current">₹${current_value.toFixed(2)}</span>
                     <p class="holding-invested">₹${invested_value.toFixed(2)}</p>
                </div>
-          </div> `
+          </div>`
           );
      });
 
      container.innerHTML = rows.join("");
 
-     // --- Caching Logic (Same as before) ---
-     holdingDOMCache = {}; 
+     // --- Caching Logic ---
+     holdingDOMCache = {};
      const allRows = container.querySelectorAll(".holding-row");
      allRows.forEach(row => {
           const holdingId = row.dataset.holdingId;
           if (holdingId) {
                holdingDOMCache[holdingId] = {
-                    priceEl: row.querySelector(".holding-price"),      
-                    mpSubEl: row.querySelector(".holding-mp-sub"),     
-                    plEl: row.querySelector(".holding-pl"),            
-                    plPctEl: row.querySelector(".holding-pl-pct"),     
-                    currentEl: row.querySelector(".holding-current")   
+                    rowEl: row,
+                    priceEl: row.querySelector(".holding-price"),
+                    mpSubEl: row.querySelector(".holding-mp-sub"),
+                    plEl: row.querySelector(".holding-pl-pill"),
+                    plPctEl: row.querySelector(".holding-pl-pct"),
+                    currentEl: row.querySelector(".holding-current")
                };
           }
      });
 
-     // first we do just  (totalInvested, totalCurrent) to the summary, so oneDayPnl and prevDayValue were always 0 in the dashboard. Now we pass all 4 values, so the dashboard can show accurate 1D P&L as well.
      updateHoldingsSummary(totalInvested, totalCurrent, totalOneDayPnl, totalPrevDayValue);
 }

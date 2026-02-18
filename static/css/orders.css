@@ -1,63 +1,139 @@
-/* orders.css — consumes tokens.css variables */
+/* orders.css — Premium Orders UI */
 
+/* ─── Container ─── */
 .orders-container {
   font-family: var(--font-primary);
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  padding: 0 var(--space-8);
-  margin-top: var(--space-5);
-  gap: var(--space-4);
-  /* Keep sticky filters below navbar/tabs/ticker */
+  padding: var(--space-5) var(--space-8);
+  gap: var(--space-5);
   --orders-sticky-top: calc(var(--navbar-height) + var(--space-16) + var(--space-4));
 }
 
+/* ─── Filter Panel ─── */
 .filters {
-  flex: 1 1 250px;
-  min-width: 250px;
-  padding: var(--space-4);
+  flex: 1 1 260px;
+  min-width: 260px;
+  max-width: 300px;
+  background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: var(--color-bg-white);
   box-shadow: var(--shadow-card);
+  overflow: hidden;
   position: sticky;
   top: var(--orders-sticky-top);
   max-height: calc(100vh - var(--orders-sticky-top) - var(--space-4));
   overflow-y: auto;
+  transition: box-shadow var(--transition-base);
 }
 
-.orders-list {
-  flex: 3 1 600px;
-  padding: var(--space-4);
+.filters:hover {
+  box-shadow: var(--shadow-md);
 }
 
-.order-item {
-  border-bottom: 1px solid var(--color-border-light);
-  padding: var(--space-3) 0;
+.filter-accent-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, #38bdf8 50%, var(--color-primary) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+
+  50% {
+    background-position: 100% 0%;
+  }
+}
+
+.filter-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  transition: background var(--transition-fast);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
-.order-item:hover {
-  background: var(--color-bg-hover);
+.filter-title {
+  margin: 0;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-md);
+  color: var(--color-text-heading);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.order-info {
-  flex: 1 1 300px;
+.filter-title i {
+  color: var(--color-primary);
 }
 
-.date-range {
-  margin-top: var(--space-3);
+.filter-clear {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: var(--weight-medium);
+  transition: opacity var(--transition-fast);
 }
 
-.date-box {
-  flex: 1;
-  cursor: pointer;
+.filter-clear:hover {
+  opacity: 0.7;
+  color: var(--color-primary);
 }
 
+/* Filter sections */
+.filter-section {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.filter-section:last-child {
+  border-bottom: none;
+}
+
+.filter-section-label {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+/* Search in filter */
+.filter-search-wrap {
+  position: relative;
+}
+
+.filter-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.filter-search-input {
+  padding-left: 36px !important;
+  border-radius: var(--radius-md) !important;
+  font-size: var(--text-sm) !important;
+  border: 1px solid var(--color-border) !important;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast) !important;
+}
+
+.filter-search-input:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px var(--color-primary-light) !important;
+}
+
+/* Date inputs */
 .date-box input {
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-3);
@@ -73,22 +149,63 @@
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
-.order-status {
+.date-box label {
   font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
+}
+
+/* BUY / SELL pill toggles */
+.filter-toggles {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.filter-toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-toggle-pill input {
+  display: none;
+}
+
+.filter-toggle-pill span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
-  color: var(--color-bg-white);
-}
-
-.order-arrow {
-  font-size: var(--text-lg);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-white);
   color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
 }
 
-/* Scrollbar styling for sticky filters */
+.filter-toggle-pill.buy input:checked+span {
+  background: var(--color-up-bg);
+  border-color: var(--color-up);
+  color: var(--color-up);
+}
+
+.filter-toggle-pill.sell input:checked+span {
+  background: var(--color-down-bg);
+  border-color: var(--color-down);
+  color: var(--color-down);
+}
+
+.filter-toggle-pill span:hover {
+  border-color: var(--color-text-muted);
+}
+
+/* Scrollbar */
 .filters::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .filters::-webkit-scrollbar-track {
@@ -100,20 +217,314 @@
   border-radius: var(--radius-sm);
 }
 
-.filters::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+/* ─── Orders List ─── */
+.orders-list-wrap {
+  flex: 3 1 600px;
 }
 
+.orders-list-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 0 var(--space-4);
+}
+
+.orders-title {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xl);
+  color: var(--color-text-heading);
+}
+
+.orders-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.orders-list {
+  min-height: 200px;
+}
+
+/* Date separator */
+.order-date-separator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.order-date-separator:first-child {
+  margin-top: 0;
+}
+
+.order-date-separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-light);
+}
+
+/* Order card row */
+.order-card {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  border-left: 4px solid transparent;
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  cursor: default;
+  animation: fadeSlideIn 0.3s ease forwards;
+  opacity: 0;
+}
+
+.order-card:hover {
+  transform: translateX(3px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── BUY card: green tint ─── */
+.order-card.accent-buy {
+  border-left-color: var(--color-up);
+  background: linear-gradient(90deg, rgba(4, 180, 136, 0.06) 0%, var(--color-bg-white) 50%);
+}
+
+.order-card.accent-buy:hover {
+  background: linear-gradient(90deg, rgba(4, 180, 136, 0.10) 0%, var(--color-bg-hover) 50%);
+  box-shadow: -2px 0 8px rgba(4, 180, 136, 0.15), var(--shadow-sm);
+}
+
+/* ─── SELL card: red tint ─── */
+.order-card.accent-sell {
+  border-left-color: var(--color-down);
+  background: linear-gradient(90deg, rgba(237, 85, 51, 0.06) 0%, var(--color-bg-white) 50%);
+}
+
+.order-card.accent-sell:hover {
+  background: linear-gradient(90deg, rgba(237, 85, 51, 0.10) 0%, var(--color-bg-hover) 50%);
+  box-shadow: -2px 0 8px rgba(237, 85, 51, 0.15), var(--shadow-sm);
+}
+
+/* Order info section */
+.order-stock-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 2;
+  min-width: 0;
+}
+
+.order-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-circle);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.order-avatar.buy {
+  background: #10b981 !important;
+}
+
+.order-avatar.sell {
+  background: #ef4444 !important;
+}
+
+.order-stock-details {
+  min-width: 0;
+}
+
+.order-stock-name {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--color-text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.order-stock-meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* Order type badge */
+.order-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-type-badge.buy {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.order-type-badge.sell {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+/* Order data cells */
+.order-data-cell {
+  flex: 1;
+  text-align: center;
+}
+
+.order-data-value {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--color-text-dark);
+}
+
+.order-data-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 1px;
+}
+
+/* Order time cell */
+.order-time-cell {
+  flex: 0.8;
+  text-align: right;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ─── Loading & Empty ─── */
+.orders-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-16) 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-light);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-4);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  color: var(--color-border);
+  margin-bottom: var(--space-4);
+}
+
+.empty-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-2);
+}
+
+.empty-subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: 280px;
+}
+
+/* ─── Row Entrance Animation ─── */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation applied via JS inline style for proper stagger with date separators */
+
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
   .orders-container {
     flex-direction: column;
-    padding: 0 var(--space-4);
+    padding: var(--space-3) var(--space-4);
   }
+
   .filters {
-    border-bottom: 1px solid var(--color-border);
     position: static;
     top: auto;
     max-height: none;
     overflow: visible;
+    max-width: 100%;
+  }
+
+  .order-card {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .order-stock-info {
+    flex: 1 1 100%;
+  }
+
+  .order-data-cell {
+    flex: 1 1 auto;
+  }
+
+  .order-time-cell {
+    flex: 1 1 100%;
+    text-align: left;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border-light);
   }
 }
