@@ -46,6 +46,12 @@ def get_order(user_id, filter_params=None):
         conditions = []
 
         if filter_params:
+            # ✅ Stock filter (exact match on symbol_token)
+            symbol_token = filter_params.get("symbol_token")
+            if symbol_token:
+                conditions.append("symbol_token = %s")
+                values.append(symbol_token)
+
             # ✅ Date handling
             from_date = filter_params.get("from_date")
             to_date = filter_params.get("to_date")
@@ -160,11 +166,12 @@ def search_order(query_text):
 
         sql = """
             SELECT 
-                s.stock_short_name, 
-                o.transaction_type, 
-                o.quantity, 
-                o.price, 
-                o.created_at, 
+                s.stock_short_name,
+                s.stock_token,
+                o.transaction_type,
+                o.quantity,
+                o.price,
+                o.created_at,
                 o.order_type,
                 s.stock_name
             FROM orders o

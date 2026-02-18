@@ -13,16 +13,16 @@
         <div class="col-md-7">
             <div class="card p-4 text-center">
                 <h6 class="text-muted">Stocks balance</h6>
-                <h2 id="stocksBalance" class="text-heading">₹{{ user.balance }}</h2>
+                <h2 id="stocksBalance" class="text-heading">&#8377;{{ user.balance }}</h2>
                 <hr>
 
                 <div class="d-flex justify-content-between">
                     <span>Cash</span>
-                    <strong id="cashBalance" class="text-heading">₹{{ user.balance }}</strong>
+                    <strong id="cashBalance" class="text-heading">&#8377;{{ user.balance }}</strong>
                 </div>
             </div>
 
-            <div class="card mt-3 p-3 d-flex justify-content-between flex-row align-items-center" id="transactions"
+            <div class="card mt-3 p-3 d-flex justify-content-between flex-row align-items-center" id="fundsTransactionsCard"
                 onclick="showTransaction()">
                 <span>All transactions</span>
                 <i class="bi bi-chevron-right"></i>
@@ -46,13 +46,13 @@
                     class="form-control text-center fs-1 fw-bold border-0 amount-input" value="0" min="0">
                 <div class="d-flex justify-content-center gap-3 my-4">
                     <button class="btn btn-light rounded-pill" onclick="addAmount(1000)">
-                        +₹1,000
+                        +&#8377;1,000
                     </button>
                     <button class="btn btn-light rounded-pill" onclick="addAmount(5000)">
-                        +₹5,000
+                        +&#8377;5,000
                     </button>
                     <button class="btn btn-light rounded-pill" onclick="addAmount(10000)">
-                        +₹10,000
+                        +&#8377;10,000
                     </button>
                 </div>
 
@@ -69,51 +69,15 @@
 
     </div>
 </div>
-<!-- Transactions Modal -->
-<div class="modal fade" id="transactionsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
-                    <h5 class="modal-title mb-0">Transactions</h5>
-                    <div class="text-muted small">Recent activity for your account</div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-                <div id="transactionsError" class="alert alert-danger d-none" role="alert"></div>
-                <div id="transactionsLoading" class="d-flex align-items-center gap-2 text-muted">
-                    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
-                    <span>Loading transactions…</span>
-                </div>
-
-                <div class="table-responsive mt-3">
-                    <table class="table table-hover align-middle txn-table mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 160px;">Date</th>
-                                <th style="width: 140px;">Type</th>
-                                <th>Asset</th>
-                                <th class="text-end" style="width: 180px;">Amount</th>
-                                <th class="text-center" style="width: 120px;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 <div id="orderBanner" class="order-banner"></div>
 
 
-<div class="indicator-modal-overlay" id="breakdownModal">
+
+
+{% endblock %}
+
+{% block breakdown_modal %}
+<div class="indicator-modal-overlay" id="breakdownOverlay">
     <div class="indicator-modal">
         <div class="indicator-modal-header">
             <h3 class="indicator-modal-title">Charges</h3>
@@ -124,31 +88,31 @@
         <div class="indicator-modal-body">
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Exchange Transaction Charges</span>
-                <span id="brk_exchange">₹0.00</span>
+                <span id="brk_exchange">&#8377;0.00</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Ipft Charges</span>
-                <span id="brk_ipft">₹0.00</span>
+                <span id="brk_ipft">&#8377;0.00</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">GST</span>
-                <span id="brk_gst">₹0.00</span>
+                <span id="brk_gst">&#8377;0.00</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">SEBI Turnover Charges</span>
-                <span id="brk_sebi">₹0.00</span>
+                <span id="brk_sebi">&#8377;0.00</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Securities Transaction Tax (STT)</span>
-                <span id="brk_stt">₹0.00</span>
+                <span id="brk_stt">&#8377;0.00</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">DP Charges</span>
-                <span id="brk_dp">₹0.00</span>
+                <span id="brk_dp">&#8377;0.00</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Stamp Duty</span>
-                <span id="brk_stamp">₹0.00</span>
+                <span id="brk_stamp">&#8377;0.00</span>
             </div>
 
             <hr class="my-3">
@@ -169,10 +133,7 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
-
-
 {% block js %}
 <script src="/static/js/funds.js"></script>
 {% endblock %}

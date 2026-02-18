@@ -19,6 +19,16 @@ if (clearFiltersBtn) {
                else el.value = "";
           });
 
+          if (searchInput) {
+               delete searchInput.dataset.symbolToken;
+               delete searchInput.dataset.symbol;
+          }
+
+          if (resultsBox) {
+               resultsBox.style.display = "none";
+               resultsBox.innerHTML = "";
+          }
+
           fetchOrders();
      });
 }
@@ -162,6 +172,10 @@ function getFilterParams() {
           params.transaction_type = transaction_type;
      }
 
+     if (searchInput && searchInput.dataset && searchInput.dataset.symbolToken) {
+          params.symbol_token = searchInput.dataset.symbolToken;
+     }
+
      return params;
 }
 
@@ -171,13 +185,21 @@ const searchInput = document.getElementById('orderSearchInput');
 const resultsBox = document.getElementById('orderSearchResults');
 let debounceTimer;
 
+if (searchInput && resultsBox) {
 searchInput.addEventListener("input", function () {
      const query = this.value.trim();
+
+     // If user edits text after selection, drop the selected token
+     if (this.dataset && this.dataset.symbolToken) {
+          delete this.dataset.symbolToken;
+          delete this.dataset.symbol;
+     }
 
      // 1. Clear previous timer and results if input is short
      clearTimeout(debounceTimer);
      if (query.length == 0) {
           resultsBox.style.display = "none";
+          resultsBox.innerHTML = "";
           return;
      }
 
@@ -192,28 +214,44 @@ searchInput.addEventListener("input", function () {
                resultsBox.innerHTML = "";
 
                if (orders.length === 0) {
-                    resultsBox.innerHTML = '<div class="p-3 text-center text-muted small">No matching orders found</div>';
+                    resultsBox.innerHTML = '<div class="p-3 text-center text-muted small">No matching stocks found</div>';
                } else {
                     orders.forEach(order => {
                          const div = document.createElement("div");
-                         div.className = "p-2 border-bottom order-item-hover";
-                         div.style.cursor = "pointer";
+                         div.className = "order-search-result-item";
 
                          // Map 'type' from your Python: row[1]
                          const typeClass = order.type === 'BUY' ? 'text-success' : 'text-danger';
 
+                         const displayName = order.name || "";
+                         const token = order.symbol_token;
+                         const shortName = order.symbol;
+
                          div.innerHTML = `
                               <div class="d-flex justify-content-between align-items-start">
                                    <div>
-                                        <div class="fw-bold mb-0">${order.symbol}</div>
-                                        <div class="text-muted small" style="font-size: 0.7rem;">${order.full_name}</div> <div class="text-muted extra-small" style="font-size: 0.75rem;">Qty: ${order.qty} | Price: ₹${order.price}</div>
+                                        <div class="fw-bold mb-0">${shortName}</div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;">${displayName}</div>
                                    </div>
                                    <div class="text-end">
                                         <div class="small ${typeClass} fw-bold">${order.type}</div>
-                                        <div class="text-muted extra-small" style="font-size: 0.7rem;">${order.date}</div>
+                                        <div class="text-muted extra-small" style="font-size: 0.75rem;">${order.date || ""}</div>
                                    </div>
                               </div>
-                              `;
+                         `;
+
+                         div.addEventListener("click", () => {
+                              if (token) {
+                                   searchInput.dataset.symbolToken = token;
+                                   searchInput.dataset.symbol = shortName;
+                              }
+
+                              // Keep input readable but simple
+                              searchInput.value = shortName;
+                              resultsBox.style.display = "none";
+                              resultsBox.innerHTML = "";
+                              fetchOrders();
+                         });
                          resultsBox.appendChild(div);
                     });
                }
@@ -230,3 +268,4 @@ document.addEventListener("click", (e) => {
           resultsBox.style.display = "none";
      }
 });
+}
