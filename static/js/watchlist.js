@@ -3,60 +3,13 @@ socket.on("connect", () => {
   console.log("✅ Socket connected:", socket.id);
 });
 
-// fetch("/stocks/watchlist")
-//   .then(res => res.json())
-//   .then(stocks => {
-//     const tbody = document.getElementById("watchlistBody");
-//     tbody.innerHTML = "";
-
-//     stocks.forEach(stock => {
-//       const isUp = stock.change >= 0;
-
-//       const row = document.createElement("tr");
-//       row.id = "token-" + stock.token;
-
-//       row.innerHTML = `
-//         <td>
-//           <div class="company-cell">
-//             <div class="logo">${stock.name ? stock.name[0].toUpperCase() : "?"}</div>
-//             <div>
-//               <div class="company-name">${stock.name}</div>
-//             </div>
-//           </div>
-//         </td>
-
-//         <td>
-//           <span class="trend ${isUp ? "up" : "down"}">
-//                 ${isUp ? "↗" : "↘"}
-//           </span>
-//         </td>
-
-//         <td class="text-end">
-//           ${typeof stock.price === "number"
-//           ? "₹" + stock.price.toFixed(2)
-//           : "--"}
-//         </td>
-
-//         <td class="text-end ${isUp ? "text-success" : "text-danger"}">
-//           ${typeof stock.change === "number"
-//           ? `${isUp ? "+" : ""}${stock.change} (${stock.change_pct}%)`
-//           : "--"}
-//         </td>
-
-//         <td class="text-end">--</td>
-//         <td class="text-end perf">L ───●── H</td>
-//       `;
-
-//       tbody.appendChild(row);
-//     });
-//   });
 // Page load
 fetch("/watchlist/api")
   .then(res => res.json())
   .then(stocks => {
     buildTable(stocks);
 
-    // 👇 apply last known prices
+    // Apply last known prices
     Object.keys(latestPrices).forEach(token => {
       updateWatchlistRow(token, latestPrices[token]);
     });
@@ -66,7 +19,6 @@ fetch("/watchlist/api")
 let latestPrices = {};
 
 socket.on("live_prices", data => {
-  console.log("Watchlist live prices:", data);
   latestPrices = data.stocks;
   Object.keys(data.stocks).forEach(token => {
     updateWatchlistRow(token, data.stocks[token]);
@@ -75,15 +27,14 @@ socket.on("live_prices", data => {
 
 function updateWatchlistRow(token, info) {
   const row = document.getElementById("token-" + token);
-  if (!row) return; // aa token watchlist ma nathi
+  if (!row) return;
 
-  const priceEl = row.querySelector(".price");
-  const changeEl = row.querySelector(".change");
-  const trendEl = row.querySelector(".trend");
+  const priceEl = row.querySelector(".wl-price");
+  const changeEl = row.querySelector(".wl-change-pill");
+  const trendEl = row.querySelector(".wl-trend-pill");
 
   if (!priceEl || !changeEl || !trendEl) return;
 
-  // safety
   if (
     info.ltp === undefined ||
     info.change === undefined ||
@@ -101,57 +52,62 @@ function updateWatchlistRow(token, info) {
   // price update
   priceEl.innerText = "₹" + ltp.toFixed(2);
 
-  // change + %
+  // change pill
   changeEl.innerText =
     `${isUp ? "+" : ""}${change.toFixed(2)} (${percent.toFixed(2)}%)`;
-
-  changeEl.classList.remove("up", "down");
+  changeEl.classList.remove("up", "down", "neutral");
   changeEl.classList.add(isUp ? "up" : "down");
 
-  // TREND UI 
+  // trend pill
   trendEl.innerText = isUp ? "↗" : "↘";
-  trendEl.classList.remove("up", "down");
+  trendEl.classList.remove("up", "down", "neutral");
   trendEl.classList.add(isUp ? "up" : "down");
 }
 
 function buildTable(stocks) {
-  console.log("Building watchlist table:", stocks);
-  const tbody = document.getElementById("watchlistBody");
-  tbody.innerHTML = "";
+  const container = document.getElementById("watchlistBody");
+  container.innerHTML = "";
+
+  // Update count badge
+  const countBadge = document.getElementById("watchlist-count");
+  if (countBadge) countBadge.textContent = stocks ? stocks.length : 0;
+
+  if (!stocks || stocks.length === 0) {
+    container.innerHTML = `
+      <div class="watchlist-empty">
+        <div class="empty-icon"><i class="bi bi-eye"></i></div>
+        <div class="empty-title">Your watchlist is empty</div>
+        <div class="empty-subtitle">Search for stocks and add them to your watchlist to track them here!</div>
+      </div>`;
+    return;
+  }
 
   stocks.forEach(stock => {
-    const isUp = stock.change >= 0;
+    const initial = stock.name ? stock.name[0].toUpperCase() : "?";
 
-    const row = document.createElement("tr");
+    const row = document.createElement("div");
+    row.className = "watchlist-row";
     row.id = "token-" + stock.token;
 
-    // 🔥 CLICK EVENT
+    // Click to navigate
     row.addEventListener("click", () => {
-      const params = new URLSearchParams({
-        token: stock.token,
-        name: stock.name
-      });
-
       window.location.href = `/stocks/${stock.token}`;
     });
 
     row.innerHTML = `
-      <td>
-        <div class="company-cell">
-          <div class="logo">
-            ${stock.name ? stock.name[0].toUpperCase() : "?"}
-          </div>
-          <div class="company-name">${stock.name}</div>
-        </div>
-      </td>
-
-      <td>
-        <span class="trend">--</span>
-      </td>
-      <td class="text-end price">--</td>
-      <td class="text-end change">--</td>
+      <div class="wl-company-cell">
+        <div class="wl-avatar">${initial}</div>
+        <div class="wl-stock-name">${stock.name}</div>
+      </div>
+      <div class="wl-trend">
+        <span class="wl-trend-pill neutral">--</span>
+      </div>
+      <div class="wl-price">--</div>
+      <div class="wl-change-cell">
+        <span class="wl-change-pill neutral">--</span>
+      </div>
     `;
 
-    tbody.appendChild(row);
+    container.appendChild(row);
   });
 }

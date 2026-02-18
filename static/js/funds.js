@@ -51,7 +51,7 @@ async function refreshBalance() {
   }
 }
 
-document.getElementById("actionBtn").addEventListener("click", async function() {
+document.getElementById("actionBtn").addEventListener("click", async function () {
   const amountInput = document.getElementById("amountInput");
   const infoBox = document.getElementById("infoBox");
   let amount = parseFloat(amountInput.value || 0);
