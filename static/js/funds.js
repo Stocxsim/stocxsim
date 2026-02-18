@@ -267,7 +267,6 @@ async function showTransaction() {
   } finally {
     loading.classList.add('d-none');
   }
-<<<<<<<<< Temporary merge branch 1
 }
 
 function showOrderBanner(type, message, detail = "") {
