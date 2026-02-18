@@ -24,8 +24,8 @@ function showOrderBanner(type, message, detail) {
      banner.innerHTML =
           '<div class="order-banner-icon">' + icon + '</div>' +
           '<div class="order-banner-content">' +
-               '<div class="order-banner-title">' + message + '</div>' +
-               (detail ? '<div class="order-banner-detail">' + detail + '</div>' : '') +
+          '<div class="order-banner-title">' + message + '</div>' +
+          (detail ? '<div class="order-banner-detail">' + detail + '</div>' : '') +
           '</div>' +
           '<button class="order-banner-close" aria-label="Close"><i class="bi bi-x"></i></button>';
 

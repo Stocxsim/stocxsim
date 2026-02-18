@@ -106,17 +106,22 @@ function buildDashboardWatchlist(stocks) {
     }
 
     const cached = latestPrices[stock.token];
+    const initial = stock.name ? stock.name[0].toUpperCase() : "?";
 
     const wrapper = document.createElement("div");
     wrapper.className = "watchlist-item";
 
+    const changeClass = cached ? (cached.change >= 0 ? "up" : "down") : "";
+    const changeText = cached
+      ? `${cached.change >= 0 ? "+" : ""}${cached.change.toFixed(2)} (${cached.percent_change.toFixed(2)}%)`
+      : "--";
+
     wrapper.innerHTML = `
-          <div class="stock_card p-3" id="${String(stock.token)}">
-               <div class="stock_name mb-2">${stock.name}</div>
+          <div class="stock_card" id="${String(stock.token)}">
+               <div class="stock_avatar">${initial}</div>
+               <div class="stock_name">${stock.name}</div>
                <div class="stock_price price">${cached ? cached.ltp.toFixed(2) : "--"}</div>
-               <div class="stock_change change ${cached ? (cached.change >= 0 ? "up" : "down") : ""}">
-                    ${cached ? `${cached.change >= 0 ? "+" : ""}${cached.change.toFixed(2)} (${cached.percent_change.toFixed(2)}%)` : "--"}
-               </div>
+               <div class="stock_change change ${changeClass}">${changeText}</div>
           </div>
           `;
 
@@ -171,25 +176,27 @@ function updateDashboardSidebarTotals(holdings) {
     current += qty * ltp;
     totalReturn += (ltp - avg) * qty;
 
-    // 1D return: (market_price - prev_close) * quantity
-    // Only add if prev_close is a valid number
     if (prev !== null && !isNaN(prev)) {
       oneDayReturn += (ltp - prev) * qty;
     }
-    // If prev_close is missing, skip this holding (do not add 0 or NaN)
   });
 
-  // Format values, never show NaN or 0 unless truly empty
+  // Format values
   dashboardCurrent.innerText = current
     ? `₹${current.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
     : "--";
   dashboardInvested.innerText = invested
     ? `₹${invested.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
     : "--";
+
+  // Total returns with color coding
   dashboardTotal.innerText = totalReturn
-    ? `${totalReturn >= 0 ? "+" : ""}${totalReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+    ? `${totalReturn >= 0 ? "+" : ""}₹${Math.abs(totalReturn).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
     : "--";
-  // 1D return: show '--' if no valid holdings, else show value
+  dashboardTotal.classList.remove("text-up", "text-down");
+  if (totalReturn !== 0) dashboardTotal.classList.add(totalReturn >= 0 ? "text-up" : "text-down");
+
+  // 1D return with color coding
   if (
     typeof oneDayReturn === "number" &&
     !isNaN(oneDayReturn) &&
@@ -200,7 +207,9 @@ function updateDashboardSidebarTotals(holdings) {
         !isNaN(Number(h.prev_close)),
     )
   ) {
-    dashboard1d.innerText = `${oneDayReturn >= 0 ? "+" : ""}${oneDayReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    dashboard1d.innerText = `${oneDayReturn >= 0 ? "+" : ""}₹${Math.abs(oneDayReturn).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    dashboard1d.classList.remove("text-up", "text-down");
+    dashboard1d.classList.add(oneDayReturn >= 0 ? "text-up" : "text-down");
   } else {
     dashboard1d.innerText = "--";
   }

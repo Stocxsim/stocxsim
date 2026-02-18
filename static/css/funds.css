@@ -92,7 +92,7 @@
   max-width: 520px;
   padding: 14px 16px;
   border-radius: 12px;
-  box-shadow: 0 10px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -102,7 +102,8 @@
 }
 
 .order-banner.show {
-  display: flex;           /* 👈 SHOW ONLY WHEN NEEDED */
+  display: flex;
+  /* 👈 SHOW ONLY WHEN NEEDED */
   opacity: 1;
   transform: translate(-50%, 30px);
 }
