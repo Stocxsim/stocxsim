@@ -356,7 +356,7 @@ body {
 .indicators-wrapper {
     display: flex;
     gap: var(--space-10);
-    margin:  var(--space-10) var(--space-10) var(--space-10) var(--space-10);
+    margin: var(--space-10) var(--space-10) var(--space-10) var(--space-10);
     justify-content: center;
     align-items: flex-start;
 }
@@ -433,11 +433,25 @@ body {
 }
 
 /* Label color zones — uses gauge token colors */
-.color-strong-sell { color: var(--color-gauge-strong-sell); }
-.color-sell { color: var(--color-gauge-sell); }
-.color-neutral { color: var(--color-gauge-neutral); }
-.color-buy { color: var(--color-gauge-buy); }
-.color-strong-buy { color: var(--color-gauge-strong-buy); }
+.color-strong-sell {
+    color: var(--color-gauge-strong-sell);
+}
+
+.color-sell {
+    color: var(--color-gauge-sell);
+}
+
+.color-neutral {
+    color: var(--color-gauge-neutral);
+}
+
+.color-buy {
+    color: var(--color-gauge-buy);
+}
+
+.color-strong-buy {
+    color: var(--color-gauge-strong-buy);
+}
 
 /* Control Buttons */
 .button-container {
@@ -470,23 +484,60 @@ body {
     transform: translateY(0);
 }
 
-.btn-strong-sell { border-color: var(--color-gauge-strong-sell); color: var(--color-gauge-strong-sell); }
-.btn-strong-sell:hover { background: var(--color-gauge-strong-sell); color: white; }
+.btn-strong-sell {
+    border-color: var(--color-gauge-strong-sell);
+    color: var(--color-gauge-strong-sell);
+}
 
-.btn-sell { border-color: var(--color-gauge-sell); color: var(--color-gauge-sell); }
-.btn-sell:hover { background: var(--color-gauge-sell); color: white; }
+.btn-strong-sell:hover {
+    background: var(--color-gauge-strong-sell);
+    color: white;
+}
 
-.btn-neutral { border-color: var(--color-gauge-neutral); color: var(--color-gauge-neutral); }
-.btn-neutral:hover { background: var(--color-gauge-neutral); color: white; }
+.btn-sell {
+    border-color: var(--color-gauge-sell);
+    color: var(--color-gauge-sell);
+}
 
-.btn-buy { border-color: var(--color-gauge-buy); color: var(--color-gauge-buy); }
-.btn-buy:hover { background: var(--color-gauge-buy); color: white; }
+.btn-sell:hover {
+    background: var(--color-gauge-sell);
+    color: white;
+}
 
-.btn-strong-buy { border-color: var(--color-gauge-strong-buy); color: var(--color-gauge-strong-buy); }
-.btn-strong-buy:hover { background: var(--color-gauge-strong-buy); color: white; }
+.btn-neutral {
+    border-color: var(--color-gauge-neutral);
+    color: var(--color-gauge-neutral);
+}
+
+.btn-neutral:hover {
+    background: var(--color-gauge-neutral);
+    color: white;
+}
+
+.btn-buy {
+    border-color: var(--color-gauge-buy);
+    color: var(--color-gauge-buy);
+}
+
+.btn-buy:hover {
+    background: var(--color-gauge-buy);
+    color: white;
+}
+
+.btn-strong-buy {
+    border-color: var(--color-gauge-strong-buy);
+    color: var(--color-gauge-strong-buy);
+}
+
+.btn-strong-buy:hover {
+    background: var(--color-gauge-strong-buy);
+    color: white;
+}
 
 /* Utility */
-.cursor-pointer { cursor: pointer; }
+.cursor-pointer {
+    cursor: pointer;
+}
 
 /* ============================================
    Responsive Design
@@ -725,8 +776,13 @@ body.indicator-modal-open {
     margin: 0 0 var(--space-2) 0;
 }
 
-.example-subheader.up { color: var(--color-up); }
-.example-subheader.down { color: var(--color-down); }
+.example-subheader.up {
+    color: var(--color-up);
+}
+
+.example-subheader.down {
+    color: var(--color-down);
+}
 
 .example-row {
     display: flex;
@@ -736,8 +792,13 @@ body.indicator-modal-open {
     font-size: var(--text-sm);
 }
 
-.example-row .up { color: var(--color-up); }
-.example-row .down { color: var(--color-down); }
+.example-row .up {
+    color: var(--color-up);
+}
+
+.example-row .down {
+    color: var(--color-down);
+}
 
 .example-divider {
     height: 1px;
@@ -867,4 +928,3 @@ body.indicator-modal-open {
         width: calc(100% - 24px);
     }
 }
-

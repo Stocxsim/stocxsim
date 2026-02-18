@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}order - Stocxsim{% endblock %}
+{% block title %}Orders - Stocxsim{% endblock %}
 
 {% block css %}
 <link rel="stylesheet" href="/static/css/orders.css">
@@ -8,46 +8,64 @@
 
 {% block content %}
 <div class="container-fluid orders-container">
+
     <!-- Filters -->
     <div class="filters rounded">
-        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom">
-            <h5>Filters</h5>
-            <a id="clearFilters" href="#" class="text-success text-decoration-none">Clear all</a>
+        <div class="filter-accent-bar"></div>
+        <div class="filter-header">
+            <h6 class="filter-title"><i class="bi bi-funnel"></i> Filters</h6>
+            <a id="clearFilters" href="#" class="filter-clear">Clear all</a>
         </div>
 
-        
-        <div class="mb-3 pb-3 border-bottom">
-            <input type="text" class="form-control" placeholder="Search for a Stock">
-        </div>
-
-        <div class="date-range d-flex gap-2">
-            <div class="date-box">
-                <label class="form-label mb-1" for="fromDate">From date</label>
-                <input type="date" class="form-control" id="fromDate">
-            </div>
-
-            <div class="date-box">
-                <label class="form-label mb-1" for="toDate">To date</label>
-                <input type="date" class="form-control" id="toDate">
+        <div class="filter-section">
+            <label class="filter-section-label">Search</label>
+            <div class="filter-search-wrap">
+                <i class="bi bi-search filter-search-icon"></i>
+                <input type="text" class="form-control filter-search-input" placeholder="Search for a stock…">
             </div>
         </div>
 
-
-        <div class="mb-3">
-            <div class="form-check m-2">
-                <input class="form-check-input" type="checkbox" id="buyOrders">
-                <label class="form-check-label" for="buyOrders">Buy orders</label>
+        <div class="filter-section">
+            <label class="filter-section-label">Date Range</label>
+            <div class="date-range d-flex gap-2">
+                <div class="date-box">
+                    <label class="form-label mb-1" for="fromDate">From</label>
+                    <input type="date" class="form-control" id="fromDate">
+                </div>
+                <div class="date-box">
+                    <label class="form-label mb-1" for="toDate">To</label>
+                    <input type="date" class="form-control" id="toDate">
+                </div>
             </div>
-            <div class="form-check border-bottom pb-2 m-2">
-                <input class="form-check-input" type="checkbox" id="sellOrders">
-                <label class="form-check-label" for="sellOrders">Sell orders</label>
+        </div>
+
+        <div class="filter-section">
+            <label class="filter-section-label">Transaction Type</label>
+            <div class="filter-toggles">
+                <label class="filter-toggle-pill buy">
+                    <input type="checkbox" id="buyOrders">
+                    <span><i class="bi bi-arrow-down-left"></i> Buy</span>
+                </label>
+                <label class="filter-toggle-pill sell">
+                    <input type="checkbox" id="sellOrders">
+                    <span><i class="bi bi-arrow-up-right"></i> Sell</span>
+                </label>
             </div>
         </div>
     </div>
 
     <!-- Orders List -->
-    <div class="orders-list">
-        <!-- For js -->
+    <div class="orders-list-wrap">
+        <div class="orders-list-header">
+            <h5 class="orders-title">Orders</h5>
+            <span class="orders-count-badge" id="orders-count">0</span>
+        </div>
+        <div class="orders-list" id="orders-body">
+            <div class="orders-loading">
+                <div class="loading-spinner"></div>
+                <span>Loading orders…</span>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

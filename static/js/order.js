@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+     setOrdersLoading(true);
      fetchOrders();
 });
 
@@ -23,8 +24,20 @@ if (clearFiltersBtn) {
 }
 
 
+function setOrdersLoading(isLoading, message = "Loading orders…") {
+     const container = document.getElementById("orders-body");
+     if (!container) return;
+     if (isLoading) {
+          container.innerHTML = `<div class="orders-loading">
+               <div class="loading-spinner"></div>
+               <span>${message}</span>
+          </div>`;
+     }
+}
+
 function fetchOrders() {
      const filterParams = getFilterParams();
+     setOrdersLoading(true);
      fetch("/order/history", {
           method: "POST",
           headers: {
@@ -40,83 +53,91 @@ function fetchOrders() {
           })
           .catch(err => {
                console.error("Orders fetch failed:", err);
+               setOrdersLoading(false, "Unable to load orders");
           });
 }
 
 function buildOrdersList(orders) {
-     const container = document.querySelector(".orders-list");
+     const container = document.getElementById("orders-body");
      container.innerHTML = "";
+
+     // Update count badge
+     const countBadge = document.getElementById("orders-count");
+     if (countBadge) countBadge.textContent = orders ? orders.length : 0;
 
      if (!orders || orders.length === 0) {
           container.innerHTML = `
-      <div class="text-center text-muted mt-5">
-        No orders found
-      </div>
-    `;
+               <div class="orders-empty">
+                    <div class="empty-icon"><i class="bi bi-receipt"></i></div>
+                    <div class="empty-title">No orders found</div>
+                    <div class="empty-subtitle">Your executed orders will appear here. Try adjusting your filters or place a new order!</div>
+               </div>`;
           return;
      }
 
-     let lastDate = ""; // Track the date change
+     let lastDate = "";
+     let cardIndex = 0;
 
      orders.forEach(order => {
-
-          // Insert date header if the date has changed
+          // Date separator
           if (order.date !== lastDate) {
                lastDate = order.date;
-               const dateHeader = document.createElement("div");
-               dateHeader.className = "mt-4 mb-2 fw-bold text-muted small border-bottom";
-               dateHeader.innerHTML = lastDate;
-               container.appendChild(dateHeader);
+               const sep = document.createElement("div");
+               sep.className = "order-date-separator";
+               sep.innerHTML = `<span>${lastDate}</span>`;
+               container.appendChild(sep);
           }
 
+          const isBuy = order.transaction_type.toUpperCase() === "BUY";
+          const accentClass = isBuy ? "accent-buy" : "accent-sell";
+          const typeClass = isBuy ? "buy" : "sell";
+          const initial = order.symbol ? order.symbol.charAt(0).toUpperCase() : "?";
 
-          const item = document.createElement("div");
-          item.className =
-               "order-item d-flex justify-content-between align-items-center mb-3";
+          const card = document.createElement("div");
+          card.className = `order-card ${accentClass}`;
+          card.style.animationDelay = `${Math.min(cardIndex * 0.03, 0.3)}s`;
+          cardIndex++;
 
-          item.innerHTML = `
-      <div class="col order-info">
-        <strong class="text-heading">${order.symbol}</strong><br>
-        <small>
-          ${order.transaction_type} · ${order.order_type} 
-        </small>
-      </div>
+          card.innerHTML = `
+               <div class="order-stock-info">
+                    <div class="order-avatar ${typeClass}">${initial}</div>
+                    <div class="order-stock-details">
+                         <div class="order-stock-name">${order.symbol}</div>
+                         <div class="order-stock-meta">
+                              <span class="order-type-badge ${typeClass}">
+                                   <i class="bi ${isBuy ? 'bi-arrow-down-left' : 'bi-arrow-up-right'}"></i>
+                                   ${order.transaction_type}
+                              </span>
+                              · ${order.order_type}
+                         </div>
+                    </div>
+               </div>
+               <div class="order-data-cell">
+                    <div class="order-data-value">${order.quantity}</div>
+                    <div class="order-data-label">Qty</div>
+               </div>
+               <div class="order-data-cell">
+                    <div class="order-data-value">₹${Number(order.price).toFixed(2)}</div>
+                    <div class="order-data-label">Price</div>
+               </div>
+               <div class="order-time-cell">
+                    ${order.time}
+               </div>
+          `;
 
-      <div class="col text-center">
-        ${order.quantity}<br>
-        <small>Qty</small>
-      </div>
-
-      <div class="col text-center">
-        ₹${Number(order.price).toFixed(2)}<br>
-        <small>price</small>
-      </div>
-
-      <div class="col text-center ms-1">
-          ${order.time}
-          <span class="order-arrow ${order.transaction_type === "BUY" ? "up" : "down"
-               }">
-          &#8250;
-          </span>
-     </div>
-    `;
-
-          container.appendChild(item);
+          container.appendChild(card);
      });
 }
+
 const fromDate = document.getElementById("fromDate");
 const toDate = document.getElementById("toDate");
 
 fromDate.addEventListener("change", function () {
-    const selectedFromDate = this.value;
-
-    // toDate ma minimum date set karo
-    toDate.min = selectedFromDate;
-
-    // jo already select karel toDate fromDate karta nani hoy to clear kari do
-    if (toDate.value && toDate.value < selectedFromDate) {
-        toDate.value = "";
-    }
+     const selectedFromDate = this.value;
+     toDate.min = selectedFromDate;
+     if (toDate.value && toDate.value < selectedFromDate) {
+          toDate.value = "";
+     }
 });
 
 function getFilterParams() {

@@ -1,115 +1,372 @@
-/* watchlist.css — consumes tokens.css variables */
+/* watchlist.css — Premium Watchlist UI */
 
-.groww-card {
+/* ─── Card Container ─── */
+.watchlist-card {
   background: var(--color-bg-white);
   border-radius: var(--radius-xl);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   overflow: hidden;
   box-shadow: var(--shadow-card);
+  transition: box-shadow var(--transition-base);
 }
 
-/* Header */
-.groww-header {
+.watchlist-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.watchlist-accent-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, #38bdf8 50%, var(--color-primary) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+
+  50% {
+    background-position: 100% 0%;
+  }
+}
+
+/* ─── Header ─── */
+.watchlist-header {
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border-light);
 }
 
-.active-tab {
-  font-weight: var(--weight-semibold);
-  position: relative;
-}
-
-.active-tab::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -16px;
-  width: 100%;
-  height: 2px;
-  background: var(--color-text-dark);
-}
-
-/* Table */
-.groww-table thead th {
-  background-color: var(--color-bg-hover);
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-  font-weight: var(--weight-medium);
-  border-bottom: 1px solid var(--color-border-light);
-  padding: var(--space-3) var(--space-5);
-}
-
-.groww-table tbody td {
-  padding: var(--space-4) var(--space-5);
-  font-size: var(--text-sm);
-  vertical-align: middle;
-}
-
-.groww-table tbody tr {
-  border-bottom: 1px solid var(--color-border-light);
-  transition: background var(--transition-fast);
-  cursor: pointer;
-}
-
-.groww-table tbody tr:hover {
-  background: var(--color-bg-hover);
-}
-
-/* Horizontal scroll */
-.table-scroll {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Prevent table from squeezing */
-.groww-table {
-  min-width: 700px;
-}
-
-/* Company */
-.company-cell {
+.watchlist-title-group {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
-.logo {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
+.watchlist-title {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: var(--color-text-heading);
+}
+
+.watchlist-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
   background: var(--color-primary-light);
   color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+/* ─── Column Header ─── */
+.watchlist-col-header {
+  display: grid;
+  grid-template-columns: 2.5fr 0.8fr 1fr 1.2fr;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-bg-hover);
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.wl-col-price,
+.wl-col-change {
+  text-align: right;
+}
+
+.wl-col-trend {
+  text-align: center;
+}
+
+/* ─── Watchlist Body ─── */
+.watchlist-body {
+  min-height: 120px;
+}
+
+/* ─── Stock Row ─── */
+.watchlist-row {
+  display: grid;
+  grid-template-columns: 2.5fr 0.8fr 1fr 1.2fr;
+  align-items: center;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-left: 3px solid transparent;
+}
+
+.watchlist-row:last-child {
+  border-bottom: none;
+}
+
+.watchlist-row:hover {
+  background: var(--color-bg-hover);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Company cell */
+.wl-company-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.wl-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-circle);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: #fff;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(4, 180, 136, 0.25);
+}
+
+.wl-stock-name {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--color-text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Trend cell */
+.wl-trend {
+  text-align: center;
+  font-size: var(--text-lg);
   font-weight: var(--weight-bold);
 }
 
-.logo.dark {
-  background: var(--color-text-dark);
-  color: var(--color-bg-white);
+.wl-trend-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-base);
+  transition: all var(--transition-fast);
 }
 
-.company-name {
-  font-weight: var(--weight-medium);
-}
-
-/* Trend */
-.trend {
-  font-size: var(--text-lg);
-}
-
-.trend.up {
+.wl-trend-pill.up {
+  background: var(--color-up-bg);
   color: var(--color-up);
 }
 
-.trend.down {
+.wl-trend-pill.down {
+  background: var(--color-down-bg);
   color: var(--color-down);
 }
 
-/* 52W perf */
-.perf {
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
+.wl-trend-pill.neutral {
+  background: var(--color-bg-hover);
+  color: var(--color-text-muted);
+}
+
+/* Price cell */
+.wl-price {
+  text-align: right;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--color-text-dark);
+}
+
+/* Change cell */
+.wl-change-cell {
+  text-align: right;
+}
+
+.wl-change-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.wl-change-pill.up {
+  background: var(--color-up-bg);
+  color: var(--color-up);
+}
+
+.wl-change-pill.down {
+  background: var(--color-down-bg);
+  color: var(--color-down);
+}
+
+.wl-change-pill.neutral {
+  background: var(--color-bg-hover);
+  color: var(--color-text-muted);
+}
+
+/* ─── Loading & Empty ─── */
+.watchlist-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-12) 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-light);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.watchlist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-4);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  color: var(--color-border);
+  margin-bottom: var(--space-4);
+}
+
+.empty-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-2);
+}
+
+.empty-subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: 280px;
+}
+
+/* ─── Row Entrance Animation ─── */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.watchlist-row {
+  animation: fadeSlideIn 0.3s ease forwards;
+  opacity: 0;
+}
+
+.watchlist-row:nth-child(1) {
+  animation-delay: 0.03s;
+}
+
+.watchlist-row:nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+.watchlist-row:nth-child(3) {
+  animation-delay: 0.09s;
+}
+
+.watchlist-row:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+.watchlist-row:nth-child(5) {
+  animation-delay: 0.15s;
+}
+
+.watchlist-row:nth-child(6) {
+  animation-delay: 0.18s;
+}
+
+.watchlist-row:nth-child(7) {
+  animation-delay: 0.21s;
+}
+
+.watchlist-row:nth-child(8) {
+  animation-delay: 0.24s;
+}
+
+.watchlist-row:nth-child(9) {
+  animation-delay: 0.27s;
+}
+
+.watchlist-row:nth-child(10) {
+  animation-delay: 0.30s;
+}
+
+.watchlist-row:nth-child(n+11) {
+  animation-delay: 0.32s;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .watchlist-col-header {
+    display: none;
+  }
+
+  .watchlist-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-4);
+    border-left-width: 3px;
+  }
+
+  .wl-company-cell {
+    grid-column: 1 / -1;
+  }
+
+  .wl-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: var(--text-sm);
+  }
+
+  .wl-trend {
+    text-align: left;
+  }
+
+  .wl-price {
+    text-align: right;
+  }
 }
