@@ -267,7 +267,6 @@ async function showTransaction() {
   } finally {
     loading.classList.add('d-none');
   }
-
 }
 
 function showOrderBanner(type, message, detail = "") {
