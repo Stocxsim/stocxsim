@@ -17,6 +17,20 @@ from utils.tokens import INDEX_TOKENS
 
 user_bp = Blueprint('user_bp', __name__)
 
+
+def _parse_amount_from_request() -> Decimal:
+    """Parse amount from JSON body, form, or querystring."""
+    if request.is_json:
+        payload = request.get_json(silent=True) or {}
+        raw = payload.get("amount", "0")
+    else:
+        raw = request.form.get("amount") or request.args.get("amount", "0")
+
+    try:
+        return Decimal(str(raw))
+    except (InvalidOperation, TypeError):
+        raise ValueError("invalid_amount")
+
 _post_login_init_lock = threading.Lock()
 _post_login_init_inflight = set()
 
@@ -215,20 +229,25 @@ def get_balance():
         return jsonify({"error": "User not logged in"}), 401
     
     balance = checkBalance(session['user_id'])
-    return jsonify({"balance": balance})
+    return jsonify({"balance": str(balance if balance is not None else 0)})
 
-@user_bp.route("/add_funds")
+@user_bp.route("/add_funds", methods=["GET", "POST"])
 def add_funds():
     if not session.get("logged_in") or "user_id" not in session:
+        if request.method == "POST":
+            return jsonify({"error": "unauthorized"}), 401
         return redirect("/")
 
-    amount_raw = request.args.get("amount", "0")
     try:
-        amount = Decimal(str(amount_raw))
-    except (InvalidOperation, TypeError):
+        amount = _parse_amount_from_request()
+    except ValueError:
+        if request.method == "POST":
+            return jsonify({"error": "invalid_amount"}), 400
         return redirect("/profile/funds?error=invalid_amount")
 
     if amount <= 0:
+        if request.method == "POST":
+            return jsonify({"error": "invalid_amount"}), 400
         return redirect("/profile/funds?error=invalid_amount")
 
     user_id = session["user_id"]
@@ -237,30 +256,41 @@ def add_funds():
 
     updateBalance(user_id, new_balance)
     record_transaction(user_id, amount, "ADD")
+    if request.method == "POST":
+        return jsonify({"success": True, "balance": str(new_balance)})
     return redirect("/profile/funds?success=added")
 
 
-@user_bp.route("/withdraw_funds")
+@user_bp.route("/withdraw_funds", methods=["GET", "POST"])
 def withdraw_funds():
     if not session.get("logged_in") or "user_id" not in session:
+        if request.method == "POST":
+            return jsonify({"error": "unauthorized"}), 401
         return redirect("/")
 
-    amount_raw = request.args.get("amount", "0")
     try:
-        amount = Decimal(str(amount_raw))
-    except (InvalidOperation, TypeError):
+        amount = _parse_amount_from_request()
+    except ValueError:
+        if request.method == "POST":
+            return jsonify({"error": "invalid_amount"}), 400
         return redirect("/profile/funds?error=invalid_amount")
 
     if amount <= 0:
+        if request.method == "POST":
+            return jsonify({"error": "invalid_amount"}), 400
         return redirect("/profile/funds?error=invalid_amount")
 
     user_id = session["user_id"]
     current_balance = Decimal(str(checkBalance(user_id) or 0))
 
     if current_balance < amount:
+        if request.method == "POST":
+            return jsonify({"error": "insufficient_balance", "balance": str(current_balance)}), 400
         return redirect("/profile/funds?error=insufficient_balance")
 
     new_balance = current_balance - amount
     updateBalance(user_id, new_balance)
     record_transaction(user_id, amount, "WITHDRAW")
+    if request.method == "POST":
+        return jsonify({"success": True, "balance": str(new_balance)})
     return redirect("/profile/funds?success=withdrawn")

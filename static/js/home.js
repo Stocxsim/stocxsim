@@ -4,6 +4,19 @@ function f1() {
     const email = (emailInput?.value || "").trim();
     const loginError = document.getElementById("login-error");
 
+    if (!isValidEmail(email)) {
+        showOrderBanner(
+  "error",
+  "Invalid Email",
+  "Please enter a valid email address."
+);
+        emailInput.value = "";
+        emailInput.focus();
+        return;
+    }        
+
+
+
     const showLoginError = (message) => {
         if (!loginError) return;
         loginError.textContent = message;
@@ -38,13 +51,13 @@ function f1() {
         }).then(response => response.json()).then(data => {
             if (data.message === true) {
                 passwordSection.classList.remove("d-none");
-                alert("Email found. Please enter your password to login.");
+                showOrderBanner("success","Email Verified","Please enter your password to login.");
             } else {
                 const email_in_otp = document.getElementById("Email_readonly");
                 email_in_otp.value = email;
                 document.getElementById("div-1").classList.add("d-none");
                 document.getElementById("div-2").classList.remove("d-none");
-                alert("Subscription failed. Please try again.");
+                showOrderBanner("warning","No Account Detected","Looks like you're new here! Please create an account to proceed.");
             }
         });
     }
@@ -72,7 +85,11 @@ function f1() {
                 }, 1500);
 
             } else {
-                alert("Wrong password");
+                showOrderBanner(
+  "error",
+  "Login Failed",
+  "Wrong password. Please try again."
+);
             }
         });
     }
@@ -95,7 +112,11 @@ function step2() {
 
     // validation of Username
     if (!isValidUsername(username)) {
-        alert("Username must be 3-15 characters long and contain only letters.");
+        showOrderBanner(
+  "error",
+  "Invalid Username",
+  "Username must be 3–15 characters long and contain only letters."
+);
         // clear the field
         input.value = "";
         // focus again so user can re-enter
@@ -110,10 +131,9 @@ function step2() {
     const pass1 = pass1Input.value;
     const pass2 = pass2Input.value;
 
-    if (!isValidPassword(pass1)) {
+    if (isValidPassword(pass1)) {
 
-        alert("Password must be at least 8 characters long and include at least one digit, one uppercase letter, one lowercase letter, and one special character.");
-
+        showOrderBanner("error", "Weak password", isValidPassword(pass1));
         // clear both fields
         pass1Input.value = "";
         pass2Input.value = "";
@@ -125,8 +145,11 @@ function step2() {
     }
 
     if (pass1 !== pass2) {
-        alert("Passwords do not match");
-
+        showOrderBanner(
+  "error",
+  "Password Mismatch",
+  "Both passwords must be the same."
+);
         // clear both again
         pass2Input.value = "";
 
@@ -153,7 +176,11 @@ function step2() {
                 document.getElementById("div-2").classList.add("d-none");
                 document.getElementById("div-3").classList.remove("d-none");
             } else {
-                alert("Signup failed");
+                showOrderBanner(
+  "error",
+  "Signup Failed",
+  "Please try again."
+);
             }
 
         });
@@ -178,10 +205,18 @@ function step3() {
         .then(data => {
             console.log(data);
             if (data.message === true) {
-                alert("Account Created Successfully 🎉");
+                showOrderBanner(
+  "success",
+  "Account Created",
+  "Your account has been created successfully 🎉",
+);
                 window.location.href = "/login/dashboard";
             } else {
-                alert("Invalid OTP");
+                showOrderBanner(
+  "error",
+  "Invalid OTP",
+  "Please try again."
+);
             }
         });
 
@@ -190,26 +225,27 @@ function step3() {
 function isValidPassword(password) {
 
     if (password.length < 8) {
-        return false;
-    }
-
-    if (!/[0-9]/.test(password)) {   // must contain a digit
-        return false;
-    }
-
-    if (!/[A-Z]/.test(password)) {   // must contain uppercase
-        return false;
-    }
-
-    if (!/[a-z]/.test(password)) {   // must contain lowercase
-        return false;
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) { // must contain special char
-        return false;
-    }
-    return true;
+    return "Password must be at least 8 characters long";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Password must contain at least one uppercase letter";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "Password must contain at least one lowercase letter";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Password must contain at least one digit";
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    return "Password must contain at least one special character";
+  }
+  return null; // ✅ valid password
 }
 
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
 
 function isValidUsername(username) {
 
@@ -259,3 +295,39 @@ window.addEventListener("popstate", () => {
     hideLoginSpinner();
     checkAuthAndRedirect();
 });
+
+function showOrderBanner(type, message, detail = "") {
+  const banner = document.getElementById("orderBanner");
+  if (!banner) return;
+
+  let icon = "";
+
+  if (type === "success") {
+    icon = '<i class="bi bi-check-lg"></i>';
+  } else if (type === "warning") {
+    icon = '<i class="bi bi-exclamation-triangle-fill"></i>';
+  } else {
+    icon = '<i class="bi bi-x-lg"></i>'; // error default
+  }
+
+  banner.className = `order-banner ${type}`;
+  banner.innerHTML = `
+    <div class="order-banner-icon">${icon}</div>
+    <div>
+      <div class="order-banner-title">${message}</div>
+      ${detail ? `<div class="order-banner-detail">${detail}</div>` : ""}
+    </div>
+    <button class="order-banner-close">&times;</button>
+  `;
+
+  banner.classList.add("show");
+
+  banner.querySelector(".order-banner-close").onclick = () => {
+    banner.classList.remove("show");
+  };
+
+  clearTimeout(banner._timer);
+  banner._timer = setTimeout(() => {
+    banner.classList.remove("show");
+  }, 3500);
+}

@@ -13,12 +13,12 @@
         <div class="col-md-7">
             <div class="card p-4 text-center">
                 <h6 class="text-muted">Stocks balance</h6>
-                <h2 class="text-heading">₹{{ user.balance }}</h2>
+                <h2 id="stocksBalance" class="text-heading">₹{{ user.balance }}</h2>
                 <hr>
 
                 <div class="d-flex justify-content-between">
                     <span>Cash</span>
-                    <strong class="text-heading">₹{{ user.balance }}</strong>
+                    <strong id="cashBalance" class="text-heading">₹{{ user.balance }}</strong>
                 </div>
             </div>
 
@@ -114,6 +114,7 @@
         </div>
     </div>
 </div>
+<div id="orderBanner" class="order-banner"></div>
 
 
 <div class="modal fade" id="breakdownModal" tabindex="-1" aria-hidden="true">

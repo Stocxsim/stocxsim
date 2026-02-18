@@ -21,7 +21,7 @@ function switchTab(type) {
 
     actionBtn.innerText = "Withdraw";
 
-    infoBox.innerText = "No balance available to withdraw";
+    infoBox.innerText = "Enter amount to withdraw";
     amountInput.value = 0;
     currentTab = "withdraw";
   }
@@ -29,25 +29,87 @@ function switchTab(type) {
 
 function addAmount(value) {
   const amountInput = document.getElementById("amountInput");
-  let current = parseInt(amountInput.value || 0);
-  amountInput.value = current + value;
+  let current = parseFloat(amountInput.value || 0);
+  if (Number.isNaN(current)) current = 0;
+  amountInput.value = current + Number(value || 0);
 }
 
-document.getElementById("actionBtn").addEventListener("click", function() {
-  const amountInput = document.getElementById("amountInput");
-  let amount = parseInt(amountInput.value || 0);
+async function refreshBalance() {
+  const stocksEl = document.getElementById('stocksBalance');
+  const cashEl = document.getElementById('cashBalance');
+  if (!stocksEl && !cashEl) return;
 
-  if (amount <= 0) {
-    alert("Please enter a valid amount greater than 0.");
+  try {
+    const res = await fetch('/login/get-balance', { headers: { 'Accept': 'application/json' } });
+    const data = await res.json();
+    if (!res.ok) return;
+    const formatted = formatINR(data.balance);
+    if (stocksEl) stocksEl.textContent = formatted;
+    if (cashEl) cashEl.textContent = formatted;
+  } catch (e) {
+    // non-fatal
+  }
+}
+
+document.getElementById("actionBtn").addEventListener("click", async function() {
+  const amountInput = document.getElementById("amountInput");
+  const infoBox = document.getElementById("infoBox");
+  let amount = parseFloat(amountInput.value || 0);
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    showOrderBanner(
+      "error",
+      "Invalid amount",
+      "Please enter a valid amount greater than 0."
+    );
     return;
   }
 
-  if (currentTab === "add") {
-    window.location.href = `/login/add_funds?amount=${amount}`;
-  } else {
-    window.location.href = `/login/withdraw_funds?amount=${amount}`;
+  const endpoint = currentTab === 'add' ? '/login/add_funds' : '/login/withdraw_funds';
+  const verbLabel = currentTab === 'add' ? 'Add money' : 'Withdraw';
+  if (infoBox) infoBox.textContent = `Processing ${verbLabel.toLowerCase()}…`;
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ amount })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = data && data.error ? String(data.error) : 'request_failed';
+      if (err === 'insufficient_balance') {
+        showOrderBanner('error', 'Insufficient balance', 'Not enough cash to withdraw this amount.');
+      } else if (err === 'unauthorized') {
+        showOrderBanner('error', 'Session expired', 'Please log in again.');
+      } else {
+        showOrderBanner('error', 'Failed', 'Please try again.');
+      }
+      if (infoBox) infoBox.textContent = currentTab === 'add' ? 'Enter amount to add' : 'Enter amount to withdraw';
+      return;
+    }
+
+    if (currentTab === 'add') {
+      showOrderBanner('success', 'Money Added', 'Amount added to your wallet successfully.');
+    } else {
+      showOrderBanner('success', 'Withdrawal Successful', 'Amount withdrawn from your wallet successfully.');
+    }
+
+    amountInput.value = 0;
+    await refreshBalance();
+    if (infoBox) infoBox.textContent = currentTab === 'add' ? 'Enter amount to add' : 'Enter amount to withdraw';
+  } catch (e) {
+    showOrderBanner('error', 'Network error', 'Could not reach server.');
+    if (infoBox) infoBox.textContent = currentTab === 'add' ? 'Enter amount to add' : 'Enter amount to withdraw';
   }
 });
+
+// Keep balance fresh when page loads
+document.addEventListener('DOMContentLoaded', refreshBalance);
 
 function formatINR(value) {
   const number = Number(value || 0);
@@ -205,4 +267,36 @@ async function showTransaction() {
   } finally {
     loading.classList.add('d-none');
   }
+
+}
+
+function showOrderBanner(type, message, detail = "") {
+  const banner = document.getElementById("orderBanner");
+  if (!banner) return;
+
+  const icon =
+    type === "success"
+      ? '<i class="bi bi-check-lg"></i>'
+      : '<i class="bi bi-x-lg"></i>';
+
+  banner.className = `order-banner ${type}`;
+  banner.innerHTML = `
+    <div class="order-banner-icon">${icon}</div>
+    <div>
+      <div class="order-banner-title">${message}</div>
+      ${detail ? `<div class="order-banner-detail">${detail}</div>` : ""}
+    </div>
+    <button class="order-banner-close">&times;</button>
+  `;
+
+  banner.classList.add("show");
+
+  banner.querySelector(".order-banner-close").onclick = () => {
+    banner.classList.remove("show");
+  };
+
+  clearTimeout(banner._timer);
+  banner._timer = setTimeout(() => {
+    banner.classList.remove("show");
+  }, 3500);
 }
