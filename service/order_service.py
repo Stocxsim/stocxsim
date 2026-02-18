@@ -36,12 +36,13 @@ def search_orders_service(query):
     return [
         {
             "symbol": row[0],
-            "type": row[1],
-            "qty": row[2],
-            "price": row[3],
-            "date": row[4].strftime("%d %b, %H:%M") if row[4] else "",
-            "order_type": row[5],
-            "name": row[6],
+            "symbol_token": row[1],
+            "type": row[2],
+            "qty": row[3],
+            "price": row[4],
+            "date": row[5].strftime("%d %b, %H:%M") if row[5] else "",
+            "order_type": row[6],
+            "name": row[7],
             "status": "Completed"
         }
         for row in rows

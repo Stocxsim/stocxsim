@@ -13,12 +13,12 @@
   box-shadow: var(--shadow-card);
 }
 
-#transactions {
+#fundsTransactionsCard {
   cursor: pointer;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-#transactions:hover {
+#fundsTransactionsCard:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
