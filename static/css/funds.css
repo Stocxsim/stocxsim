@@ -65,6 +65,131 @@
   color: var(--color-bg-white);
 }
 
+/* ============================================
+   Indicator-Style Breakdown Modal (matches stock page)
+   ============================================ */
+.indicator-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1060;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.indicator-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.indicator-modal {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.25s ease;
+}
+
+.indicator-modal-overlay.active .indicator-modal {
+  transform: translateY(0) scale(1);
+}
+
+.indicator-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-5) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.indicator-modal-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-heading);
+  margin: 0;
+}
+
+.indicator-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-base);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.indicator-modal-close:hover {
+  background: var(--color-down);
+  color: #fff;
+}
+
+.indicator-modal-body {
+  padding: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  line-height: 1.7;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  flex: 1 1 auto;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 24, 39, 0.45) transparent;
+}
+
+.indicator-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.indicator-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.indicator-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.indicator-modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 24, 39, 0.55);
+  background-clip: content-box;
+}
+
+body.indicator-modal-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+@media (max-width: 576px) {
+  .indicator-modal {
+    width: 92%;
+    max-height: 85vh;
+  }
+
+  .indicator-modal-body {
+    padding: var(--space-4);
+  }
+}
+
 /* Transactions modal table */
 .txn-table thead th {
   font-size: var(--text-xs);
