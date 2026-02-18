@@ -105,7 +105,7 @@ function buildOrdersList(orders) {
                          <div class="order-stock-name">${order.symbol}</div>
                          <div class="order-stock-meta">
                               <span class="order-type-badge ${typeClass}">
-                                   <i class="bi ${isBuy ? 'bi-arrow-down-left' : 'bi-arrow-up-right'}"></i>
+                                   <i class="bi ${isBuy ? 'bi-arrow-up-right' : 'bi-arrow-down-left'}"></i>
                                    ${order.transaction_type}
                               </span>
                               · ${order.order_type}
