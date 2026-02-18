@@ -149,3 +149,44 @@ def get_orders_sorted(user_id):
     finally:
         cursor.close()
         return_connection(conn)
+
+
+# Search order filter
+def search_order(query_text):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+
+        sql = """
+            SELECT 
+                s.stock_short_name, 
+                o.transaction_type, 
+                o.quantity, 
+                o.price, 
+                o.created_at, 
+                o.order_type,
+                s.stock_name
+            FROM orders o
+            JOIN stocks s ON o.symbol_token = s.stock_token
+            WHERE s.stock_short_name ILIKE %s 
+               OR s.stock_name ILIKE %s
+            ORDER BY o.created_at DESC
+            LIMIT 10;
+        """
+
+        search_val = f"%{query_text}%"
+        cursor.execute(sql, (search_val, search_val))
+        orders = cursor.fetchall()
+        print("its happening")
+        return orders
+    except Exception as e:
+        # CHECK YOUR TERMINAL: This will print exactly what went wrong
+        print("--- DATABASE CRASH ---")
+        print(f"Error: {e}") 
+        print("----------------------")
+        return []
+
+    finally:
+        cursor.close()
+        return_connection(conn)

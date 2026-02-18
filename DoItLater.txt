@@ -1,3 +1,0 @@
-stock.js ke koi bi js ma eventlistner merge thai sake che te karo.
-
-sell option ma price input kem disabled nathi .

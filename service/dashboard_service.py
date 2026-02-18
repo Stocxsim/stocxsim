@@ -1,78 +1,47 @@
-# --- Clean implementation below ---
-
-import base64
-import io
-
-import matplotlib
-
-# Force a non-GUI backend so charts can be rendered from Flask request threads.
-matplotlib.use("Agg")
-
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 from database.order_dao import get_orders_sorted, get_weekly_orders
 from database.stockdao import get_stock_short_name_by_token
 
 
-def _fig_to_base64(fig) -> str:
-    img = io.BytesIO()
-    fig.savefig(img, format="png", bbox_inches="tight")
-    plt.close(fig)
-    img.seek(0)
-    return base64.b64encode(img.getvalue()).decode("utf-8")
-
-
 def weekly_orders_chart(user_id):
+
     orders = get_weekly_orders(user_id)
+
     x = orders.get("week_start", [])
     y = orders.get("total_orders", [])
 
-    fig, ax = plt.subplots(figsize=(7, 3))
+    fig = go.Figure()
 
-    # --- White background ---
-    fig.patch.set_facecolor("white")
-    ax.set_facecolor("white")
+    fig.add_trace(go.Bar(
+        x=x,
+        y=y,
+        marker_color="#4fad96",
+        text=y,
+        textposition="outside",
+        hovertemplate="<b>Week</b>: %{x}<br><b>Orders</b>: %{y}<extra></extra>"
+    ))
 
-    # --- Bar chart with soft color ---
-    bars = ax.bar(x, y, color="#4fad96", edgecolor="#166534", linewidth=0.6)
-
-    # --- Labels & title ---
-    ax.set_xlabel("Week Starting", fontsize=10, labelpad=8)
-    ax.set_ylabel("Total Orders", fontsize=10, labelpad=8)
-    ax.set_title("Weekly Orders", fontsize=12, fontweight="bold", pad=10)
-
-    # --- Grid (light & clean) ---
-    ax.set_axisbelow(True)
-
-    # --- X ticks rotation ---
-    ax.tick_params(axis="x", rotation=45, labelsize=9)
-    ax.tick_params(axis="y", labelsize=9)
-
-    # --- Remove extra borders (modern look) ---
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-
-    # --- Value labels on bars (attractive touch) ---
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            height,
-            f"{int(height)}",
-            ha="center",
-            va="bottom",
-            fontsize=8
+    fig.update_layout(
+        template="plotly_white",
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        title=dict(
+            text="Weekly Orders",
+            x=0.02,
+            font=dict(size=18, weight=600)
+        ),
+        xaxis=dict(
+            title="Week Starting",
+            showgrid=False
+        ),
+        yaxis=dict(
+            title="Total Orders",
+            gridcolor="#e5e7eb"
         )
+    )
 
-    # # --- Save figure ---
-    # fig.savefig(
-    #     f"weekly_orders_user_{user_id}.png",
-    #     dpi=150,
-    #     bbox_inches="tight",
-    #     facecolor="white"
-    # )
-
-    return _fig_to_base64(fig)
+    return fig.to_html(full_html=False, include_plotlyjs=False)
 
 
 def calculate_win_loss(user_id):
@@ -90,7 +59,8 @@ def calculate_win_loss(user_id):
             continue
 
         if side == "BUY":
-            buy_queues.setdefault(symbol, []).append({"qty": qty, "price": price})
+            buy_queues.setdefault(symbol, []).append(
+                {"qty": qty, "price": price})
             continue
 
         if side == "SELL":
@@ -115,126 +85,145 @@ def calculate_win_loss(user_id):
 
 
 def win_rate_chart(user_id):
+
     results = calculate_win_loss(user_id)
-    wins = int(results.get("wins", 0) or 0)
-    losses = int(results.get("losses", 0) or 0)
 
-    # --- No trades case ---
-    if (wins + losses) == 0:
-        fig, ax = plt.subplots(figsize=(4, 2))
+    wins = int(results.get("wins", 0))
+    losses = int(results.get("losses", 0))
 
-        # White background
-        fig.patch.set_facecolor("white")
-        ax.set_facecolor("white")
+    total = wins + losses
 
-        ax.set_title("Win Rate", fontsize=24, fontweight=900, pad=20)
-        ax.text(
-            0.5, 0.5,
-            "No closed trades yet",
-            ha="center",
-            va="center",
-            fontsize=10,
-            color="#6b7280"
+    # No trades case
+    if total == 0:
+
+        fig = go.Figure()
+
+        fig.add_annotation(
+            text="No closed trades yet",
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+            font=dict(size=16, color="#6b7280")
         )
-        ax.axis("off")
 
-        return _fig_to_base64(fig)
+        fig.update_layout(
+            template="plotly_white",
+            height=320,
+            margin=dict(l=20, r=20, t=40, b=20),
+            title=dict(
+                text="Win Rate",
+                x=0.02,
+                font=dict(size=18)
+            )
+        )
 
-    # --- Data ---
-    labels = ["Wins", "Losses"]
-    sizes = [wins, losses]
-    colors = ["#22c55e", "#ef4444"]  # green & red
+        return fig.to_html(full_html=False, include_plotlyjs=False)
 
-    fig, ax = plt.subplots(figsize=(4, 4))
+    fig = go.Figure()
 
-    # White background
-    fig.patch.set_facecolor("white")
-    ax.set_facecolor("white")
+    fig.add_trace(go.Pie(
 
-    # Pie chart (donut style → more attractive)
-    wedges, texts, autotexts = ax.pie(
-        sizes,
-        colors=colors,
-        autopct="%1.1f%%",
-        startangle=140,
-        radius=1.05,
-        pctdistance=0.80,
-        wedgeprops=dict(width=0.40, edgecolor="white")
+        labels=["Wins", "Losses"],
+
+        values=[wins, losses],
+
+        hole=0.55,
+
+        marker=dict(
+            colors=["#22c55e", "#ef4444"]
+        ),
+
+        textinfo="percent",
+
+        hovertemplate="<b>%{label}</b><br>"
+        "Trades: %{value}<br>"
+        "Percentage: %{percent}<extra></extra>"
+
+    ))
+
+    # Center text
+    fig.add_annotation(
+
+        text=f"<b>{total}</b><br>Trades",
+
+        x=0.5,
+        y=0.5,
+
+        showarrow=False,
+
+        font=dict(
+            size=20,
+            color="#111827"
+        )
+
     )
 
-    # Text styling
-    for text in texts:
-        text.set_fontsize(9)
-    for autotext in autotexts:
-        autotext.set_fontsize(9)
-        autotext.set_color("black")
+    fig.update_layout(
 
-    # Center text (extra UI touch)
-    ax.text(
-        0, 0,
-        f"{wins + losses}\nTrades",
-        ha="center",
-        va="center",
-        fontsize=16,
-        fontweight="bold",
-        color="#374151"
+        template="plotly_white",
+
+        height=320,
+
+        margin=dict(l=20, r=20, t=40, b=20),
+
+        title=dict(
+            text="Win Rate",
+            x=0.02,
+            font=dict(size=18)
+        ),
+
+        showlegend=True,
+
+        legend=dict(
+            orientation="v",
+            y=0.9,
+            x=1
+        )
+
     )
 
-    ax.legend(
-        wedges, 
-        labels,
-        title="Status",
-        loc="upper left", # Positioned at the bottom
-        bbox_to_anchor=(-0.35, 1.1), # Fine-tune position below the pie
-        ncol=1, # Side-by-side labels
-        fontsize=12,
-        title_fontsize=13,
-        frameon=False # Removes the box border for a cleaner look
-    )
-
-    plt.subplots_adjust(left=0, right=1, top=0.7, bottom=0)
-
-    ax.set_title("Win Rate", fontsize=24, fontweight=900, pad=20)
-    # fig.savefig(
-    #     f"win_rate_user_{user_id}.png",
-    #     dpi=150,
-    #     bbox_inches="tight",
-    #     facecolor="white"
-    # )
-
-    return _fig_to_base64(fig)
-
+    return fig.to_html(full_html=False, include_plotlyjs=False)
 
 
 def profit_loss_chart(user_id):
-    """Total realized Profit vs Loss using FIFO BUY/SELL matching."""
+
     orders = get_orders_sorted(user_id)
 
     lots_by_symbol = {}
+
     total_profit = 0.0
     total_loss = 0.0
 
     for o in orders:
+
         symbol = str(o.get("symbol_token"))
+
         side = str(o.get("transaction_type") or "").upper()
+
         qty = float(o.get("quantity") or 0)
+
         price = float(o.get("price") or 0)
 
         if qty <= 0:
             continue
 
         if side == "BUY":
+
             lots_by_symbol.setdefault(symbol, []).append({
                 "qty": qty,
                 "price": price
             })
 
         elif side == "SELL":
+
             remaining = qty
+
             lots = lots_by_symbol.get(symbol, [])
 
             while remaining > 0 and lots:
+
                 lot = lots[0]
+
                 matched = min(remaining, lot["qty"])
 
                 pnl = (price - lot["price"]) * matched
@@ -250,128 +239,155 @@ def profit_loss_chart(user_id):
                 if lot["qty"] <= 0:
                     lots.pop(0)
 
-    # --------- CHART PART ----------
-    labels = ["Profit", "Loss"]
-    values = [total_profit, total_loss]
-    colors = ["#22c55e", "#ef4444"]  # green, red
+    fig = go.Figure()
 
-    fig, ax = plt.subplots(figsize=(6, 3))
+    fig.add_trace(go.Bar(
 
-    # --- White background ---
-    fig.patch.set_facecolor("white")
-    ax.set_facecolor("white")
+        x=["Profit", "Loss"],
 
-    # --- Bars ---
-    bars = ax.bar(labels, values, color=colors, width=0.45)
+        y=[total_profit, total_loss],
 
-    # --- Title & labels ---
-    ax.set_title("Total Profit / Loss", fontsize=12, fontweight="bold", pad=10)
-    ax.set_ylabel("Amount", fontsize=10)
+        marker_color=["#22c55e", "#ef4444"],
 
-    # --- Grid (soft) ---
-    ax.grid(axis="y", linestyle="--", alpha=0.3)
-    ax.set_axisbelow(True)
+        text=[
+            f"{total_profit:.2f}",
+            f"{total_loss:.2f}"
+        ],
 
-    # --- Remove extra borders ---
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+        textposition="outside",
 
-    # --- Value labels on bars ---
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            height,
-            f"{height:.2f}",
-            ha="center",
-            va="bottom",
-            fontsize=9,
-            color="#111827"
+        hovertemplate="<b>%{x}</b><br>"
+        "Amount: ₹%{y:.2f}<extra></extra>"
+
+    ))
+
+    fig.update_layout(
+
+        template="plotly_white",
+
+        height=300,
+
+        margin=dict(l=20, r=20, t=40, b=20),
+
+        title=dict(
+            text="Total Profit / Loss",
+            x=0.02,
+            font=dict(size=18)
+        ),
+
+        yaxis=dict(
+            title="Amount",
+            gridcolor="#e5e7eb"
         )
 
-    # --- Ticks styling ---
-    ax.tick_params(axis="x", labelsize=9)
-    ax.tick_params(axis="y", labelsize=9)
+    )
 
-    return _fig_to_base64(fig)
-
+    return fig.to_html(full_html=False, include_plotlyjs=False)
 
 
 def top_traded_chart(user_id, limit=5):
+
     orders = get_orders_sorted(user_id)
+
     counts = {}
+
     name_cache = {}
 
     for o in orders:
-        symbol_token = o.get("symbol_token")
-        if not symbol_token:
-            continue
 
-        symbol_token = str(symbol_token)
+        token = str(o.get("symbol_token"))
 
-        if symbol_token not in name_cache:
-            row = get_stock_short_name_by_token(symbol_token)
-            # row is (stock_token, stock_name) or None
-            name_cache[symbol_token] =row
+        if token not in name_cache:
 
-        symbol_name = name_cache[symbol_token]
-        counts[symbol_name] = counts.get(symbol_name, 0) + 1
+            row = get_stock_short_name_by_token(token)
 
-    top = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)[: max(0, int(limit))]
-    labels = [k for k, _ in top]
-    values = [v for _, v in top]
+            name_cache[token] = row if row else token
 
-    fig, ax = plt.subplots(figsize=(7, 3))
+        name = name_cache[token]
 
-    # --- White background ---
-    fig.patch.set_facecolor("white")
-    ax.set_facecolor("white")
+        counts[name] = counts.get(name, 0) + 1
 
-    ax.set_title("Top Traded", fontsize=12, fontweight="bold", pad=10)
+    top = sorted(
+        counts.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )[:limit]
 
-    # --- No data case ---
+    labels = [x[0] for x in top]
+
+    values = [x[1] for x in top]
+
+    # No data case
     if not labels:
-        ax.text(
-            0.5, 0.5,
-            "No orders yet",
-            ha="center",
-            va="center",
-            fontsize=10,
-            color="#6b7280"
-        )
-        ax.axis("off")
-        return _fig_to_base64(fig)
 
-    # --- Bars ---
-    bars = ax.bar(labels, values, color="#60a5fa", width=0.5)
+        fig = go.Figure()
 
-    # --- Y label ---
-    ax.set_xlabel("Stocks", fontsize=10)
-    ax.set_ylabel("Orders", fontsize=10)
+        fig.add_annotation(
 
-    # --- Grid (soft & clean) ---
-    ax.grid(axis="y", linestyle="--", alpha=0.3)
-    ax.set_axisbelow(True)
+            text="No orders yet",
 
-    # --- Ticks styling ---
-    ax.tick_params(axis="x", rotation=45, labelsize=9)
-    ax.tick_params(axis="y", labelsize=9)
+            x=0.5,
+            y=0.5,
 
-    # --- Remove extra borders (modern look) ---
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+            showarrow=False,
 
-    # --- Value labels on bars (nice touch) ---
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            height,
-            f"{int(height)}",
-            ha="center",
-            va="bottom",
-            fontsize=8,
-            color="#111827"
+            font=dict(size=16)
+
         )
 
-    return _fig_to_base64(fig)
+        fig.update_layout(
+
+            template="plotly_white",
+
+            height=320,
+
+            title=dict(
+                text="Top Traded",
+                x=0.02
+            )
+
+        )
+
+        return fig.to_html(full_html=False, include_plotlyjs=False)
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+
+        x=labels,
+
+        y=values,
+
+        marker_color="#3b82f6",
+
+        text=values,
+
+        textposition="outside",
+
+        hovertemplate="<b>%{x}</b><br>"
+        "Orders: %{y}<extra></extra>"
+
+    ))
+
+    fig.update_layout(
+
+        template="plotly_white",
+
+        height=320,
+
+        margin=dict(l=20, r=20, t=40, b=20),
+
+        title=dict(
+            text="Top Traded",
+            x=0.02,
+            font=dict(size=18)
+        ),
+
+        yaxis=dict(
+            title="Orders",
+            gridcolor="#e5e7eb"
+        )
+
+    )
+
+    return fig.to_html(full_html=False, include_plotlyjs=False)

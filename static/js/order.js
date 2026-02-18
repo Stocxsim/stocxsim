@@ -134,6 +134,7 @@ const toDate = document.getElementById("toDate");
 
 fromDate.addEventListener("change", function () {
      const selectedFromDate = this.value;
+
      toDate.min = selectedFromDate;
      if (toDate.value && toDate.value < selectedFromDate) {
           toDate.value = "";
@@ -163,3 +164,69 @@ function getFilterParams() {
 
      return params;
 }
+
+
+// Search Filter functionality
+const searchInput = document.getElementById('orderSearchInput');
+const resultsBox = document.getElementById('orderSearchResults');
+let debounceTimer;
+
+searchInput.addEventListener("input", function () {
+     const query = this.value.trim();
+
+     // 1. Clear previous timer and results if input is short
+     clearTimeout(debounceTimer);
+     if (query.length == 0) {
+          resultsBox.style.display = "none";
+          return;
+     }
+
+     // 2. Wait 300ms after last keystroke to fetch
+     debounceTimer = setTimeout(async function () {
+          try {
+               // Using singular /order as per your requirement
+               const res = await fetch(`/order/search?q=${query}`);
+               if (!res.ok) return;
+
+               const orders = await res.json();
+               resultsBox.innerHTML = "";
+
+               if (orders.length === 0) {
+                    resultsBox.innerHTML = '<div class="p-3 text-center text-muted small">No matching orders found</div>';
+               } else {
+                    orders.forEach(order => {
+                         const div = document.createElement("div");
+                         div.className = "p-2 border-bottom order-item-hover";
+                         div.style.cursor = "pointer";
+
+                         // Map 'type' from your Python: row[1]
+                         const typeClass = order.type === 'BUY' ? 'text-success' : 'text-danger';
+
+                         div.innerHTML = `
+                              <div class="d-flex justify-content-between align-items-start">
+                                   <div>
+                                        <div class="fw-bold mb-0">${order.symbol}</div>
+                                        <div class="text-muted small" style="font-size: 0.7rem;">${order.full_name}</div> <div class="text-muted extra-small" style="font-size: 0.75rem;">Qty: ${order.qty} | Price: ₹${order.price}</div>
+                                   </div>
+                                   <div class="text-end">
+                                        <div class="small ${typeClass} fw-bold">${order.type}</div>
+                                        <div class="text-muted extra-small" style="font-size: 0.7rem;">${order.date}</div>
+                                   </div>
+                              </div>
+                              `;
+                         resultsBox.appendChild(div);
+                    });
+               }
+               resultsBox.style.display = "block";
+          } catch (e) {
+               console.error("Order search failed", e);
+          }
+     }, 300);
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", (e) => {
+     if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
+          resultsBox.style.display = "none";
+     }
+});

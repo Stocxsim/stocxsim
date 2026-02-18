@@ -33,7 +33,7 @@
             <span class="chart-active-label" id="chartTitle">Weekly Orders</span>
           </div>
           <div class="chart-card">
-              <img id="chartImage" alt="Chart" />
+              <div id="chartContainer"></div>
           </div>
         </div>
 
@@ -104,5 +104,7 @@
 {% block js %}
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script src="/static/js/holding.js"></script>
+<!-- For Plotly -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="/static/js/dashboard.js"></script>
 {% endblock %}

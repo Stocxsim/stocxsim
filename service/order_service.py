@@ -1,5 +1,6 @@
-from database.order_dao import get_order
+from database.order_dao import get_order, search_order
 from service.stockservice import get_stock_detail_service
+
 
 def get_order_details(user_id, filter_params):
     """
@@ -17,7 +18,7 @@ def get_order_details(user_id, filter_params):
         orders_list.append({
             "order_id": order.get_order_id(),
             "symbol_token": order.get_symbol_token(),
-            "symbol": stock_name, 
+            "symbol": stock_name,
             "transaction_type": order.get_transaction_type(),
             "quantity": order.get_quantity(),
             "price": order.get_price(),
@@ -26,3 +27,22 @@ def get_order_details(user_id, filter_params):
             "date": order.get_created_at().strftime("%d %b %Y")
         })
     return orders_list
+
+
+# search order filter
+def search_orders_service(query):
+    rows = search_order(query)
+    print(f"DB Search Results: {rows}")  # Debug log
+    return [
+        {
+            "symbol": row[0],
+            "type": row[1],
+            "qty": row[2],
+            "price": row[3],
+            "date": row[4].strftime("%d %b, %H:%M") if row[4] else "",
+            "order_type": row[5],
+            "name": row[6],
+            "status": "Completed"
+        }
+        for row in rows
+    ]
