@@ -182,11 +182,8 @@ function calculateDelayedCharges(amount) {
   };
 }
 
-// Breakdown for charges on SELL
+// Breakdown for charges on SELL (indicator-modal style)
 function showBreakdown(amount, type) {
-  const modalEl = document.getElementById('breakdownModal');
-  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-
   const data = calculateDelayedCharges(amount);
 
   document.getElementById('brk_exchange').innerText = `- ${formatINR(data.exch)}`;
@@ -202,8 +199,38 @@ function showBreakdown(amount, type) {
   document.getElementById('brk_total_charges').innerText = `- ₹${data.totalCharges}`;
   document.getElementById('breakdownNet').innerText = `₹${data.net}`;
 
-  modal.show();
+  // Open the custom modal overlay
+  const overlay = document.getElementById('breakdownOverlay');
+  if (overlay) {
+    overlay.classList.add('active');
+    document.body.classList.add('indicator-modal-open');
+  }
 }
+
+function closeBreakdownModal() {
+  const overlay = document.getElementById('breakdownOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('active');
+  document.body.classList.remove('indicator-modal-open');
+}
+
+// Close button
+document.getElementById('breakdownCloseBtn')?.addEventListener('click', closeBreakdownModal);
+
+// Close on overlay background click
+document.getElementById('breakdownOverlay')?.addEventListener('click', function (e) {
+  if (e.target === this) closeBreakdownModal();
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    const overlay = document.getElementById('breakdownOverlay');
+    if (overlay && overlay.classList.contains('active')) {
+      closeBreakdownModal();
+    }
+  }
+});
 
 async function showTransaction() {
   const modalEl = document.getElementById('transactionsModal');
