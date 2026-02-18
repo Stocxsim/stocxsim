@@ -15,9 +15,13 @@
             <a id="clearFilters" href="#" class="text-success text-decoration-none">Clear all</a>
         </div>
 
-        
-        <div class="mb-3 pb-3 border-bottom">
-            <input type="text" class="form-control" placeholder="Search for a Stock">
+        <div class="mb-3 pb-3 border-bottom position-relative">
+            <input type="text" id="orderSearchInput" class="form-control" placeholder="Search for a Stock"
+                autocomplete="off">
+
+            <div id="orderSearchResults" class="search-results shadow-sm border rounded"
+                style="display: none; position: absolute; width: 100%; z-index: 1000; background: white; max-height: 300px; overflow-y: auto;">
+            </div>
         </div>
 
         <div class="date-range d-flex gap-2">

@@ -139,14 +139,20 @@ const dashboardInvested = document.getElementById("dashboard-invested");
 
 if (dashboardCurrent && dashboard1d && dashboardTotal && dashboardInvested) {
   // Fetch holdings/order summary for dashboard sidebar
-  fetch("/holding/order")
+  fetch("/holding/order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({})
+  })
     .then((res) => res.json())
     .then((data) => {
       if (!data || !data.holdings) return;
       updateDashboardSidebarTotals(data.holdings);
     })
     .catch(() => {
-      // Do not overwrite with 0 on error
+
     });
 }
 
@@ -222,6 +228,7 @@ function updateHoldingsLivePrices(stocks) {
 
 function loadChart(type) {
   let url = "";
+
   const titles = {
     weekly: "Weekly Orders",
     win: "Win Rate",
@@ -229,15 +236,17 @@ function loadChart(type) {
     top: "Top Traded",
   };
 
-  if (type === "weekly") {
+  if (type === "weekly")
     url = "/order/history/weekly-orders-chart";
-  } else if (type === "win") {
+
+  else if (type === "win")
     url = "/order/history/win-rate-chart";
-  } else if (type === "pl") {
+
+  else if (type === "pl")
     url = "/order/history/profit-loss-chart";
-  } else if (type === "top") {
+
+  else if (type === "top")
     url = "/order/history/top-traded-chart";
-  }
 
   // Update title
   const titleEl = document.getElementById("chartTitle");
@@ -245,44 +254,42 @@ function loadChart(type) {
     titleEl.textContent = titles[type] || "Chart";
   }
 
+
   // Toggle active button
   document.querySelectorAll(".analytics-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.getAttribute("data-chart") === type);
+    btn.classList.toggle(
+      "active",
+      btn.getAttribute("data-chart") === type
+    );
   });
 
   fetch(url)
-    .then(async (res) => {
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(
-          `Chart request failed (${res.status}): ${text.slice(0, 200)}`,
-        );
-      }
-      return res.json();
+    .then(res => res.json())
+    .then(data => {
+      console.log(data); // debug
+
+      const container =
+        document.getElementById("chartContainer");
+
+      if (container)
+        container.innerHTML = data.chart;   // ✅ FIXED
+
+      const scripts = container.querySelectorAll("script");
+
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement("script");
+
+        if (oldScript.src) {
+          newScript.src = oldScript.src;
+        } else {
+          newScript.textContent = oldScript.textContent;
+        }
+
+        document.body.appendChild(newScript);
+        oldScript.remove();
+      });
     })
-    .then((data) => {
-      const imgEl = document.getElementById("chartImage");
-      if (!imgEl) return;
-      if (type === "win") {
-        imgEl.style.maxWidth = "300px";
-        imgEl.style.height = "300px"; // Fixed height creates a square crop
-        imgEl.style.objectFit = "cover"; // Zooms in to fill the box
-        imgEl.style.objectPosition = "center"; // Keeps the pie centered
-        imgEl.style.margin = "0 auto";
-        imgEl.style.display = "block";
-      } else {
-        // ✅ Reset styles for all other chart types
-        imgEl.style.maxWidth = "100%";
-        imgEl.style.height = "auto";
-        imgEl.style.objectFit = "";
-        imgEl.style.margin = "";
-        imgEl.style.display = "";
-      }
-      imgEl.src = "data:image/png;base64," + data.chart;
-    })
-    .catch((err) => {
-      console.error("Chart load failed:", err);
-    });
+    .catch(err => console.error(err));
 }
 document.addEventListener("DOMContentLoaded", function () {
   loadChart("weekly"); // default chart
