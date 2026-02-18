@@ -5,7 +5,7 @@ load_dotenv("secrets.env")
 
 POSTGRES = {
     "HOST": "localhost",
-    "PORT": 5433,
+    "PORT": 5432,
     "DB_NAME": "stocxsim",
     "USER": "postgres",
     "PASSWORD": os.getenv("DB_PASSWORD")
