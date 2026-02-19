@@ -54,7 +54,6 @@ def verify_otp_service(email, user_otp):
         return False
 
     if OTP_STORE[email] == user_otp:
-        print("OTP verified successfully for email:", email)
         del OTP_STORE[email] 
         return True
     

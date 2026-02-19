@@ -270,7 +270,7 @@ def profit_loss_chart(user_id):
         margin=dict(l=20, r=20, t=40, b=20),
 
         title=dict(
-            text="Total Profit / Loss",
+            text="Profit / Loss",
             x=0.02,
             font=dict(size=18)
         ),

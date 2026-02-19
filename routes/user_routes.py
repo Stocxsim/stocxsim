@@ -9,7 +9,7 @@ from service.market_data_service import get_full_market_data, load_baseline_data
 from websockets.angle_ws import subscribe_equity_tokens, subscribe_user_watchlist
 from data.live_data import register_equity_token, ensure_baseline_data, BASELINE_DATA
 from database.watchlist_dao import get_stock_tokens_by_user
-from database.userdao import checkBalance, updateBalance
+from database.userdao import checkBalance, updateBalance, updatePassword
 from service.transaction_service import record_transaction
 
 from utils.tokens import INDEX_TOKENS
@@ -142,6 +142,46 @@ def verify_otp():
     result = verify_otp_service(email, otp)
     print(result)
     return jsonify({"message": result})
+
+
+@user_bp.route("/forgot/send-otp", methods=["POST"])
+def forgot_send_otp():
+    email = (request.form.get("Email") or request.form.get("email") or "").strip()
+    if not email:
+        return jsonify({"success": False, "error": "email_required"}), 400
+
+    user = getUserDetails(email)
+    if not user:
+        return jsonify({"success": False, "error": "user_not_found"}), 404
+
+    send_otp(email)
+    return jsonify({"success": True})
+
+
+@user_bp.route("/forgot/reset", methods=["POST"])
+def forgot_reset_password():
+    email = (request.form.get("email") or request.form.get("Email") or "").strip()
+    otp = (request.form.get("otp") or "").strip()
+    new_pass = request.form.get("new_password") or ""
+    confirm_pass = request.form.get("confirm_password") or ""
+
+    if not email or not otp:
+        return jsonify({"success": False, "error": "missing_fields"}), 400
+    if not new_pass or not confirm_pass:
+        return jsonify({"success": False, "error": "missing_password"}), 400
+    if new_pass != confirm_pass:
+        return jsonify({"success": False, "error": "password_mismatch"}), 400
+
+    user = getUserDetails(email)
+    if not user:
+        return jsonify({"success": False, "error": "user_not_found"}), 404
+
+    verified = verify_otp_service(email, otp)
+    if not verified:
+        return jsonify({"success": False, "error": "invalid_otp"}), 400
+
+    updatePassword(user.get_user_id(), new_pass)
+    return jsonify({"success": True})
 
 
 @user_bp.route("/dashboard")
