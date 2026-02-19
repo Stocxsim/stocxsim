@@ -38,6 +38,84 @@ body {
         width: 100%;
         max-width: none;
     }
+
+    .close-btn {
+        position: fixed;
+        top: var(--space-2);
+        right: var(--space-3);
+        z-index: 100;
+    }
+
+    .price-section h1 {
+        font-size: var(--text-xl);
+    }
+
+    .chart-placeholder {
+        margin: var(--space-5) 0 var(--space-3);
+        min-height: 200px;
+    }
+
+    .time-filters {
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .time-filters button {
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        margin: var(--space-5) var(--space-2) var(--space-3) var(--space-2);
+    }
+
+    .header-top {
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .stock-logo {
+        width: 50px;
+        height: 34px;
+    }
+
+    .action-buttons button {
+        font-size: 11px;
+        padding: var(--space-1) var(--space-2);
+    }
+
+    .price-section h1 {
+        font-size: var(--text-lg);
+    }
+
+    .order-header h2 {
+        font-size: var(--text-base);
+    }
+
+    .tab {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--text-sm);
+    }
+
+    .chip {
+        padding: var(--space-1) var(--space-3);
+        font-size: var(--text-xs);
+    }
+
+    .buy-btn,
+    .sell-btn {
+        padding: var(--space-3);
+        font-size: var(--text-base);
+    }
+
+    .info-row {
+        font-size: var(--text-xs);
+    }
+
+    .chart-placeholder {
+        min-height: 160px;
+    }
 }
 
 /* --- LEFT SECTION --- */
@@ -67,6 +145,9 @@ body {
 }
 
 .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 40px;
     background: transparent;
     border: none;
     font-size: var(--text-xl);
@@ -74,6 +155,7 @@ body {
     margin-right: var(--space-2);
     color: var(--color-text-primary);
     transition: color var(--transition-fast);
+    z-index: 10;
 }
 
 .close-btn:hover {

@@ -105,6 +105,11 @@ document.getElementById("Email")?.addEventListener("input", () => {
     loginError.classList.add("d-none");
 });
 
+// Reset the entire auth flow if user closes the modal via the X.
+document.getElementById("loginModalClose")?.addEventListener("click", () => {
+    window.location.reload();
+});
+
 
 
 // ---------- STEP 2: SIGNUP ----------
