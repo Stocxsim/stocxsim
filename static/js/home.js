@@ -1,5 +1,6 @@
 function f1() {
     const passwordSection = document.getElementById("passwordbox");
+    const forgotPasswordLink = document.getElementById("forgot-password-link");
     const emailInput = document.getElementById("Email");
     const email = (emailInput?.value || "").trim();
     const loginError = document.getElementById("login-error");
@@ -51,9 +52,10 @@ function f1() {
         }).then(response => response.json()).then(data => {
             if (data.message === true) {
                 passwordSection.classList.remove("d-none");
+                forgotPasswordLink.classList.remove("d-none");
                 showOrderBanner("success","Email Verified","Please enter your password to login.");
             } else {
-                const email_in_otp = document.getElementById("Email_readonly");
+                const email_in_otp = document.getElementById("Email_readonly_signup");
                 email_in_otp.value = email;
                 document.getElementById("div-1").classList.add("d-none");
                 document.getElementById("div-2").classList.remove("d-none");
@@ -82,7 +84,7 @@ function f1() {
                 // Redirect after short delay
                 setTimeout(() => {
                     window.location.href = "/login/dashboard";
-                }, 1500);
+                }, 750);
 
             } else {
                 showOrderBanner(
@@ -108,7 +110,8 @@ document.getElementById("Email")?.addEventListener("input", () => {
 // ---------- STEP 2: SIGNUP ----------
 function step2() {
     const email = document.getElementById("Email").value;
-    const username = document.getElementById("username").value;
+    const usernameInput = document.getElementById("username");
+    const username = usernameInput?.value || "";
 
     // validation of Username
     if (!isValidUsername(username)) {
@@ -118,9 +121,9 @@ function step2() {
   "Username must be 3–15 characters long and contain only letters."
 );
         // clear the field
-        input.value = "";
+        if (usernameInput) usernameInput.value = "";
         // focus again so user can re-enter
-        input.focus();
+        usernameInput?.focus();
         return;
     }
 
@@ -173,6 +176,8 @@ function step2() {
             console.log(data);
             if (data.message) {
 
+                window.__otpFlow = "signup";
+
                 document.getElementById("div-2").classList.add("d-none");
                 document.getElementById("div-3").classList.remove("d-none");
             } else {
@@ -193,9 +198,66 @@ function step3() {
 
     const otp = document.getElementById("otp").value;
     const email = document.getElementById("Email").value;
+
+    if (!otp || !email) {
+        showOrderBanner("error", "Missing Details", "Please enter email and OTP.");
+        return;
+    }
+
+    const flow = window.__otpFlow || "signup";
+
+    if (flow === "forgot") {
+        const pass1Input = document.getElementById("forgot_password1");
+        const pass2Input = document.getElementById("forgot_password2");
+        const pass1 = (pass1Input?.value || "").trim();
+        const pass2 = (pass2Input?.value || "").trim();
+
+        const weakness = isValidPassword(pass1);
+        if (weakness) {
+            showOrderBanner("error", "Weak password", weakness);
+            pass1Input?.focus();
+            return;
+        }
+        if (pass1 !== pass2) {
+            showOrderBanner("error", "Password Mismatch", "Both passwords must be the same.");
+            pass2Input && (pass2Input.value = "");
+            pass2Input?.focus();
+            return;
+        }
+
+        const form = new FormData();
+        form.append("email", email);
+        form.append("otp", otp);
+        form.append("new_password", pass1);
+        form.append("confirm_password", pass2);
+
+        fetch("/login/forgot/reset", {
+            method: "POST",
+            body: form
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.success === true) {
+                    showOrderBanner("success", "Password Updated", "You can now login with your new password.");
+                    window.__otpFlow = null;
+
+                    document.getElementById("div-3")?.classList.add("d-none");
+                    document.getElementById("div-4")?.classList.add("d-none");
+                    document.getElementById("div-1")?.classList.remove("d-none");
+
+                    document.getElementById("passwordbox")?.classList.remove("d-none");
+                    document.getElementById("forgot-password-link")?.classList.remove("d-none");
+                    document.getElementById("password")?.focus();
+                } else {
+                    showOrderBanner("error", "Invalid OTP", data?.error || "Please try again.");
+                }
+            });
+        return;
+    }
+
     const form = new FormData();
     form.append("otp", otp);
-    form.append("email", email); 
+    form.append("email", email);
 
     fetch("/login/verify-otp", {
         method: "POST",
@@ -220,6 +282,56 @@ function step3() {
             }
         });
 
+}
+// ---------- STEP 4: Forgot Password (Not implemented yet) ----------
+function step4(){
+
+    const emailInput = document.getElementById("Email");
+    const email = (emailInput?.value || "").trim();
+
+    if (!isValidEmail(email)) {
+        showOrderBanner("error", "Invalid Email", "Please enter a valid email address.");
+        emailInput?.focus();
+        return;
+    }
+
+    const pass1Input = document.getElementById("forgot_password1");
+    const pass2Input = document.getElementById("forgot_password2");
+    const pass1 = (pass1Input?.value || "").trim();
+    const pass2 = (pass2Input?.value || "").trim();
+
+    const weakness = isValidPassword(pass1);
+    if (weakness) {
+        showOrderBanner("error", "Weak password", weakness);
+        pass1Input?.focus();
+        return;
+    }
+    if (pass1 !== pass2) {
+        showOrderBanner("error", "Password Mismatch", "Both passwords must be the same.");
+        pass2Input && (pass2Input.value = "");
+        pass2Input?.focus();
+        return;
+    }
+
+    const form = new FormData();
+    form.append("Email", email);
+
+    fetch("/login/forgot/send-otp", {
+        method: "POST",
+        body: form
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success === true) {
+                window.__otpFlow = "forgot";
+                showOrderBanner("success", "OTP Sent", "Please check your email and enter the OTP.");
+                document.getElementById("div-4")?.classList.add("d-none");
+                document.getElementById("div-3")?.classList.remove("d-none");
+                document.getElementById("otp")?.focus();
+            } else {
+                showOrderBanner("error", "OTP Failed", data?.error || "Please try again.");
+            }
+        });
 }
 
 function isValidPassword(password) {
@@ -330,4 +442,33 @@ function showOrderBanner(type, message, detail = "") {
   banner._timer = setTimeout(() => {
     banner.classList.remove("show");
   }, 3500);
+}
+
+
+// Forgot password
+
+function forgot(){
+    const emailInput = document.getElementById("Email");
+    const email = (emailInput?.value || "").trim();
+
+    if (!email) {
+        showOrderBanner("error", "Email Required", "Please enter your email first.");
+        emailInput?.focus();
+        return;
+    }
+    if (!isValidEmail(email)) {
+        showOrderBanner("error", "Invalid Email", "Please enter a valid email address.");
+        emailInput?.focus();
+        return;
+    }
+
+    const forgotEmail = document.getElementById("Email_readonly_forgot");
+    if (forgotEmail) forgotEmail.value = email;
+
+    document.getElementById("div-2")?.classList.add("d-none");
+    document.getElementById("div-3")?.classList.add("d-none");
+    document.getElementById("div-1")?.classList.add("d-none");
+    document.getElementById("div-4")?.classList.remove("d-none");
+
+    document.getElementById("forgot_password1")?.focus();
 }

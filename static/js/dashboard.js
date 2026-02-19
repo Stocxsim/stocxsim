@@ -133,6 +133,8 @@ function buildDashboardWatchlist(stocks) {
 
     row.appendChild(wrapper);
   });
+
+  scheduleDashboardChartAlignment();
 }
 
 // --- Dashboard Sidebar Totals ---
@@ -219,6 +221,47 @@ function updateDashboardSidebarTotals(holdings) {
   } else {
     dashboard1d.innerText = "--";
   }
+
+  scheduleDashboardChartAlignment();
+}
+
+// --- Dashboard layout alignment ---
+// On desktop, visually align the chart area to start after the
+// "Your Investments" card by matching the chart-card top with
+// the Analytics card top.
+let _dashboardAlignRaf = 0;
+
+function scheduleDashboardChartAlignment() {
+  if (typeof window === "undefined") return;
+  if (_dashboardAlignRaf) return;
+
+  _dashboardAlignRaf = window.requestAnimationFrame(() => {
+    _dashboardAlignRaf = 0;
+    alignDashboardChartCard();
+  });
+}
+
+function alignDashboardChartCard() {
+  const chartCard = document.querySelector(".chart-section .chart-card");
+  const analyticsCard = document.querySelector(".analytics-card");
+  const investmentsCard = document.getElementById("investmentsCard");
+
+  if (!chartCard || !analyticsCard || !investmentsCard) return;
+
+  // Bootstrap lg breakpoint.
+  if (window.innerWidth < 992) {
+    chartCard.style.marginTop = "";
+    return;
+  }
+
+  // Reset first so measurements are stable.
+  chartCard.style.marginTop = "0px";
+
+  const targetTop = analyticsCard.getBoundingClientRect().top;
+  const currentTop = chartCard.getBoundingClientRect().top;
+  const delta = Math.round(targetTop - currentTop);
+
+  chartCard.style.marginTop = delta > 0 ? `${delta+30}px` : "0px";
 }
 
 // --- Holdings Page: Live Price Update (if needed) ---
@@ -302,4 +345,7 @@ function loadChart(type) {
 }
 document.addEventListener("DOMContentLoaded", function () {
   loadChart("weekly"); // default chart
+  scheduleDashboardChartAlignment();
 });
+
+window.addEventListener("resize", scheduleDashboardChartAlignment);
