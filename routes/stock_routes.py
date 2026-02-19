@@ -1,15 +1,11 @@
 from flask import Blueprint, request, jsonify, render_template, session
-from database.watchlist_dao import check_watchlist, get_stock_tokens_by_user
 from websockets.angle_ws import subscribe, unsubscribe, subscribe_equity_tokens
 from websockets import angle_ws
-from database.watchlist_dao import get_stock_tokens_by_user
-from service.market_data_service import get_full_market_data
 from service.stockservice import search_stocks_service, get_stock_detail_service
 from data.live_data import register_equity_token, ensure_baseline_data, LIVE_INDEX, INDEX_TOKENS, BASELINE_DATA
 from data.live_data import load_baseline_data
 from database.holding_dao import get_holding_by_user_and_token
 from service.indicator_cache import get_cached_indicators, compute_and_cache_indicators
-from modal.Stock import Stock
 
 import threading
 
@@ -139,10 +135,10 @@ def stock_detail(stock_token):
                      args=([token],), daemon=True).start()
 
     user_id = session.get("user_id")
-    holding_data = {"market": {"quantity": 0, "avg_buy_price": 0},
-                    "mtf": {"quantity": 0, "avg_buy_price": 0}}
+    holding = {"market": {"quantity": 0, "avg_buy_price": 0},
+               "mtf": {"quantity": 0, "avg_buy_price": 0}}
     if user_id:
-        holding = get_holding_by_user_and_token(user_id, stock_token)
+        holding = get_holding_by_user_and_token(user_id, stock_token) or holding
 
     cached = get_cached_indicators(token)
     if cached:
@@ -165,9 +161,3 @@ def stock_indicators(stock_token):
     threading.Thread(target=compute_and_cache_indicators,
                      args=(token,), daemon=True).start()
     return jsonify({"status": "pending", "token": token})
-
-    user_id = session.get("user_id")
-    watchlist_tokens = [str(t) for t in get_stock_tokens_by_user(
-        user_id)] if user_id else []
-
-    return render_template("stock.html", stock=stock, watchlist_tokens=watchlist_tokens)
