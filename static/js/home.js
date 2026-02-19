@@ -472,3 +472,68 @@ function forgot(){
 
     document.getElementById("forgot_password1")?.focus();
 }
+
+
+// ---------- LEGAL MODAL (Terms / Privacy / Tariff) ----------
+function openLegalModal(event, type) {
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+
+    // If Bootstrap isn't available for some reason, fall back to normal navigation.
+    if (typeof bootstrap === "undefined" || !bootstrap.Modal) {
+        if (type === "privacy") window.location.href = "/privacy";
+        else if (type === "tariff") window.location.href = "/tariff";
+        else window.location.href = "/terms";
+        return false;
+    }
+
+    const loginModalEl = document.getElementById("loginModal");
+    const legalModalEl = document.getElementById("legalModal");
+    if (!legalModalEl) return false;
+
+    const wasLoginOpen = !!loginModalEl && loginModalEl.classList.contains("show");
+    window.__returnToLoginModal = wasLoginOpen;
+
+    if (wasLoginOpen) {
+        bootstrap.Modal.getOrCreateInstance(loginModalEl).hide();
+    }
+
+    const safeType = (type || "").toLowerCase();
+    const templateId =
+        safeType === "privacy" ? "legal-template-privacy" :
+        safeType === "tariff" ? "legal-template-tariff" :
+        "legal-template-terms";
+
+    const titleEl = document.getElementById("legalModalTitle");
+    const bodyEl = document.getElementById("legalModalBody");
+    const openFullEl = document.getElementById("legalOpenFull");
+
+    if (titleEl) {
+        titleEl.textContent =
+            safeType === "privacy" ? "Privacy Policy" :
+            safeType === "tariff" ? "Tariff Rates" :
+            "Terms & Conditions";
+    }
+
+    if (openFullEl) {
+        openFullEl.href =
+            safeType === "privacy" ? "/privacy" :
+            safeType === "tariff" ? "/tariff" :
+            "/terms";
+    }
+
+    const template = document.getElementById(templateId);
+    if (bodyEl) bodyEl.innerHTML = template ? template.innerHTML : "";
+
+    bootstrap.Modal.getOrCreateInstance(legalModalEl).show();
+    return false;
+}
+
+document.getElementById("legalModal")?.addEventListener("hidden.bs.modal", () => {
+    if (typeof bootstrap === "undefined" || !bootstrap.Modal) return;
+    if (!window.__returnToLoginModal) return;
+
+    window.__returnToLoginModal = false;
+    const loginModalEl = document.getElementById("loginModal");
+    if (!loginModalEl) return;
+    bootstrap.Modal.getOrCreateInstance(loginModalEl).show();
+});
