@@ -1,3 +1,79 @@
+// --- Transaction helpers copied from funds.js ---
+function formatINR(value) {
+  const number = Number(value || 0);
+  try {
+    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(number);
+  } catch (e) {
+    return `₹${number}`;
+  }
+}
+
+function formatDateTime(value) {
+  if (!value) return '-';
+  const normalized = String(value).includes('T') ? String(value) : String(value).replace(' ', 'T');
+  const dt = new Date(normalized);
+  if (Number.isNaN(dt.getTime())) return String(value);
+  return dt.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function txTypeMeta(type) {
+  const t = String(type || '').toLowerCase();
+  if (t.includes('add')) return { badge: 'text-bg-success', sign: '+' };
+  if (t.includes('with')) return { badge: 'text-bg-warning', sign: '−' };
+  if (t.includes('sell')) return { badge: 'text-bg-dark', sign: '+' };
+  if (t.includes('buy')) return { badge: 'text-bg-primary', sign: '−' };
+  return { badge: 'text-bg-secondary', sign: '' };
+}
+
+function calculateDelayedCharges(amount) {
+  const net = parseFloat(amount);
+  const STT_RATE = 0.001;
+  const STAMP_DUTY_RATE = 0.00015;
+  const EXCHANGE_RATE = 0.0000322;
+  const SEBI_RATE = 0.000001;
+  const IPFT_RATE = 0.000001;
+  const GST_RATE = 0.18;
+  const baseDP = 13.50;
+  const fixedDP = 15.93;
+  const combinedRate = 0.001229356;
+  const grossValue = (net + fixedDP) / (1 - combinedRate);
+  const stt = grossValue * STT_RATE;
+  const stampDuty = grossValue * STAMP_DUTY_RATE;
+  const exchangeCharges = grossValue * EXCHANGE_RATE;
+  const sebiCharges = grossValue * SEBI_RATE;
+  const ipftCharges = grossValue * IPFT_RATE;
+  const gst = GST_RATE * (exchangeCharges + sebiCharges + ipftCharges + baseDP);
+  const totalCharges = stt + stampDuty + exchangeCharges + sebiCharges + ipftCharges + gst + baseDP;
+  return {
+    net: net,
+    gross: grossValue.toFixed(2),
+    stt: stt.toFixed(3),
+    stamp: stampDuty.toFixed(3),
+    exch: exchangeCharges.toFixed(3),
+    sebi: sebiCharges.toFixed(3),
+    ipft: ipftCharges.toFixed(3),
+    gst: gst.toFixed(3),
+    dp: "13.50",
+    totalCharges: totalCharges.toFixed(3)
+  };
+}
+
+function showBreakdown(amount, type) {
+  const modalEl = document.getElementById('breakdownModal');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  const data = calculateDelayedCharges(amount);
+  document.getElementById('brk_exchange').innerText = `- ${formatINR(data.exch)}`;
+  document.getElementById('brk_ipft').innerText = `- ${formatINR(data.ipft)}`;
+  document.getElementById('brk_gst').innerText = `- ${formatINR(data.gst)}`;
+  document.getElementById('brk_sebi').innerText = `- ${formatINR(data.sebi)}`;
+  document.getElementById('brk_stt').innerText = `- ${formatINR(data.stt)}`;
+  document.getElementById('brk_dp').innerText = `- ${formatINR(data.dp)}`;
+  document.getElementById('brk_stamp').innerText = `- ${formatINR(data.stamp)}`;
+  document.getElementById('brk_gross_summary').innerText = `₹${data.gross}`;
+  document.getElementById('brk_total_charges').innerText = `- ₹${data.totalCharges}`;
+  document.getElementById('breakdownNet').innerText = `₹${data.net}`;
+  modal.show();
+}
 document.addEventListener("DOMContentLoaded", () => {
 
   // Tabs
