@@ -287,14 +287,16 @@
     </section>
 
     <!-- Login Modal -->
-    <div class="modal fade" id="loginModal">
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content rounded-4 overflow-hidden position-relative">
           <button
+            id="loginModalClose"
             class="btn-close position-absolute top-0 end-0 m-3"
             data-bs-dismiss="modal"
             aria-label="Close"
           ></button>
+
           <div class="row g-0">
             <div class="col-md-5 left-panel">
               <svg class="bg-lines" viewBox="0 0 500 500">
@@ -311,9 +313,7 @@
               </p>
 
               <div class="stat-card">
-                <small class="text-muted fw-semibold"
-                  >SIMULATED PORTFOLIO</small
-                >
+                <small class="text-muted fw-semibold">SIMULATED PORTFOLIO</small>
                 <h4 class="mt-1 section-heading">+12.4%</h4>
                 <div class="progress mt-2">
                   <div class="progress-bar"></div>
@@ -322,9 +322,7 @@
             </div>
 
             <div class="col-md-7 px-5 py-5">
-              <h4 class="fw-bold modal-heading text-center">
-                Welcome to Stocxsim
-              </h4>
+              <h4 class="fw-bold modal-heading text-center">Welcome to Stocxsim</h4>
 
               <!-- ========= DIV 1 — LOGIN ========= -->
               <div id="div-1">
@@ -336,14 +334,11 @@
                     id="Email"
                     required
                   />
-                  <label for="Email" class="fw-bold form-label">
-                    Your Email Address</label
-                  >
+                  <label for="Email" class="fw-bold form-label">Your Email Address</label>
                 </div>
-                <div
-                  id="login-error"
-                  class="text-danger small mt-2 d-none"
-                ></div>
+
+                <div id="login-error" class="text-danger small mt-2 d-none"></div>
+
                 <div class="form-floating mt-4 d-none" id="passwordbox">
                   <input
                     type="password"
@@ -352,13 +347,15 @@
                     placeholder="Password"
                     required
                   />
-                  <label for="password" class="fw-bold form-label">
-                    Enter Password
-                  </label>
+                  <label for="password" class="fw-bold form-label">Enter Password</label>
                 </div>
 
                 <div id="forgot-password-link" class="d-none">
-                  <a href="#" class="d-block text-center mt-3" id="toggle-link" onclick="forgot(); return false;"
+                  <a
+                    href="#"
+                    class="d-block text-center mt-3"
+                    id="toggle-link"
+                    onclick="forgot(); return false;"
                     >Forgot Password?</a
                   >
                 </div>
@@ -383,10 +380,9 @@
                     id="Email_readonly_signup"
                     readonly
                   />
-                  <label for="Email" class="fw-bold form-label">
-                    Your Email Address</label
-                  >
+                  <label for="Email" class="fw-bold form-label">Your Email Address</label>
                 </div>
+
                 <div class="form-floating mt-3">
                   <input
                     type="text"
@@ -395,9 +391,7 @@
                     placeholder="Username"
                     required
                   />
-                  <label for="username" class="fw-bold form-label"
-                    >Username</label
-                  >
+                  <label for="username" class="fw-bold form-label">Username</label>
                 </div>
 
                 <div class="form-floating mt-3">
@@ -408,9 +402,7 @@
                     placeholder="Password"
                     required
                   />
-                  <label for="password1" class="fw-bold form-label"
-                    >Password</label
-                  >
+                  <label for="password1" class="fw-bold form-label">Password</label>
                 </div>
 
                 <div class="form-floating mt-3">
@@ -421,9 +413,7 @@
                     placeholder="Confirm Password"
                     required
                   />
-                  <label for="password2" class="fw-bold form-label"
-                    >Confirm Password</label
-                  >
+                  <label for="password2" class="fw-bold form-label">Confirm Password</label>
                 </div>
 
                 <div class="text-center mt-4 mb-3">
@@ -461,7 +451,7 @@
                 </div>
               </div>
 
-              <!-- ========= DIV 4 — FORGOT PASSWORD (NOT IMPLEMENTED YET) ========= -->
+              <!-- ========= DIV 4 — FORGOT PASSWORD ========= -->
               <div id="div-4" class="d-none">
                 <div class="form-floating mt-4">
                   <input
@@ -470,9 +460,7 @@
                     id="Email_readonly_forgot"
                     readonly
                   />
-                  <label for="Email" class="fw-bold form-label">
-                    Your Email Address</label
-                  >
+                  <label for="Email" class="fw-bold form-label">Your Email Address</label>
                 </div>
 
                 <div class="form-floating mt-3">
@@ -483,9 +471,7 @@
                     placeholder="New Password"
                     required
                   />
-                  <label for="forgot_password1" class="fw-bold form-label"
-                    >New Password</label
-                  >
+                  <label for="forgot_password1" class="fw-bold form-label">New Password</label>
                 </div>
 
                 <div class="form-floating mt-3">
@@ -496,9 +482,7 @@
                     placeholder="Confirm New Password"
                     required
                   />
-                  <label for="forgot_password2" class="fw-bold form-label"
-                    >Confirm New Password</label
-                  >
+                  <label for="forgot_password2" class="fw-bold form-label">Confirm New Password</label>
                 </div>
 
                 <div class="text-center mt-5 mb-4">
@@ -511,21 +495,87 @@
                   </button>
                 </div>
               </div>
-              </div>
+
+              <p class="small mb-1 text-muted">
+                By proceeding, I agree to
+                <a href="/terms" onclick="return openLegalModal(event, 'terms')">T&amp;C</a>,
+                <a href="/privacy" onclick="return openLegalModal(event, 'privacy')">Privacy Policy</a>
+                &amp;
+                <a href="/tariff" onclick="return openLegalModal(event, 'tariff')">Tariff Rates</a>.
+              </p>
             </div>
-            <p class="small mb-1">
-              By proceeding, I agree to <a href="/terms">T&amp;C</a>,
-              <a href="/privacy">Privacy Policy</a> &amp;
-              <a href="/tariff">Tariff Rates</a>.
-            </p>
           </div>
         </div>
       </div>
     </div>
 
-    
-
+    <!-- Legal Modal (Terms / Privacy / Tariff) -->
+    <div class="modal fade" id="legalModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content rounded-4 overflow-hidden">
+          <div class="modal-header">
+            <h5 class="modal-title" id="legalModalTitle">Legal</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="legalModalBody"></div>
+          <div class="modal-footer">
+            
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Legal content templates used by the modal -->
+    <template id="legal-template-terms">
+      <h4 class="mb-3">Terms &amp; Conditions</h4>
+      <p class="text-muted">
+        Stocxsim is a stock trading simulator built for education and practice.
+        No real-money trading happens on this platform.
+      </p>
+      <p class="mb-2">By using Stocxsim, you agree that you will:</p>
+      <ul class="mb-3">
+        <li>Use the platform only for learning and simulation purposes</li>
+        <li>Not attempt to exploit, abuse, or disrupt the service</li>
+        <li>Provide accurate account information</li>
+      </ul>
+      <p class="mb-0">These terms may be updated from time to time.</p>
+    </template>
+
+    <template id="legal-template-privacy">
+      <h4 class="mb-3">Privacy Policy</h4>
+      <p class="text-muted">
+        We collect only what we need to create your account and run the trading
+        simulator.
+      </p>
+      <ul class="mb-3">
+        <li>Email address and username (for account access)</li>
+        <li>Simulation activity (orders, holdings, and transaction history)</li>
+      </ul>
+      <p class="mb-0">
+        Questions? Contact:
+        <a href="mailto:stocxsim@gmail.com">stocxsim@gmail.com</a>
+      </p>
+    </template>
+
+    <template id="legal-template-tariff">
+      <h4 class="mb-3">Tariff Rates</h4>
+      <p class="text-muted">Stocxsim is currently free to use.</p>
+      <ul class="mb-3">
+        <li>Account creation: Free</li>
+        <li>Paper trading: Free</li>
+        <li>Portfolio tracking: Free</li>
+        <li>Market data access: Free</li>
+      </ul>
+      <p class="mb-0">No hidden charges.</p>
+    </template>
     <div id="orderBanner" class="order-banner"></div>
 
     <!-- LOGIN SPINNER -->
