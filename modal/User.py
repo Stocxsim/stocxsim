@@ -1,5 +1,16 @@
+"""
+modal/User.py
+-------------
+Data model representing an application user.
+
+Used as a plain Python object (not an ORM model) to pass user data
+between the service layer and the DAO layer without coupling to the DB schema.
+"""
+
+
 class User:
-    def __init__(self, username, email, password,user_id=-1):
+    """Represents a registered user of the StocxSim platform."""
+    def __init__(self, username, email, password, user_id=-1):
         self.email = email
         self.password = password
         self.username = username

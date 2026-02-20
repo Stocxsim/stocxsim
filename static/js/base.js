@@ -1,4 +1,38 @@
-// --- Transaction helpers copied from funds.js ---
+/**
+ * static/js/base.js
+ * -----------------
+ * Shared JavaScript loaded on EVERY authenticated page via base.html.
+ *
+ * Responsibilities:
+ *  1. Utility helpers:
+ *       - formatINR()             : Format numbers as Indian currency strings.
+ *       - formatDateTime()        : Parse & format ISO date strings for display.
+ *       - txTypeMeta()            : Get badge color + sign for a transaction type.
+ *       - calculateDelayedCharges(): Reverse-engineer individual charge components
+ *                                   from a net sell amount (for the Charges modal).
+ *       - showBreakdown()         : Populate & open the Charges breakdown modal.
+ *
+ *  2. Navbar Tabs: Active tab highlighting via selectTab().
+ *
+ *  3. Profile Dropdown: toggleProfile(), close-on-outside-click.
+ *
+ *  4. Global Search Bar: Debounced real-time stock search via /stocks/search?q=
+ *     Routes the user to /stocks/<token> on selection.
+ *
+ *  5. Socket.IO Live Index Ticker:
+ *       - Connects to the Flask-SocketIO server.
+ *       - Listens for "live_prices" events and updates the top-bar ticker.
+ *       - Fallback: after 1.5s, fetches a one-time REST snapshot from
+ *         /stocks/index/snapshot if the ticker still shows "--".
+ *
+ *  6. Logout Button: POST /login/logout then redirect to landing page.
+ *
+ *  7. Transactions Modal (showTransaction()):
+ *       - Fetches /transactions/ and renders rows in the modal table.
+ *       - SELL rows include an (i) button that opens the Charges modal.
+ */
+
+// --- Transaction helpers ---
 function formatINR(value) {
   const number = Number(value || 0);
   try {
@@ -297,7 +331,7 @@ if (logout) {
       console.error('Error during logout:', e);
     }
   });
-} 
+}
 
 
 function goToProfile(e) {
@@ -308,7 +342,7 @@ function goToFunds() {
   window.location.href = "/profile/funds";
 }
 
-  async function showTransaction() {
+async function showTransaction() {
   const modalEl = document.getElementById('transactionsModal');
   const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
   modal.show();
