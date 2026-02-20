@@ -1,3 +1,56 @@
+/**
+ * static/js/stock.js
+ * ------------------
+ * JavaScript for the Stock Detail page (/stocks/<token>).
+ *
+ * Sections:
+ *  1. Global State:
+ *       - STOCK_TOKEN    : Angel One instrument token from <body data-stock-token>.
+ *       - transactionType: 'buy' | 'sell'
+ *       - orderType      : 'market' | 'mtf'
+ *       - isWatchlisted  : Tracks watch state for unsubscribe logic on unload.
+ *       - window.lastLTP : Latest LTP; used to update EMA gauge when indicators load.
+ *
+ *  2. Order Banner Notification (showOrderBanner):
+ *       - Shows a floating banner (success/error) after order placement.
+ *       - Auto-dismisses after 3.5s; also has an X button.
+ *
+ *  3. Socket.IO Live Prices:
+ *       - Listens for 'live_prices' events.
+ *       - Calls updateStockUI() to update the current price display.
+ *       - Also refreshes EMA gauge whenever a new LTP is received.
+ *
+ *  4. Technical Indicators (RSI + EMA 20):
+ *       - Values are initially server-rendered via <div data-rsi="..." data-ema20="...">.
+ *       - If missing (cache miss), pollIndicatorsUntilReady() polls /stocks/<token>/indicators
+ *         every second until both are ready (max 60s timeout).
+ *       - RSI Gauge: Maps RSI (0-100) → gauge angle (-90° to +90°).
+ *       - EMA Gauge: Maps % deviation from EMA20 (-2% to +2%) → gauge angle.
+ *
+ *  5. Order Panel (Buy / Sell tabs):
+ *       - Buy/Sell tab toggles set transactionType; Market/MTF chips set orderType.
+ *       - updateApproxReq(): Recalculates required capital (25% for MTF, 100% for market).
+ *       - submitOrderBtn: POSTs form data to /trade/order. Shows banner on result.
+ *       - Holding UI: Reads server-rendered quantity (data-holding-qty, data-holding-mtf)
+ *         and syncs the "Qty available to sell" display, enforcing max sell qty.
+ *
+ *  6. Watchlist Button:
+ *       - On load, syncs state from /watchlist/status/<token>.
+ *       - Toggle POSTs to /watchlist/toggle/<token> and updates the button label.
+ *       - Controls whether stock stays subscribed after page unload (via isWatchlisted).
+ *
+ *  7. Subscribe / Unsubscribe:
+ *       - On DOMContentLoaded: POST /stocks/subscribe/<token> to start live price updates.
+ *       - On beforeunload: sendBeacon /stocks/unsubscribe/<token> IF not watchlisted.
+ *
+ *  8. Indicator Info Modal:
+ *       - Opens a modal with educational content about RSI, EMA 20, and MTF.
+ *       - Content is statically defined in the INDICATOR_INFO object.
+ *
+ *  9. Back Button:
+ *       - Returns to document.referrer if same hostname, otherwise /login/watchlist.
+ */
+
 // =========================
 // Global variables
 // =========================

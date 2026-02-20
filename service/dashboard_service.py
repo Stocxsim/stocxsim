@@ -1,15 +1,45 @@
+"""
+service/dashboard_service.py
+-----------------------------
+Generate Plotly chart HTML fragments for the orders dashboard.
+
+All functions return an HTML string (Plotly figure without the full HTML page
+boilerplate). These strings are injected directly into the dashboard page
+by frontend JavaScript using innerHTML.
+
+Charts provided:
+  1. weekly_orders_chart  : Bar chart of total orders per week.
+  2. win_rate_chart       : Donut chart of winning vs. losing closed trades.
+  3. profit_loss_chart    : Bar chart of total cumulative P&L.
+  4. top_traded_chart     : Bar chart of the 5 most frequently traded stocks.
+
+P&L Algorithm (FIFO):
+  Matches each SELL order against the oldest matching BUY order for the same
+  stock, calculating the profit/loss per unit using:
+      P&L = (sell_price - avg_buy_price) * matched_quantity
+"""
+
 import plotly.graph_objects as go
 
 from database.order_dao import get_orders_sorted, get_weekly_orders
 from database.stockdao import get_stock_short_name_by_token
 
 
-def weekly_orders_chart(user_id):
 
+def weekly_orders_chart(user_id):
+    """
+    Generate a bar chart showing how many orders were placed each week.
+
+    Args:
+        user_id (int): The user's ID.
+
+    Returns:
+        str: Plotly HTML fragment (no full page wrapper).
+    """
     orders = get_weekly_orders(user_id)
 
-    x = orders.get("week_start", [])
-    y = orders.get("total_orders", [])
+    x = orders.get("week_start", [])   # Week start dates (x-axis)
+    y = orders.get("total_orders", []) # Order counts (y-axis)
 
     fig = go.Figure()
 
@@ -44,9 +74,22 @@ def weekly_orders_chart(user_id):
     return fig.to_html(full_html=False, include_plotlyjs=False)
 
 
+
 def calculate_win_loss(user_id):
-    orders = get_orders_sorted(user_id)
-    buy_queues = {}
+    """
+    Calculate the number of winning and losing closed trades using FIFO matching.
+
+    A 'win' is defined as a SELL where (sell_price > avg_buy_price).
+    A 'loss' is defined as a SELL where (sell_price <= avg_buy_price).
+
+    Args:
+        user_id (int): The user's ID.
+
+    Returns:
+        dict: {"wins": int, "losses": int}
+    """
+    orders = get_orders_sorted(user_id)  # Orders sorted by date ascending (oldest first)
+    buy_queues = {}  # {symbol_token: [{qty, price}, ...]}
     wins = 0
     losses = 0
 
@@ -59,6 +102,7 @@ def calculate_win_loss(user_id):
             continue
 
         if side == "BUY":
+            # Stack buy orders for FIFO matching later
             buy_queues.setdefault(symbol, []).append(
                 {"qty": qty, "price": price})
             continue
@@ -66,9 +110,9 @@ def calculate_win_loss(user_id):
         if side == "SELL":
             q = buy_queues.get(symbol, [])
             if not q:
-                continue
+                continue  # No buy order to match against; skip orphan sell
 
-            lot = q[0]
+            lot = q[0]  # FIFO: always consume the oldest buy lot first
             matched = min(qty, lot["qty"])
             profit = (price - lot["price"]) * matched
 
@@ -77,9 +121,10 @@ def calculate_win_loss(user_id):
             else:
                 losses += 1
 
+            # Reduce the lot quantity by the matched amount
             lot["qty"] -= matched
             if lot["qty"] <= 0:
-                q.pop(0)
+                q.pop(0)  # Lot fully consumed; remove from queue
 
     return {"wins": wins, "losses": losses}
 

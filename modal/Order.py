@@ -1,4 +1,22 @@
+"""
+modal/Order.py
+--------------
+Data model representing a single trade order.
+
+Maps closely to the `orders` table schema. The `to_dict()` method serializes
+the order to a JSON-safe dict for API responses and the order history page.
+
+order_type values:
+  'market' — Full cash order; price fetched at execution time.
+  'mtf'    — Margin trade; user pays 25% upfront.
+
+transaction_type values:
+  'buy' or 'sell'
+"""
+
+
 class Order:
+    """Represents a single simulated trade order."""
     def __init__(
         self,
         order_id: int,
@@ -45,11 +63,18 @@ class Order:
         return self.order_id
 
 
-    # -------- JSON Serializer (IMPORTANT) --------
+
+    # -------- JSON Serializer --------
     def to_dict(self):
+        """
+        Serialize the Order to a JSON-safe dict.
+
+        Note: symbol_token is kept as a string here; callers should map it
+        to a stock name using `get_stock_by_token()` if needed.
+        """
         return {
             "order_id": self.order_id,
-            "symbol": str(self.symbol_token),  # later map token → name
+            "symbol": str(self.symbol_token),  # Map token -> name at the caller level
             "transaction_type": self.transaction_type,
             "price": float(self.price),
             "quantity": int(self.quantity),

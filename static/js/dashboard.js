@@ -1,3 +1,37 @@
+/**
+ * static/js/dashboard.js
+ * ----------------------
+ * JavaScript for the Dashboard page (/login/dashboard).
+ *
+ * Sections:
+ *  1. Socket.IO Live Prices:
+ *       - Listens to "live_prices" events on the shared socket.
+ *       - Updates watchlist card prices (stock tokens) and the top ticker (index tokens).
+ *       - `latestPrices` cache ensures cards built AFTER the socket event still get data.
+ *
+ *  2. Watchlist Cards (buildDashboardWatchlist):
+ *       - Fetches user watchlist from /watchlist/api.
+ *       - Renders one card per stock (skipping INDEX category).
+ *       - Clicking a card navigates to /stocks/<token>.
+ *
+ *  3. Sidebar Investment Totals (updateDashboardSidebarTotals):
+ *       - Fetches /holding/order to get portfolio holdings.
+ *       - Computes: Current Value, Invested, Total Returns, 1D Returns.
+ *       - Applies "text-up"/"text-down" color classes for P&L indicators.
+ *
+ *  4. Chart Loading (loadChart):
+ *       - Called when the user clicks an Analytics button in the right sidebar.
+ *       - Fetches the selected Plotly chart as HTML from the backend.
+ *       - Injects HTML into #chartContainer and re-executes embedded <script> tags,
+ *         because innerHTML does NOT run scripts automatically.
+ *       - Chart types: 'weekly', 'win', 'pl', 'top'.
+ *
+ *  5. Chart Alignment (alignDashboardChartCard):
+ *       - Desktop-only: offsets the chart area so it visually aligns with
+ *         the Analytics card in the right sidebar.
+ *       - Recalculated on resize and after data loads.
+ */
+
 const socket = io();
 // Dashboard live prices (Socket.IO event: "live_prices")
 // Backend payload shape: { stocks: { [token]: {ltp, change, percent_change}}, index: {...} }
@@ -261,7 +295,7 @@ function alignDashboardChartCard() {
   const currentTop = chartCard.getBoundingClientRect().top;
   const delta = Math.round(targetTop - currentTop);
 
-  chartCard.style.marginTop = delta > 0 ? `${delta+30}px` : "0px";
+  chartCard.style.marginTop = delta > 0 ? `${delta + 30}px` : "0px";
 }
 
 // --- Holdings Page: Live Price Update (if needed) ---

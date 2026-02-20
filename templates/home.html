@@ -21,8 +21,40 @@
         <span class="fw-bold" id="Stockxsim">Stocxsim</span>
       </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto nav_ul gap-4">
+            <li class="nav-item nav_list">
+              <a class="nav-link nav_list_link" href="#">Home</a>
+            </li>
+            <li class="nav-item nav_list">
+              <a class="nav-link nav_list_link" href="#about">About Us</a>
+            </li>
+            <li class="nav-item nav_list">
+              <a class="nav-link nav_list_link" href="#demo">Demo</a>
+            </li>
+            <li class="nav-item nav_list">
+              <a class="nav-link nav_list_link" href="#contact">Contact</a>
+            </li>
+            <li class="nav-item nav_signup">
+              <a
+                class="btn text-white"
+                href="#"
+                data-bs-toggle="modal"
+                data-bs-target="#loginModal"
+                >Login/Sign up</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="main_screen">
+      <h1>Trade Without Fear.</h1>
+      <h2>Learn. Trade. Grow.</h2>
+      <button data-bs-toggle="modal" data-bs-target="#loginModal">
+        Get Started
       </button>
 
       <div class="collapse navbar-collapse" id="navbarNav">
@@ -62,30 +94,54 @@
     </div>
   </div>
 
-  <!-- About Us Section -->
-  <section class="about_section" id="about">
-    <div class="container">
-      <div class="row g-3 align-items-center">
-        <div class="col-lg-7">
-          <span class="badge border border-success-subtle rounded-pill px-3 py-2 mb-3 section-heading">
-            Our Mission
-          </span>
-          <h2 class="display-6 fw-bold mb-3">
-            Learning Before <span class="Earning">Earning.</span>
-          </h2>
-          <p class="text-secondary mb-4">
-            At Stocxsim, we are driven by a single mission: to democratize
-            financial literacy in India. We believe the stock market shouldn't
-            be a place where beginners pay a heavy price just to learn the
-            basics.
-          </p>
-          <p class="text-secondary mb-4">
-            We have built a <strong>safe bridge</strong> between theory and
-            reality. Stocxsim is not just a simulator; it is a playground
-            designed to build your confidence, helping you transition from a
-            curious beginner to a calculated trader without risking your
-            hard-earned savings.
-          </p>
+    <!-- Demo Section -->
+    <section class="demo-section" id="demo">
+      <div class="container">
+
+        <!-- Section heading -->
+        <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-7">
+            <span class="badge border border-success-subtle rounded-pill px-3 py-2 mb-3 section-heading">
+              Platform Demo
+            </span>
+            <h2 class="display-6 fw-bold mb-3 section-heading">See How It Works</h2>
+            <p class="text-muted">
+              Watch how Stocxsim brings real market data to your fingertips —
+              place trades, track holdings, and analyse your performance,
+              all without risking a single rupee.
+            </p>
+          </div>
+        </div>
+
+        <!-- Video player -->
+        <div class="row justify-content-center">
+          <div class="col-lg-10 col-12">
+            <div class="demo-video-wrapper">
+              <video
+                class="demo-video"
+                controls
+                preload="metadata"
+                poster=""
+              >
+                <source src="/static/resources/Video Project.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <section class="py-5">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-6">
+            <div class="p-4 bg-white rounded-4 border feature-card">
+              <h3 class="fw-bold mb-4 text-center section-heading">
+                Why Choose Stocxsim?
+              </h3>
 
           <div class="d-flex align-items-center mt-4">
             <div class="ps-3 border-start border-3 border-success">
@@ -102,20 +158,88 @@
     </div>
   </section>
 
-  <!-- Why Us? -->
-  <section class="py-5">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-6">
-          <div class="p-4 bg-white rounded-4 border feature-card">
-            <h3 class="fw-bold mb-4 text-center section-heading">Why Choose Stocxsim?</h3>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 overflow-hidden position-relative">
+          <button
+            id="loginModalClose"
+            class="btn-close position-absolute top-0 end-0 m-3"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
 
-            <div class="d-flex mb-4">
-              <div class="flex-shrink-0">
-                <div
-                  class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center"
-                  style="width: 50px; height: 50px">
-                  <i class="bi bi-graph-up-arrow fs-4"></i>
+          <div class="row g-0">
+            <div class="col-md-5 left-panel">
+              <svg class="bg-lines" viewBox="0 0 500 500">
+                <path d="M0,300 C120,400 280,240 500,40" />
+                <path d="M0,200 C50,100 300,260 540,200" />
+              </svg>
+              <h2 class="fw-bold modal-heading">
+                Master the
+                <span class="text-primary-brand">Stock Markets.</span>
+              </h2>
+
+              <p class="mt-3 text-muted mb-5">
+                Experience real-time trading simulation with zero risk.
+              </p>
+
+              <div class="stat-card">
+                <small class="text-muted fw-semibold">SIMULATED PORTFOLIO</small>
+                <h4 class="mt-1 section-heading">+12.4%</h4>
+                <div class="progress mt-2">
+                  <div class="progress-bar"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-7 px-5 py-5">
+              <h4 class="fw-bold modal-heading text-center">Welcome to Stocxsim</h4>
+
+              <!-- ========= DIV 1 — LOGIN ========= -->
+              <div id="div-1">
+                <div class="form-floating mt-5">
+                  <input
+                    type="email"
+                    class="form-control form-input-underline mt-4"
+                    placeholder="Email"
+                    id="Email"
+                    required
+                  />
+                  <label for="Email" class="fw-bold form-label">Your Email Address</label>
+                </div>
+
+                <div id="login-error" class="text-danger small mt-2 d-none"></div>
+
+                <div class="form-floating mt-4 d-none" id="passwordbox">
+                  <input
+                    type="password"
+                    class="form-control form-input-underline"
+                    id="password"
+                    placeholder="Password"
+                    required
+                  />
+                  <label for="password" class="fw-bold form-label">Enter Password</label>
+                </div>
+
+                <div id="forgot-password-link" class="d-none">
+                  <a
+                    href="#"
+                    class="d-block text-center mt-3"
+                    id="toggle-link"
+                    onclick="forgot(); return false;"
+                    >Forgot Password?</a
+                  >
+                </div>
+
+                <div class="text-center mt-5 mb-5">
+                  <button
+                    class="btn btn-lg btn-primary-lg"
+                    type="button"
+                    onclick="f1()"
+                  >
+                    Continue
+                  </button>
                 </div>
               </div>
               <div class="ms-3">
@@ -127,12 +251,59 @@
               </div>
             </div>
 
-            <div class="d-flex mb-4">
-              <div class="flex-shrink-0">
-                <div
-                  class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center"
-                  style="width: 50px; height: 50px">
-                  <i class="bi bi-shield-check fs-4"></i>
+              <!-- ========= DIV 2 — SIGNUP ========= -->
+              <div id="div-2" class="d-none">
+                <div class="form-floating mt-4">
+                  <input
+                    type="email"
+                    class="form-control form-input-underline mt-4"
+                    id="Email_readonly_signup"
+                    readonly
+                  />
+                  <label for="Email" class="fw-bold form-label">Your Email Address</label>
+                </div>
+
+                <div class="form-floating mt-3">
+                  <input
+                    type="text"
+                    class="form-control form-input-underline"
+                    id="username"
+                    placeholder="Username"
+                    required
+                  />
+                  <label for="username" class="fw-bold form-label">Username</label>
+                </div>
+
+                <div class="form-floating mt-3">
+                  <input
+                    type="password"
+                    class="form-control form-input-underline"
+                    id="password1"
+                    placeholder="Password"
+                    required
+                  />
+                  <label for="password1" class="fw-bold form-label">Password</label>
+                </div>
+
+                <div class="form-floating mt-3">
+                  <input
+                    type="password"
+                    class="form-control form-input-underline"
+                    id="password2"
+                    placeholder="Confirm Password"
+                    required
+                  />
+                  <label for="password2" class="fw-bold form-label">Confirm Password</label>
+                </div>
+
+                <div class="text-center mt-4 mb-3">
+                  <button
+                    class="btn btn-lg btn-primary-lg"
+                    type="button"
+                    onclick="step2()"
+                  >
+                    Continue
+                  </button>
                 </div>
               </div>
               <div class="ms-3">
@@ -161,189 +332,132 @@
               </div>
             </div>
 
-            <div class="d-flex">
-              <div class="flex-shrink-0">
-                <div class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center"
-                  style="width: 50px; height: 50px">
-                  <i class="bi bi-people fs-4"></i>
+              <!-- ========= DIV 4 — FORGOT PASSWORD ========= -->
+              <div id="div-4" class="d-none">
+                <div class="form-floating mt-4">
+                  <input
+                    type="email"
+                    class="form-control form-input-underline mt-4"
+                    id="Email_readonly_forgot"
+                    readonly
+                  />
+                  <label for="Email" class="fw-bold form-label">Your Email Address</label>
+                </div>
+
+                <div class="form-floating mt-3">
+                  <input
+                    type="password"
+                    class="form-control form-input-underline"
+                    id="forgot_password1"
+                    placeholder="New Password"
+                    required
+                  />
+                  <label for="forgot_password1" class="fw-bold form-label">New Password</label>
+                </div>
+
+                <div class="form-floating mt-3">
+                  <input
+                    type="password"
+                    class="form-control form-input-underline"
+                    id="forgot_password2"
+                    placeholder="Confirm New Password"
+                    required
+                  />
+                  <label for="forgot_password2" class="fw-bold form-label">Confirm New Password</label>
+                </div>
+
+                <div class="text-center mt-5 mb-4">
+                  <button
+                    class="btn btn-lg btn-primary-lg"
+                    type="button"
+                    onclick="step4()"
+                  >
+                    Send OTP
+                  </button>
                 </div>
               </div>
-              <div class="ms-3">
-                <h5 class="fw-bold mb-1 section-heading">Built for Growth</h5>
-                <p class="text-muted mb-0">
-                  Whether you are taking your first trade or refining an advanced
-                  setup, our platform adapts to you.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Contact Us Section -->
-  <section class="py-5 contact_section" id="contact">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <div class="text-center mb-4">
-            <h2 class="display-6 fw-bold section-heading">
-              Contact Us
-            </h2>
-            <p class="text-muted">
-              For support, feedback, or general inquiries, feel free to reach
-              out to our team:
-            </p>
-          </div>
-
-          <div class="p-4 rounded-4 shadow-sm bg-white border">
-            <div class="mb-3">
-              <h5 class="fw-semibold mb-1 section-heading">Official Email</h5>
-              <p class="mb-0">
-                <a href="mailto:stocxsim@gmail.com" class="mails">stocxsim@gmail.com</a>
+              <p class="small mb-1 text-muted">
+                By proceeding, I agree to
+                <a href="/terms" onclick="return openLegalModal(event, 'terms')">T&amp;C</a>,
+                <a href="/privacy" onclick="return openLegalModal(event, 'privacy')">Privacy Policy</a>
+                &amp;
+                <a href="/tariff" onclick="return openLegalModal(event, 'tariff')">Tariff Rates</a>.
               </p>
             </div>
-
-            <hr />
-
-            <div class="mb-2">
-              <h5 class="fw-semibold mb-2 section-heading">Team Emails</h5>
-
-              <ul class="list-unstyled m-0">
-                <li>
-                  <strong class="section-heading">Ansh — </strong>
-                  <a href="mailto:anshpatoliya1408@gmail.com" class="mails">anshpatoliya1408@gmail.com</a>
-                </li>
-                <li>
-                  <strong class="section-heading">Parth — </strong>
-                  <a href="mailto:parthborad07@gmail.com" class="mails">parthborad07@gmail.com</a>
-                </li>
-                <li>
-                  <strong class="section-heading">Dharmil — </strong>
-                  <a href="mailto:dharmilpanchal2031@gmail.com" class="mails">dharmilpanchal2031@gmail.com</a>
-                </li>
-              </ul>
-            </div>
-
-            <p class="text-muted mt-3 mb-0">
-              We usually reply within 24-48 hours.
-            </p>
           </div>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- Login Modal -->
-  <div class="modal fade" id="loginModal">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content rounded-4 overflow-hidden position-relative">
-        <button class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"
-          aria-label="Close"></button>
-        <div class="row g-0">
-          <div class="col-md-5 left-panel">
-            <svg class="bg-lines" viewBox="0 0 500 500">
-              <path d="M0,300 C120,400 280,240 500,40" />
-              <path d="M0,200 C50,100 300,260 540,200" />
-            </svg>
-            <h2 class="fw-bold modal-heading ms-4">
-              Master the <span class="text-primary-brand">Stock Markets.</span>
-            </h2>
-
-            <p class="mt-3 text-muted ms-4 mb-5">
-              Experience real-time trading simulation with zero risk.
-            </p>
-
-            <div class="stat-card">
-              <small class="text-muted fw-semibold">SIMULATED PORTFOLIO</small>
-              <h4 class="mt-1 section-heading">+12.4%</h4>
-              <div class="progress mt-2">
-                <div class="progress-bar"></div>
-              </div>
-            </div>
+    <!-- Legal Modal (Terms / Privacy / Tariff) -->
+    <div class="modal fade" id="legalModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content rounded-4 overflow-hidden">
+          <div class="modal-header">
+            <h5 class="modal-title" id="legalModalTitle">Legal</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
-
-          <div class="col-md-7 px-5 py-5">
-            <h4 class="fw-bold modal-heading text-center">
-              Welcome to Stocxsim
-            </h4>
-
-            <!-- ========= DIV 1 — LOGIN ========= -->
-            <div id="div-1">
-              <div class="form-floating mt-5">
-                <input type="email" class="form-control form-input-underline mt-4" placeholder="Email" id="Email" required />
-                <label for="Email" class="fw-bold form-label">
-                  Your Email Address</label>
-              </div>
-              <div id="login-error" class="text-danger small mt-2 d-none"></div>
-              <div class="form-floating mt-4 d-none" id="passwordbox">
-                <input type="password" class="form-control form-input-underline" id="password" placeholder="Password" required />
-                <label for="password" class="fw-bold form-label">
-                  Enter Password
-                </label>
-              </div>
-
-              <div class="text-center mt-5 mb-5">
-                <button class="btn btn-lg btn-primary-lg" type="button" onclick="f1()">
-                  Continue
-                </button>
-              </div>
-            </div>
-
-            <!-- ========= DIV 2 — SIGNUP ========= -->
-            <div id="div-2" class="d-none">
-              <div class="form-floating mt-4">
-                <input type="email" class="form-control form-input-underline mt-4" id="Email_readonly" readonly />
-                <label for="Email" class="fw-bold form-label">
-                  Your Email Address</label>
-              </div>
-              <div class="form-floating mt-3">
-                <input type="text" class="form-control form-input-underline" id="username" placeholder="Username" required />
-                <label for="username" class="fw-bold form-label">Username</label>
-              </div>
-
-              <div class="form-floating mt-3">
-                <input type="password" class="form-control form-input-underline" id="password1" placeholder="Password" required />
-                <label for="password1" class="fw-bold form-label">Password</label>
-              </div>
-
-              <div class="form-floating mt-3">
-                <input type="password" class="form-control form-input-underline" id="password2" placeholder="Confirm Password" required />
-                <label for="password2" class="fw-bold form-label">Confirm Password</label>
-              </div>
-
-              <div class="text-center mt-4 mb-3">
-                <button class="btn btn-lg btn-primary-lg" type="button" onclick="step2()">
-                  Continue
-                </button>
-              </div>
-            </div>
-
-            <!-- ========= DIV 3 — OTP ========= -->
-            <div id="div-3" class="d-none">
-              <div class="form-floating mt-4">
-                <input type="text" class="form-control form-input-underline" id="otp" placeholder="Enter OTP" required />
-                <label for="otp" class="fw-bold form-label">Enter OTP</label>
-              </div>
-
-              <div class="text-center mt-5 mb-4">
-                <button class="btn btn-lg btn-primary-lg" type="button" onclick="step3()">
-                  Continue
-                </button>
-              </div>
-            </div>
-            <p class="small mb-1">
-              By proceeding, I agree to <a href="/terms">T&amp;C</a>,
-              <a href="/privacy">Privacy Policy</a> &amp;
-              <a href="/tariff">Tariff Rates</a>.
-            </p>
+          <div class="modal-body" id="legalModalBody"></div>
+          <div class="modal-footer">
+            
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+              Back
+            </button>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div id="orderBanner" class="order-banner"></div>
+
+    <!-- Legal content templates used by the modal -->
+    <template id="legal-template-terms">
+      <h4 class="mb-3">Terms &amp; Conditions</h4>
+      <p class="text-muted">
+        Stocxsim is a stock trading simulator built for education and practice.
+        No real-money trading happens on this platform.
+      </p>
+      <p class="mb-2">By using Stocxsim, you agree that you will:</p>
+      <ul class="mb-3">
+        <li>Use the platform only for learning and simulation purposes</li>
+        <li>Not attempt to exploit, abuse, or disrupt the service</li>
+        <li>Provide accurate account information</li>
+      </ul>
+      <p class="mb-0">These terms may be updated from time to time.</p>
+    </template>
+
+    <template id="legal-template-privacy">
+      <h4 class="mb-3">Privacy Policy</h4>
+      <p class="text-muted">
+        We collect only what we need to create your account and run the trading
+        simulator.
+      </p>
+      <ul class="mb-3">
+        <li>Email address and username (for account access)</li>
+        <li>Simulation activity (orders, holdings, and transaction history)</li>
+      </ul>
+      <p class="mb-0">
+        Questions? Contact:
+        <a href="mailto:stocxsim@gmail.com">stocxsim@gmail.com</a>
+      </p>
+    </template>
+
+    <template id="legal-template-tariff">
+      <h4 class="mb-3">Tariff Rates</h4>
+      <p class="text-muted">Stocxsim is currently free to use.</p>
+      <ul class="mb-3">
+        <li>Account creation: Free</li>
+        <li>Paper trading: Free</li>
+        <li>Portfolio tracking: Free</li>
+        <li>Market data access: Free</li>
+      </ul>
+      <p class="mb-0">No hidden charges.</p>
+    </template>
+    <div id="orderBanner" class="order-banner"></div>
 
   <!-- LOGIN SPINNER -->
   <div id="login-spinner" class="spinner-overlay d-none">

@@ -1,6 +1,13 @@
 /* home.css — consumes tokens.css variables */
 
-*, *::before, *::after {
+html {
+  scroll-behavior: smooth;
+  /* Enables smooth anchor scrolling (navbar links) */
+}
+
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -241,9 +248,17 @@ body {
 }
 
 @keyframes moveline {
-  0% { width: 0%; }
-  50% { width: 70%; }
-  100% { width: 0%; }
+  0% {
+    width: 0%;
+  }
+
+  50% {
+    width: 70%;
+  }
+
+  100% {
+    width: 0%;
+  }
 }
 
 /* =======================
@@ -315,7 +330,7 @@ body {
   max-width: 520px;
   padding: 14px 16px;
   border-radius: 12px;
-  box-shadow: 0 10px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -325,7 +340,8 @@ body {
 }
 
 .order-banner.show {
-  display: flex;           /* 👈 SHOW ONLY WHEN NEEDED */
+  display: flex;
+  /* 👈 SHOW ONLY WHEN NEEDED */
   opacity: 1;
   transform: translate(-50%, 30px);
 }
@@ -354,6 +370,7 @@ body {
 .order-banner.error .order-banner-icon {
   color: #e74c3c;
 }
+
 .order-banner.warning .order-banner-icon {
   color: #dcce53;
 }
@@ -375,3 +392,43 @@ body {
   margin-left: auto;
 }
 
+/* =======================
+   DEMO SECTION
+======================= */
+.demo-section {
+  padding: 80px 0 60px;
+  background-color: var(--color-bg-page);
+  border-top: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+/* Container for the video — gives it the card-like look */
+.demo-video-wrapper {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: #000;
+  /* Black letterbox while video loads */
+  border: 1px solid var(--color-border);
+  /* Subtle glow around the video to make it pop */
+  filter: drop-shadow(0 8px 30px rgba(4, 180, 136, 0.12));
+}
+
+/* The <video> element fills its wrapper on all screen sizes */
+.demo-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 600px;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .demo-section {
+    padding: 50px 0 40px;
+  }
+
+  .demo-video {
+    max-height: 280px;
+  }
+}
