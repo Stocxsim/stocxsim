@@ -1,3 +1,18 @@
+"""
+routes/watchlist_route.py
+--------------------------
+HTTP endpoints that power the Watchlist feature's DATA API.
+
+IMPORTANT DISTINCTION:
+  This blueprint (/watchlist) provides JSON data endpoints called by JavaScript.
+  The HTML page rendering for the watchlist is handled by user_routes.py (/login/watchlist).
+
+Blueprint prefix: /watchlist
+  GET  /watchlist/api                     → Get all watchlisted stocks with names.
+  POST /watchlist/toggle/<stock_token>    → Add or remove a stock from watchlist.
+  GET  /watchlist/status/<stock_token>    → Check if a stock is watchlisted.
+"""
+
 from flask import Blueprint, jsonify, session
 from service.watchlist_service import toggle_watchlist, is_in_watchlist
 from service.stockservice import get_stock_detail_service
@@ -7,13 +22,21 @@ from utils.tokens import INDEX_TOKENS
 
 watchlist_bp = Blueprint("watchlist", __name__)
 
-# NOTE: This is for data fetching for the watchlist page, not for rendering the page
-# this is stocks/watchlist not login/watchlist
-# this is just for the backend api for the javascript to call and get the watchlist data
 
-
+# NOTE: This is the data API for the watchlist page (JavaScript calls this).
+# Distinct from /login/watchlist which renders the HTML page itself.
 @watchlist_bp.route("/api")
 def api_watchlist():
+    """
+    Return the current user's watchlist as a JSON array.
+
+    Each entry contains: token, stock name, and category.
+    Index tokens (NIFTY, SENSEX) are skipped; they live in the top ticker,
+    not the watchlist. Any index tokens found are cleaned up from the DB.
+
+    Returns:
+      JSON: [list of {token, name, category}] or [] if not logged in.
+    """
     user_id = session.get("user_id")
     if not user_id:
         return jsonify([])
@@ -39,14 +62,19 @@ def api_watchlist():
             "category": category
         })
 
-
     return jsonify(result)
 
 
-# Toggle watchlist status for a stock
+
+# Toggle watchlist status for a stock (add if not in, remove if already in)
 @watchlist_bp.route("/toggle/<int:stock_token>", methods=["POST"])
 def toggle(stock_token):
+    """
+    Add a stock to the watchlist if not present, otherwise remove it.
 
+    Returns:
+      JSON: {"watchlisted": True|False}
+    """
     user_id = session.get("user_id")
 
     if not user_id:
@@ -55,9 +83,16 @@ def toggle(stock_token):
     return jsonify({"watchlisted": status})
 
 
-# To check watchlist status for a stock
+
+# Check if a specific stock is currently watchlisted by the user.
 @watchlist_bp.route("/status/<int:stock_token>")
 def status(stock_token):
+    """
+    Returns whether the given stock is in the current user's watchlist.
+
+    Returns:
+      JSON: {"watchlisted": True|False}
+    """
     user_id = session.get("user_id")
     if not user_id:
         return jsonify({"watchlisted": False})

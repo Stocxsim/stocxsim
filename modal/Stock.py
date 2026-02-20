@@ -1,5 +1,25 @@
+"""
+modal/Stock.py
+--------------
+Data model representing a stock instrument with optional technical indicators.
+
+The Stock object is built from data queried from the `stocks` table and
+enriched with RSI/EMA values computed by the stockservice.
+"""
+
+
 class Stock:
-    def __init__(self, stock_token: int, stock_name: str, rsi: float = None,ema_9: float = None, ema_20: float = None):
+    """
+    Represents a stock's identity and optionally its technical indicator values.
+
+    Attributes:
+        stock_token (int)   : Angel One instrument token (unique identifier).
+        stock_name  (str)   : Human-readable name (e.g., "RELIANCE").
+        rsi         (float) : 14-period RSI; None if not yet calculated.
+        ema_9       (float) : 9-period EMA;  None if not yet calculated.
+        ema_20      (float) : 20-period EMA; None if not yet calculated.
+    """
+    def __init__(self, stock_token: int, stock_name: str, rsi: float = None, ema_9: float = None, ema_20: float = None):
         self.stock_token = stock_token
         self.stock_name = stock_name
         self.rsi = rsi
