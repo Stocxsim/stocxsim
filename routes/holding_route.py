@@ -40,7 +40,6 @@ def get_user_holdings():
             return jsonify({"error": "User not logged in"}), 401
 
         holdings = get_holdings_by_user(user_id)
-        print(holdings)
         tokens = []
 
         # Register each held stock token so the live-data layer tracks it.

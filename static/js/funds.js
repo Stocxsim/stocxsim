@@ -113,8 +113,6 @@ document.addEventListener('DOMContentLoaded', refreshBalance);
 
 
 
-
-
 // Breakdown for charges on SELL (indicator-modal style)
 function showBreakdown(amount, type) {
   const data = calculateDelayedCharges(amount);

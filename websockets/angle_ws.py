@@ -76,7 +76,6 @@ def subscribe_user_watchlist(user_id, tokens):
     if ws is None:
         print("❌ WS not connected yet")
         return
-    print(f"🔔 Subscribing user {user_id} watchlist:", tokens)
 
     for token in tokens:
         if token is None:
@@ -129,7 +128,6 @@ def subscribe_many(ws, mode: int, exchange_type: int, tokens):
     if not tokens:
         return
     token_list = [{"exchangeType": int(exchange_type), "tokens": [str(t) for t in tokens]}]
-    print("👉 Sending subscribe:", token_list)
     ws.subscribe("stockxsim", int(mode), token_list)
 
     for t in tokens:
@@ -138,7 +136,6 @@ def subscribe_many(ws, mode: int, exchange_type: int, tokens):
 
 def subscribe(ws, exchange_type, token, mode: int = 1):
     if token in subscribed_tokens:
-        print(f"⚠️ Already subscribed {token}")
         return
 
     token_list = [
@@ -148,12 +145,10 @@ def subscribe(ws, exchange_type, token, mode: int = 1):
         }
     ]
 
-    print("👉 Sending subscribe:", token_list)
     # SmartWebSocketV2 signature: subscribe(correlation_id, mode, token_list)
     ws.subscribe("stockxsim", int(mode), token_list)
 
     subscribed_tokens.add(token)
-    print(f"✅ Subscribed to {token}")
 
 
 def unsubscribe(ws, exchange_type, token, mode: int = 1):
@@ -170,7 +165,6 @@ def unsubscribe(ws, exchange_type, token, mode: int = 1):
         }
     ]
 
-    print("👈 Sending unsubscribe:", token_list)
     ws.unsubscribe("stockxsim", int(mode), token_list)
 
     subscribed_tokens.remove(token)

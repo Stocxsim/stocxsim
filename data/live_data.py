@@ -85,7 +85,6 @@ def load_baseline_data():
 def register_equity_token(token: str):
     if token not in EQUITY_TOKENS:
         EQUITY_TOKENS.append(token)
-    print("EQUITY_TOKENS:", EQUITY_TOKENS)
 
 
 def ensure_baseline_data(tokens: Iterable[str]) -> None:
