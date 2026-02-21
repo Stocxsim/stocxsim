@@ -42,7 +42,13 @@ function setOrdersLoading(isLoading, message = "Loading orders…") {
                <div class="loading-spinner"></div>
                <span>${message}</span>
           </div>`;
-     }
+     } else {
+        if (message !== "Loading orders…") {
+            container.innerHTML = `<div class="orders-error-msg">${message}</div>`;
+        } else {
+            container.innerHTML = ""; 
+        }
+    }
 }
 
 function fetchOrders() {
@@ -59,6 +65,7 @@ function fetchOrders() {
      })
           .then(res => res.json())
           .then(data => {
+               setOrdersLoading(false);
                buildOrdersList(data.orders);
           })
           .catch(err => {

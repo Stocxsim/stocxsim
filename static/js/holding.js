@@ -1,66 +1,3 @@
-// Select tab functionality
-function selectTab(element) {
-     const allTabs = document.querySelectorAll('.tab-item');
-     allTabs.forEach(tab => {
-          tab.classList.remove('active');
-     });
-
-     element.classList.add('active');
-}
-
-// Profile dropdown toggle
-function toggleProfile() {
-     document.getElementById("profileDropdown").classList.toggle("show");
-}
-
-// stock search
-const input = document.getElementById("searchInput");
-const resultsBox = document.getElementById("searchResults");
-
-if (input) {
-     input.addEventListener("input", async function () {
-          const query = this.value.trim();
-          resultsBox.innerHTML = "";
-
-          if (!query) {
-               resultsBox.style.display = "none";
-               return;
-          }
-
-          try {
-               const res = await fetch(`/stocks/search?q=${query}`);
-               const stocks = await res.json();
-
-               if (stocks.length === 0) {
-                    resultsBox.innerHTML =
-                         `<div class="search-item disabled">No stocks found</div>`;
-                    resultsBox.style.display = "block";
-                    return;
-               }
-
-               stocks.forEach(stock => {
-                    const div = document.createElement("div");
-                    div.className = "search-item";
-                    div.textContent = `${stock.name}`;
-
-                    div.onclick = () => {
-                         resultsBox.style.display = "none";
-                         input.value = "";
-                         window.location.href = `/stocks/${stock.token}`;
-                    };
-
-                    resultsBox.appendChild(div);
-               });
-
-               resultsBox.style.display = "block";
-
-          } catch (err) {
-               console.error("Search error:", err);
-               resultsBox.style.display = "none";
-          }
-     });
-}
-
 const formatCurrency = (val) => `₹${Number(val || 0).toFixed(2)}`;
 
 // holding auto load
@@ -83,7 +20,7 @@ function setupHoldingRowNavigation() {
 
           const stockToken = row.dataset.stockToken;
           if (!stockToken) return;
-          window.location.href = `/stocks/${encodeURIComponent(stockToken)}`;
+          window.location.href = `/stocks/${(stockToken)}`;
      });
 
      container.addEventListener("keydown", (e) => {
@@ -93,7 +30,7 @@ function setupHoldingRowNavigation() {
           const stockToken = row.dataset.stockToken;
           if (!stockToken) return;
           e.preventDefault();
-          window.location.href = `/stocks/${encodeURIComponent(stockToken)}`;
+          window.location.href = `/stocks/${(stockToken)}`;
      });
 }
 
@@ -106,6 +43,8 @@ function setHoldingsLoading(isLoading, message = "Loading holdings…") {
                <div class="loading-spinner"></div>
                <span>${message}</span>
           </div>`;
+     } else{
+          container.innerHTML = "";
      }
 }
 
@@ -304,10 +243,14 @@ function loadUserHoldings(retry = 0) {
                          setHoldingsLoading(true, "Unable to load holdings");
                          setTimeout(() => loadUserHoldings(retry + 1), 300);
                     }
+
+                    setHoldingsLoading(false);
+                    renderHoldings({});
                     return;
                }
 
                holdingsData = data.holdings;
+               setHoldingsLoading(false);
 
                // ✅ Holdings page
                if (document.getElementById("holding-body")) {
@@ -340,7 +283,8 @@ function loadUserHoldings(retry = 0) {
           })
           .catch(err => {
                console.error("Holdings error:", err);
-               setHoldingsLoading(true, "Unable to load holdings");
+               setHoldingsLoading(false); 
+               setHoldingsLoading(true, "Error loading holdings. Please refresh.");
           });
 }
 
